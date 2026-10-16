@@ -1,0 +1,200 @@
+import json
+import re
+import shutil
+import time
+import uuid
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse
+
+from . import aoi, config, exports, search, statedata
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Drops expired state tables (and leftovers of an interrupted load) now and every minute after.
+    statedata.start_sweeper()
+    yield
+
+
+app = FastAPI(title="Cadastral Parcel Finder", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+_RESULT_ID = re.compile(r"^[0-9a-f]{32}$")
+
+
+def _result_dir(result_id: str) -> Path:
+    # result_id comes straight from the URL, so it must not be able to climb out
+    # of RESULTS_DIR.
+    if not _RESULT_ID.match(result_id):
+        raise HTTPException(404, "No such result")
+    path = config.RESULTS_DIR / result_id
+    if not path.is_dir():
+        raise HTTPException(404, "No such result (it may have expired).")
+    return path
+
+
+def _purge_old_results() -> None:
+    cutoff = time.time() - config.RESULT_TTL_HOURS * 3600
+    if not config.RESULTS_DIR.exists():
+        return
+    for d in config.RESULTS_DIR.iterdir():
+        if d.is_dir() and d.stat().st_mtime < cutoff:
+            shutil.rmtree(d, ignore_errors=True)
+
+
+@app.get("/api/health")
+def health():
+    loaded = statedata.registry()  # raises when the database is unreachable
+    return {"ok": True, "loaded_states": len(loaded)}
+
+
+@app.get("/api/states")
+def get_states():
+    """Every state with parcel files on the mount, whether its parcels are in the database now, and the
+    limits that govern loading."""
+    registry = {e["state"]: e for e in statedata.registry()}
+    states = []
+    for folder, info in statedata.state_folders().items():
+        entry = registry.get(folder)
+        states.append(
+            {
+                "state": folder,
+                "files": len(info["files"]),
+                "parquet_bytes": info["bytes"],
+                "est_bytes": int(info["bytes"] * config.DB_SIZE_RATIO),
+                "status": entry["status"] if entry else "not_loaded",
+            }
+        )
+    return {
+        "states": states,
+        "max_features": config.MAX_FEATURES,
+        "ttl_seconds": config.STATE_TTL_SECONDS,
+        "budget_bytes": int(config.STORAGE_BUDGET_GB * 1e9),
+    }
+
+
+@app.get("/api/state-tables")
+def get_state_tables():
+    """The states whose parcels are in the database (or being loaded) with size and time until they are dropped."""
+    tables = statedata.registry()
+    return {
+        "tables": tables,
+        "ttl_seconds": config.STATE_TTL_SECONDS,
+        "budget_bytes": int(config.STORAGE_BUDGET_GB * 1e9),
+        "in_use_bytes": statedata.storage_in_use(),
+    }
+
+
+@app.delete("/api/state-tables/{state}")
+def drop_state_table(state: str):
+    """Drop one state's whole parcel table (the dashboard's clear button)."""
+    return statedata.drop_state(state)
+
+
+@app.delete("/api/state-tables")
+def drop_all_state_tables():
+    """Drop every loaded state table that no running search is using."""
+    return statedata.drop_all()
+
+
+@app.post("/api/query")
+def start_query(
+    files: list[UploadFile] = File(...),
+    mode: str = Form("intersects"),
+    states: str = Form(""),
+    strip: bool = Form(True),
+):
+    """Starts a search and returns a job id; the dashboard polls /api/jobs/{id}. The upload is read here, so a
+    wrong file type is reported immediately; everything else (finding the states, loading their parcel data
+    if it is not in the database yet, querying) happens in the background."""
+    if mode not in config.QUERY_MODES:
+        raise HTTPException(400, f"mode must be one of {config.QUERY_MODES}")
+    restrict = [s.strip() for s in states.split(",") if s.strip()]
+
+    _purge_old_results()
+    result_dir = config.RESULTS_DIR / uuid.uuid4().hex
+    upload_dir = result_dir / "upload"
+    upload_dir.mkdir(parents=True)
+    try:
+        aoi.save_upload_parts([(f.filename, f.file) for f in files], upload_dir)
+    except Exception:
+        shutil.rmtree(result_dir, ignore_errors=True)
+        raise
+
+    job = search.create_job()
+    search.start(job, upload_dir, result_dir, mode, restrict, strip)
+    return {"job_id": job["id"]}
+
+
+@app.get("/api/jobs/{job_id}")
+def get_job(job_id: str):
+    job = search.get_job(job_id)
+    if job is None:
+        raise HTTPException(404, "No such search (the server may have been restarted).")
+    return search.public(job)
+
+
+@app.get("/api/results/{result_id}")
+def get_result(result_id: str):
+    return json.loads((_result_dir(result_id) / "meta.json").read_text(encoding="utf-8"))
+
+
+@app.get("/api/results/{result_id}/features")
+def result_features(result_id: str, clipped: bool = False, layer: str = "parcels"):
+    """The matched parcels (full geometry), or with clipped=true only the part of each inside the area.
+    layer=villages gives the village boundaries instead."""
+    if layer not in ("parcels", "villages"):
+        raise HTTPException(400, "layer must be 'parcels' or 'villages'")
+    name = ("villages_clipped" if clipped else "villages") if layer == "villages" else ("clipped" if clipped else "result")
+    path = _result_dir(result_id) / f"{name}.geojson"
+    if not path.exists():
+        raise HTTPException(404, "No such result (it may have expired).")
+    return FileResponse(path, media_type="application/geo+json")
+
+
+@app.get("/api/results/{result_id}/download")
+def download_result(
+    result_id: str,
+    format: str = "geojson",
+    source: str | None = None,
+    split: bool = False,
+    clipped: bool = False,
+    layer: str = "parcels",
+):
+    result_dir = _result_dir(result_id)
+    meta = json.loads((result_dir / "meta.json").read_text(encoding="utf-8"))
+    if layer not in ("parcels", "villages"):
+        raise HTTPException(400, "layer must be 'parcels' or 'villages'")
+    if layer == "villages":
+        if format == "table" or source or split:
+            raise HTTPException(400, "Village boundaries are one layer: choose a format, optionally clipped.")
+        if not (meta.get("villages") or {}).get("count"):
+            raise HTTPException(404, "This search found no village boundaries.")
+        path, media_type, stem = exports.export(result_dir, format, [], None, False, clipped, dataset="villages")
+    elif format == "table":
+        # The parcel table CSVs (total area, area affected, parcel number, village name, taluka, district).
+        if not meta.get("aoi_area_m2"):
+            raise HTTPException(400, "The parcel table needs a polygon or a strip; lines and points have no area.")
+        # One CSV per source file of the searched states, including sources with no parcel inside the
+        # area (those get a header-only file), so the set is always complete.
+        loaded = [name for folder in meta.get("state_folders", []) for name in statedata.source_files(folder)]
+        path, media_type, stem = exports.export_table(
+            result_dir, sorted(set(loaded) | set(meta["per_source"])), source or None
+        )
+    else:
+        path, media_type, stem = exports.export(
+            result_dir, format, list(meta["per_source"]), source or None, split, clipped
+        )
+    return FileResponse(path, media_type=media_type, filename=f"cadastral_{stem}_{result_id[:8]}{path.suffix}")

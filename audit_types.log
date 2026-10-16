@@ -1,0 +1,77 @@
+75 files
+[1/75] Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet: 17 columns (8 strings)  0s
+[2/75] Andhra Pradesh/APSAC_AP_Cadastrals.parquet: 13 columns (13 strings)  2s
+[3/75] Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet: 11 columns (11 strings)  2s
+[4/75] Andhra Pradesh/NCSCM_AP_Cadastrals.parquet: 8 columns (5 strings)  2s
+[5/75] Assam/Bhuvan_Assam_Cadastrals.parquet: 4 columns (4 strings)  3s
+[6/75] Bihar/Matribhoomi_BH_Cadastrals.parquet: 129 columns (99 strings)  5s
+[7/75] Bihar/NBSS_Bihar_Cadastrals.parquet: 6 columns (6 strings)  5s
+[8/75] Bihar/NCOG_Bihar_Cadastrals.parquet: 46 columns (46 strings)  7s
+[9/75] Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet: 8 columns (8 strings)  7s
+[10/75] Dadra & Nagar Haveli and Daman & Diu/NCSCM_DNHDD_Cadastrals.parquet: 4 columns (1 strings)  7s
+[11/75] Delhi/GSDL_Cadastrals.parquet: 19 columns (16 strings)  9s
+[12/75] Goa/Goa_Bhunaksha_Cadastrals.parquet: 42 columns (40 strings)  26s
+[13/75] Goa/NBSS_Goa_Cadastrals.parquet: 6 columns (6 strings)  27s
+[14/75] Goa/Onemapgoa_GA_Cadastrals.parquet: 15 columns (13 strings)  28s
+[15/75] Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet: 16 columns (13 strings)  30s
+[16/75] Gujarat/Matribhoomi_GJ_Cadastrals.parquet: 51 columns (23 strings)  30s
+[17/75] Gujarat/NCOG_Gujarat_Cadastrals.parquet: 31 columns (31 strings)  31s
+[18/75] Gujarat/NCSCM_GJ_Cadastrals.parquet: 8 columns (5 strings)  32s
+[19/75] Gujarat/Vedas_GJ_Cadastrals.parquet: 43 columns (43 strings)  34s
+[20/75] Haryana/HRSAC_HR_Cadastrals.parquet: 17 columns (12 strings)  35s
+[21/75] J&K/LRIS_JK_Khasra_Cadastrals.parquet: 19 columns (9 strings)  36s
+[22/75] J&K/LRIS_JK_ULPIN_Cadastrals.parquet: 2 columns (1 strings)  36s
+[23/75] J&K/Matribhoomi_JK_Cadastrals.parquet: 16 columns (8 strings)  36s
+[24/75] Karnataka/KGISMAPS_KN_Cadastrals.parquet: 24 columns (14 strings)  37s
+[25/75] Karnataka/NCSCM_KN_Cadastrals.parquet: 8 columns (5 strings)  38s
+[26/75] Kerala/Bhuvan_Kerala_Cadastrals.parquet: 1 columns (1 strings)  38s
+[27/75] Kerala/LSGDP_KL_Urban_Cadastrals.parquet: 5 columns (5 strings)  38s
+[28/75] Kerala/NCSCM_KL_Cadastrals.parquet: 7 columns (4 strings)  38s
+[29/75] Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet: 22 columns (16 strings)  39s
+[30/75] Lakshadeep/NCSCM_LK_Cadastrals.parquet: 14 columns (8 strings)  39s
+[31/75] Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet: 22 columns (16 strings)  41s
+[32/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet: 22 columns (16 strings)  43s
+[33/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet: 22 columns (16 strings)  45s
+[34/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet: 22 columns (16 strings)  47s
+[35/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet: 22 columns (16 strings)  50s
+[36/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet: 22 columns (16 strings)  52s
+[37/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet: 22 columns (16 strings)  54s
+[38/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet: 22 columns (16 strings)  56s
+[39/75] Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet: 22 columns (16 strings)  58s
+[40/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet: 12 columns (10 strings)  59s
+[41/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet: 12 columns (10 strings)  60s
+[42/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet: 12 columns (10 strings)  61s
+[43/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet: 12 columns (10 strings)  62s
+[44/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet: 12 columns (10 strings)  63s
+[45/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet: 12 columns (10 strings)  64s
+[46/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet: 12 columns (10 strings)  65s
+[47/75] Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet: 12 columns (10 strings)  66s
+[48/75] Maharashtra/MRSAC_Cadastrals.00.parquet: 12 columns (9 strings)  67s
+[49/75] Maharashtra/MRSAC_Cadastrals.01.parquet: 12 columns (9 strings)  68s
+[50/75] Maharashtra/NCSCM_MH_Cadastrals.parquet: 10 columns (7 strings)  69s
+[51/75] Manipur/MARSAC_MN_Cadastrals.parquet: 17 columns (17 strings)  71s
+[52/75] Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet: 9 columns (9 strings)  72s
+[53/75] Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet: 9 columns (9 strings)  73s
+[54/75] Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet: 9 columns (9 strings)  74s
+[55/75] Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet: 9 columns (9 strings)  76s
+[56/75] Pondicherry/NCSCM_PC_Cadastrals.parquet: 17 columns (5 strings)  76s
+[57/75] Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet: 63 columns (63 strings)  84s
+[58/75] Punjab/NCOG_Punjab_Cadastrals.parquet: 28 columns (28 strings)  87s
+[59/75] Punjab/PunjabGIS_PB_Cadastrals.parquet: 12 columns (10 strings)  88s
+[60/75] Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet: 174 columns (174 strings)  91s
+[61/75] Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet: 174 columns (174 strings)  94s
+[62/75] Tamil Nadu/NCSCM_TN_Cadastrals.parquet: 7 columns (4 strings)  94s
+[63/75] Tamil Nadu/TNGIS_TN_Cadastrals.parquet: 185 columns (185 strings)  96s
+[64/75] Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet: 24 columns (16 strings)  98s
+[65/75] Tripura/Matribhoomi_Tripura_Cadastrals.parquet: 38 columns (28 strings)  98s
+[66/75] Tripura/NESDR_Tripura_Cadastrals.parquet: 66 columns (66 strings)  100s
+[67/75] Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet: 50 columns (50 strings)  102s
+[68/75] Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet: 50 columns (50 strings)  103s
+[69/75] West Bengal/Bhuvan_SISDP_WestBengal_Cadastrals.parquet: 2 columns (2 strings)  103s
+[70/75] West Bengal/Bhuvan_WestBengal_Cadastrals.parquet: 5 columns (5 strings)  104s
+[71/75] West Bengal/WB_AMRUT_Cadastrals.parquet: 10 columns (9 strings)  105s
+[72/75] jharkhand/JSAC_JH_Cadastrals.000.parquet: 47 columns (32 strings)  106s
+[73/75] jharkhand/JSAC_JH_Cadastrals.001.parquet: 47 columns (32 strings)  107s
+[74/75] jharkhand/JSAC_JH_Cadastrals.010.parquet: 47 columns (32 strings)  108s
+[75/75] jharkhand/JSAC_JH_Cadastrals.011.parquet: 47 columns (32 strings)  109s
+done -> /home/geoint/projects/lap_tool/data_type_audit.csv and /home/geoint/projects/lap_tool/web/backend/column_types.json

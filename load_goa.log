@@ -1,0 +1,18 @@
+4 files selected
+loading Goa/Goa_Bhunaksha_Cadastrals.parquet
+    Goa/Goa_Bhunaksha_Cadastrals.parquet: 100,000/843,432
+    Goa/Goa_Bhunaksha_Cadastrals.parquet: 600,000/843,432
+  done Goa/Goa_Bhunaksha_Cadastrals.parquet: 843,432 rows in 64s
+loading Goa/NBSS_Goa_Cadastrals.parquet
+    Goa/NBSS_Goa_Cadastrals.parquet: 83,861/83,861
+  done Goa/NBSS_Goa_Cadastrals.parquet: 83,861 rows in 3s
+loading Goa/Onemapgoa_GA_Cadastrals.parquet
+    Goa/Onemapgoa_GA_Cadastrals.parquet: 100,000/822,577
+    Goa/Onemapgoa_GA_Cadastrals.parquet: 600,000/822,577
+  done Goa/Onemapgoa_GA_Cadastrals.parquet: 822,577 rows in 23s
+loading Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet
+    Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet: 100,000/827,917
+    Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet: 600,000/827,917
+  done Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet: 827,917 rows in 33s
+building GIST index ...
+indexes done in 4s

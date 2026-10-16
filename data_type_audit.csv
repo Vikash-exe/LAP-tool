@@ -1,0 +1,2188 @@
+file,column,declared,kind,rows_sampled,non_empty,blank_pct,numeric_pct,example
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Id,int32,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Area,double,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,SHAPE_Leng,double,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Shape_Leng_1,double,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Area_Sq_m,double,typed_in_file,,,,,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Plot_No,string,mostly_numeric,38701,1121,97.1,96.2,341
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,NAME_OF_TE,string,empty,38701,0,100.0,0,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Name,string,text,38701,32987,14.8,0.0,North Bay
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,SY_NO,string,text,38701,22689,41.4,71.4,337
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,AREA_1,string,empty,38701,0,100.0,0,
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Sy_No_1,string,mostly_numeric,38701,12670,67.3,90.2,91.
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,Village_Na,string,text,38701,2828,92.7,0.0,Hutbay
+Andaman &  Nicobar/NCSCM_AN_Cadastrals.parquet,island,string,text,38701,38701,0.0,0.0,Little Andaman
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,objectid_1,string,integer,270705,270664,0.0,100.0,2469
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,objectid,string,integer,270705,270664,0.0,100.0,2469
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,unparsed,string,empty,270705,0,100.0,0,
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,v_name,string,text,270705,270663,0.0,0.0,Dodderi
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,m_name,string,text,270705,270663,0.0,0.0,Rolla
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,d_name,string,text,270705,270663,0.0,0.0,Anantapur
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,dmv_code,string,mostly_numeric,270705,270663,0.0,100.0,1263007
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,parcel_num,string,mostly_numeric,270705,270663,0.0,98.6,228
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,descriptio,string,text,270705,270663,0.0,0.0,Parcel Boundary
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,shape_leng,string,decimal,270705,270664,0.0,100.0,0.00733451228596
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,shape_le_1,string,decimal,270705,270664,0.0,100.0,804.453807637
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,shape_length,string,decimal,270705,270664,0.0,100.0,804.45380763733
+Andhra Pradesh/APSAC_AP_Cadastrals.parquet,shape_area,string,decimal,270705,270664,0.0,100.0,40443.0141472775
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,remarks,string,text,3698,8,99.8,0.0,Siddabathadu Kunta
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,unparsed,string,empty,3698,0,100.0,0,
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,v_name,string,text,3698,3682,0.4,0.0,Pothulanagepalle
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,m_name,string,text,3698,3682,0.4,0.0,Dharmavaram
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,d_name,string,text,3698,3682,0.4,0.0,Anantapur
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,dmv_code,string,integer,3698,3682,0.4,100.0,1237009
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,parcel_num,string,mostly_numeric,3698,3682,0.4,99.9,398
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,descriptio,string,text,3698,3663,0.9,0.0,Parcel Boundary
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,parcel_typ,string,text,3698,1210,67.3,0.0,PA
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,shape_length,string,decimal,3698,3682,0.4,100.0,0.0429395757705859
+Andhra Pradesh/APSAC_AP_Forest_Cadastrals.parquet,shape_area,string,decimal,3698,3682,0.4,100.0,1.78431987815874E-5
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,Parcel_num,string,mostly_numeric,296417,294206,0.7,97.0,14
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,Mandal,string,text,296417,296399,0.0,0.0,Tada
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,District_Name,string,text,296417,296417,0.0,0.0,Nellore
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,State_Name,string,text,296417,296417,0.0,0.0,Andhra Pradesh
+Andhra Pradesh/NCSCM_AP_Cadastrals.parquet,Village_Name,string,text,296417,296200,0.1,0.0,Tada
+Assam/Bhuvan_Assam_Cadastrals.parquet,id,string,text,350068,350068,0.0,0.0,AS2.870476
+Assam/Bhuvan_Assam_Cadastrals.parquet,par_num,string,int_with_leading_zeros,350068,349981,0.0,100.0,230
+Assam/Bhuvan_Assam_Cadastrals.parquet,SHAPE_Leng,string,decimal,350068,350064,0.0,100.0,0.0442828967121
+Assam/Bhuvan_Assam_Cadastrals.parquet,SHAPE_Area,string,decimal,350068,350064,0.0,100.0,1.07758633378E-4
+Bihar/Matribhoomi_BH_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,fid_,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,A,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Area,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Anantpur,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,SC,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Sq_km,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,fff,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Area_Acre,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,AREA_DEC,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F233816,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,RS_Area,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,RS_AREA_1,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Aera,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F233821,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remars,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,d,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,g,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,sc_1,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,VIL_LGD,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,sdt,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Dist_LGD,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,State_LGD,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Subdt_LGD,int32,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,SHAPE_Le_1,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,SHAPE_Ar_1,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Area_Hect,double,typed_in_file,,,,,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BHUCODE,string,text,263741,263739,0.0,0.0,CS2604013601402
+Bihar/Matribhoomi_BH_Cadastrals.parquet,KID,string,mostly_numeric,263741,262967,0.3,100.0,7409
+Bihar/Matribhoomi_BH_Cadastrals.parquet,KPARTH,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,PAR_ERR,string,text,263741,1676,99.4,0.0,O
+Bihar/Matribhoomi_BH_Cadastrals.parquet,PAR_TYPE,string,text,263741,263739,0.0,0.0,PA
+Bihar/Matribhoomi_BH_Cadastrals.parquet,REMARKS,string,text,263741,198279,24.8,0.5,07
+Bihar/Matribhoomi_BH_Cadastrals.parquet,AREA_DECIM,string,decimal,263741,67829,74.3,100.0,21.8984189226
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Abadi,string,text,263741,2269,99.1,0.0,K
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Abadi_K,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Abadui,string,text,263741,93,100.0,0.0,K
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Bhucode_SS,string,text,263741,2662,99.0,10.4,SS1719167700601
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_02,string,text,263741,649,99.8,0.0,SS1720170702402
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_04_05,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_03_04,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_04,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_03,string,text,263741,73,100.0,0.0,SS1720170902003
+Bihar/Matribhoomi_BH_Cadastrals.parquet,CODE_1,string,text,263741,189,99.9,0.0,SS2605025704102
+Bihar/Matribhoomi_BH_Cadastrals.parquet,CS_DATA,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_02_03,string,text,263741,187,99.9,0.0,SS1720169703102
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_1_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_2,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_K_Kh,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F03,string,text,263741,133,99.9,0.0,SS1720170802103
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F02,string,text,263741,111,100.0,0.0,SS1720170802102
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remark1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remark_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remark_2,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_06,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F04,string,text,263741,53,100.0,0.0,SS1720170802104
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F05,string,text,263741,43,100.0,0.0,SS1720170802105
+Bihar/Matribhoomi_BH_Cadastrals.parquet,F06,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remarks_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remarks1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,AABADI,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BHUCODE_SS_1,string,text,263741,851,99.7,0.0,SS1720177304701
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BHUCODE_S,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,SS_BHUCODE,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,SS_Code,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_SS,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_S3,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remark_s,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Code_K,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,TEST,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,VVV,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,ab2,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Abadi3,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Abadi_3,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,abb,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,bbb,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,gg,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,layer,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,path,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,srr,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,sub_dist,string,text,263741,574,99.8,0.0,Goradih
+Bihar/Matribhoomi_BH_Cadastrals.parquet,test_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,vill_name,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,ABADI_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,AL_TYPE,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BHUCODE_,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BHUCOUD_SS,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,VB_CODE,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,VB_Code_1,string,integer,263741,13022,95.1,100.0,0
+Bihar/Matribhoomi_BH_Cadastrals.parquet,observatio,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remark,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,KID_n,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,VKD,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BH1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BH2,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,BH3,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,aa,string,integer,263741,21,100.0,100.0,64
+Bihar/Matribhoomi_BH_Cadastrals.parquet,bkd,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,bkd1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,rema,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,remarks_1_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,aaa,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Rem,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,SS_CODE_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,add_,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,rem1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,ss,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,ab,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remarks11,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,REAMARKS1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Ab3,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,vill_nam,string,text,263741,574,99.8,0.0,Jagdishpur
+Bihar/Matribhoomi_BH_Cadastrals.parquet,vvv_1,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,bbbb,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,mmmm,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,stcode11,string,integer,263741,263741,0.0,100.0,10
+Bihar/Matribhoomi_BH_Cadastrals.parquet,dtcode11,string,integer,263741,263741,0.0,100.0,228
+Bihar/Matribhoomi_BH_Cadastrals.parquet,sdtcode11,string,int_with_leading_zeros,263741,263741,0.0,100.0,01374
+Bihar/Matribhoomi_BH_Cadastrals.parquet,stname,string,text,263741,263741,0.0,0.0,BIHAR
+Bihar/Matribhoomi_BH_Cadastrals.parquet,dtname,string,text,263741,263741,0.0,0.0,Sheikhpura
+Bihar/Matribhoomi_BH_Cadastrals.parquet,sdtname,string,text,263741,263741,0.0,0.0,Sheikhpura
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remarks_1_2,string,text,263741,607,99.8,0.0,Jh
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remarks_2,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,Remarks_3,string,empty,263741,0,100.0,0,
+Bihar/Matribhoomi_BH_Cadastrals.parquet,vvvv,string,empty,263741,0,100.0,0,
+Bihar/NBSS_Bihar_Cadastrals.parquet,id,string,text,26021,26021,0.0,0.0,Cadastral_Boundary.85322
+Bihar/NBSS_Bihar_Cadastrals.parquet,District,string,text,26021,26021,0.0,0.0,PURBA CHAMPARAN
+Bihar/NBSS_Bihar_Cadastrals.parquet,State,string,text,26021,26021,0.0,0.0,BIHAR
+Bihar/NBSS_Bihar_Cadastrals.parquet,Taluka,string,text,26021,26021,0.0,0.0,PIPRA KOTHI
+Bihar/NBSS_Bihar_Cadastrals.parquet,Panchayath,string,text,26021,26021,0.0,0.0,PANDITPUR
+Bihar/NBSS_Bihar_Cadastrals.parquet,Survey_No,string,integer,26021,25983,0.1,100.0,307
+Bihar/NCOG_Bihar_Cadastrals.parquet,id,string,text,342488,342488,0.0,0.0,saran_sp_bihar_cad_data.125908
+Bihar/NCOG_Bihar_Cadastrals.parquet,dist_twn_c,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,gid,string,integer,342488,342469,0.0,100.0,1259084
+Bihar/NCOG_Bihar_Cadastrals.parquet,objectid_1,string,integer,342488,1469,99.6,100.0,1259084
+Bihar/NCOG_Bihar_Cadastrals.parquet,join_count,string,integer,342488,342469,0.0,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,target_fid,string,integer,342488,342469,0.0,100.0,1259083
+Bihar/NCOG_Bihar_Cadastrals.parquet,objectid_2,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,objectid,string,integer,342488,342469,0.0,100.0,75211
+Bihar/NCOG_Bihar_Cadastrals.parquet,bhucode,string,text,342488,342468,0.0,0.0,RS1713106906302
+Bihar/NCOG_Bihar_Cadastrals.parquet,block_name,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,kid,string,integer,342488,1007,99.7,100.0,266
+Bihar/NCOG_Bihar_Cadastrals.parquet,sno,string,mostly_numeric,342488,340311,0.6,99.9,2624
+Bihar/NCOG_Bihar_Cadastrals.parquet,kparth,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,par_err,string,text,342488,4809,98.6,0.0,O
+Bihar/NCOG_Bihar_Cadastrals.parquet,par_type,string,text,342488,244283,28.7,0.0,PA
+Bihar/NCOG_Bihar_Cadastrals.parquet,remarks,string,text,342488,244279,28.7,0.0,PARCEL
+Bihar/NCOG_Bihar_Cadastrals.parquet,area_decim,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,gidstcode11,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,unparsed,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,vilnam_soi,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,tname,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,sdtcode_lg,string,integer,342488,1469,99.6,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,dtcode_lg,string,integer,342488,1469,99.6,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,stcode_lg,string,integer,342488,1469,99.6,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,sname,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,dname,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,vname,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,villcode,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,sdtcode,string,integer,342488,1469,99.6,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,dtcode,string,integer,342488,1469,99.6,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,stcode,string,integer,342488,1469,99.6,100.0,0
+Bihar/NCOG_Bihar_Cadastrals.parquet,shape_le_1,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,shape_leng,string,decimal,342488,342469,0.0,100.0,0.000784368884025
+Bihar/NCOG_Bihar_Cadastrals.parquet,shape_area,string,decimal,342488,342469,0.0,100.0,3.47212136525E-8
+Bihar/NCOG_Bihar_Cadastrals.parquet,stcode11,string,int_with_leading_zeros,342488,340902,0.5,100.0,10
+Bihar/NCOG_Bihar_Cadastrals.parquet,s_code,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,dtcode11,string,integer,342488,340902,0.5,100.0,217
+Bihar/NCOG_Bihar_Cadastrals.parquet,district,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,tahsil,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,pargana,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,village,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,khasra,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,name11,string,text,342488,340902,0.5,0.0,Gopalganj
+Bihar/NCOG_Bihar_Cadastrals.parquet,village_co,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,dist_sub_c,string,empty,342488,0,100.0,0,
+Bihar/NCOG_Bihar_Cadastrals.parquet,devlopment,string,empty,342488,0,100.0,0,
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,id,string,text,159419,159419,0.0,0.0,chhatisgarh_village_cad_data.f
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,gid,string,integer,159419,159401,0.0,100.0,129814
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,sno,string,text,159419,121199,24.0,65.6,344/1
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,vname,string,text,159419,159401,0.0,0.0,Mategahan
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,dname,string,text,159419,159401,0.0,0.0,Dhamtari
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,tname,string,text,159419,159401,0.0,0.0,Dhamtari
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,sname,string,text,159419,159401,0.0,0.0,Chhatisaghar
+Chhattishgarh/NCOG_CG_Dhamtari_Cadastrals.parquet,area_ha,string,decimal,159419,159401,0.0,100.0,0.0840921284983
+Dadra & Nagar Haveli and Daman & Diu/NCSCM_DNHDD_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Dadra & Nagar Haveli and Daman & Diu/NCSCM_DNHDD_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Dadra & Nagar Haveli and Daman & Diu/NCSCM_DNHDD_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Dadra & Nagar Haveli and Daman & Diu/NCSCM_DNHDD_Cadastrals.parquet,Plot_No,string,integer,469,434,7.5,100.0,169
+Delhi/GSDL_Cadastrals.parquet,FID,int32,typed_in_file,,,,,
+Delhi/GSDL_Cadastrals.parquet,M_KHASRA_R,int32,typed_in_file,,,,,
+Delhi/GSDL_Cadastrals.parquet,M_MIN_NO,int32,typed_in_file,,,,,
+Delhi/GSDL_Cadastrals.parquet,DIST_NM,string,text,264900,264900,0.0,0.0,SOUTH WEST
+Delhi/GSDL_Cadastrals.parquet,SUBDIV_ID,string,int_with_leading_zeros,264900,264888,0.0,100.0,07080001
+Delhi/GSDL_Cadastrals.parquet,SUBDIV_NM,string,text,264900,264900,0.0,0.0,KAPASHERA
+Delhi/GSDL_Cadastrals.parquet,VILL_ID,string,int_with_leading_zeros,264900,264889,0.0,100.0,650
+Delhi/GSDL_Cadastrals.parquet,VILL_NM,string,text,264900,264900,0.0,0.0,DEORALA
+Delhi/GSDL_Cadastrals.parquet,M_KHASRA_N,string,text,264900,264887,0.0,89.1,62
+Delhi/GSDL_Cadastrals.parquet,TYPE,string,text,264900,255463,3.6,0.0,TRANSPORT
+Delhi/GSDL_Cadastrals.parquet,SUB_TYPE,string,text,264900,255462,3.6,0.0,ROAD WORKING
+Delhi/GSDL_Cadastrals.parquet,PAT_STS,string,text,264900,255276,3.6,5.8,GS
+Delhi/GSDL_Cadastrals.parquet,D_SOURCE,string,text,264900,255461,3.6,0.0,14-05-2013
+Delhi/GSDL_Cadastrals.parquet,VIL_NM_NIC,string,text,264900,264899,0.0,0.0,DEVRALA
+Delhi/GSDL_Cadastrals.parquet,DIS_NM_NIC,string,text,264900,264900,0.0,0.0,SOUTH WEST
+Delhi/GSDL_Cadastrals.parquet,SD_NM_NIC,string,text,264900,264900,0.0,0.0,KAPASHERA
+Delhi/GSDL_Cadastrals.parquet,DIST_CEN_C,string,integer,264900,264028,0.3,100.0,97
+Delhi/GSDL_Cadastrals.parquet,SUBD_CEN_C,string,integer,264900,258115,2.6,100.0,6085
+Delhi/GSDL_Cadastrals.parquet,VILL_CEN_C,string,integer,264900,167032,36.9,100.0,64044
+Goa/Goa_Bhunaksha_Cadastrals.parquet,last_updated,"timestamp[us, tz=UTC]",typed_in_file,,,,,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,ulpin_generation_date,"timestamp[us, tz=UTC]",typed_in_file,,,,,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,bhucode,string,text,351912,351459,0.1,0.0,023002000500031700000VILLAGE
+Goa/Goa_Bhunaksha_Cadastrals.parquet,kide,string,text,351912,350126,0.5,0.0,12/3
+Goa/Goa_Bhunaksha_Cadastrals.parquet,div_id,string,text,351912,17398,95.1,0.0,UFhf-3x1Q-aVs19B0RV0-Q
+Goa/Goa_Bhunaksha_Cadastrals.parquet,attributes,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,attributes_json,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,pniu,string,text,351912,348462,1.0,0.0,77MP2UD6LCF0H0
+Goa/Goa_Bhunaksha_Cadastrals.parquet,pnil,string,text,351912,348467,1.0,0.0,eJyFk01rG0EMhu/+FWbPza5GGn2FOI
+Goa/Goa_Bhunaksha_Cadastrals.parquet,interior_point,string,text,351912,348467,1.0,0.0,POINT (4856.202849321774 -3015
+Goa/Goa_Bhunaksha_Cadastrals.parquet,ulpin_mode,string,text,351912,348476,1.0,0.0,T
+Goa/Goa_Bhunaksha_Cadastrals.parquet,id,string,text,351912,351912,0.0,0.0,khasramap.JqChqHO2Ru2XLkbS9CiD
+Goa/Goa_Bhunaksha_Cadastrals.parquet,geometry_name,string,text,351912,351912,0.0,0.0,wkb_geometry
+Goa/Goa_Bhunaksha_Cadastrals.parquet,name,string,text,351912,18273,94.8,0.0,168/1
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Subdiv,string,mostly_numeric,351912,325349,7.5,91.6,3
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Survey,string,mostly_numeric,351912,323541,8.1,99.9,12
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Shape_Leng,string,mostly_numeric,351912,332614,5.5,99.9,66.0198028736
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Shape_Area,string,mostly_numeric,351912,334856,4.8,99.9,261.393117628
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Area2,string,decimal,351912,1,100.0,100.0,246.952
+Goa/Goa_Bhunaksha_Cadastrals.parquet,CityName,string,text,351912,5972,98.3,0.0,VASCO
+Goa/Goa_Bhunaksha_Cadastrals.parquet,City,string,mostly_numeric,351912,5972,98.3,99.8,40201000
+Goa/Goa_Bhunaksha_Cadastrals.parquet,SubCityNam,string,text,351912,5972,98.3,0.0,VASCO
+Goa/Goa_Bhunaksha_Cadastrals.parquet,SubCity,string,mostly_numeric,351912,5972,98.3,99.8,40201100
+Goa/Goa_Bhunaksha_Cadastrals.parquet,TalNam,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,TalName,string,text,351912,323258,8.1,0.0,Sanguem
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Taluka,string,mostly_numeric,351912,323091,8.2,99.9,30020004
+Goa/Goa_Bhunaksha_Cadastrals.parquet,VillageNam,string,text,351912,323258,8.1,0.0,Antoriem
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Village,string,mostly_numeric,351912,323694,8.0,99.8,00031700
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Plot,string,text,351912,334654,4.9,0.0,12/3
+Goa/Goa_Bhunaksha_Cadastrals.parquet,layer,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,name1,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,path,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,plot_no,string,text,351912,237,99.9,0.0,301/4
+Goa/Goa_Bhunaksha_Cadastrals.parquet,State,string,integer,351912,321,99.9,100.0,30
+Goa/Goa_Bhunaksha_Cadastrals.parquet,bhucode1,string,empty,351912,0,100.0,0,
+Goa/Goa_Bhunaksha_Cadastrals.parquet,sheetno,string,text,351912,317,99.9,0.0,000VILLAGE
+Goa/Goa_Bhunaksha_Cadastrals.parquet,state_1,string,text,351912,25,100.0,84.0,30
+Goa/Goa_Bhunaksha_Cadastrals.parquet,district,string,text,351912,24,100.0,83.3,30020001
+Goa/Goa_Bhunaksha_Cadastrals.parquet,taluk,string,text,351912,25,100.0,84.0,00021600
+Goa/Goa_Bhunaksha_Cadastrals.parquet,cts,string,text,351912,23,100.0,0.0,000VILLAGE
+Goa/Goa_Bhunaksha_Cadastrals.parquet,area,string,text,351912,17,100.0,76.5,412.41
+Goa/Goa_Bhunaksha_Cadastrals.parquet,Layer_1,string,text,351912,76,100.0,0.0,77/1
+Goa/NBSS_Goa_Cadastrals.parquet,id,string,text,83861,83861,0.0,0.0,Cadastral_Boundary.56538
+Goa/NBSS_Goa_Cadastrals.parquet,District,string,text,83861,83861,0.0,0.0,SOUTH GOA
+Goa/NBSS_Goa_Cadastrals.parquet,State,string,text,83861,83861,0.0,0.0,GOA
+Goa/NBSS_Goa_Cadastrals.parquet,Taluka,string,text,83861,83861,0.0,0.0,CANACONA
+Goa/NBSS_Goa_Cadastrals.parquet,Panchayath,string,text,83861,83861,0.0,0.0,COLA
+Goa/NBSS_Goa_Cadastrals.parquet,Survey_No,string,mostly_numeric,83861,77368,7.7,90.7,155
+Goa/Onemapgoa_GA_Cadastrals.parquet,id,int32,typed_in_file,,,,,
+Goa/Onemapgoa_GA_Cadastrals.parquet,shape_area,double,typed_in_file,,,,,
+Goa/Onemapgoa_GA_Cadastrals.parquet,category,string,empty,331057,0,100.0,0,
+Goa/Onemapgoa_GA_Cadastrals.parquet,district,string,int_with_leading_zeros,331057,331057,0.0,100.0,02
+Goa/Onemapgoa_GA_Cadastrals.parquet,giscode,string,text,331057,331057,0.0,0.0,023002000500035200000VILLAGE
+Goa/Onemapgoa_GA_Cadastrals.parquet,occupant_name,string,empty,331057,0,100.0,0,
+Goa/Onemapgoa_GA_Cadastrals.parquet,plot,string,text,331057,327484,1.1,0.0,282/3
+Goa/Onemapgoa_GA_Cadastrals.parquet,shape_leng,string,empty,331057,0,100.0,0,
+Goa/Onemapgoa_GA_Cadastrals.parquet,subdiv,string,text,331057,331052,0.0,87.2,3
+Goa/Onemapgoa_GA_Cadastrals.parquet,survey,string,mostly_numeric,331057,326671,1.3,99.9,282
+Goa/Onemapgoa_GA_Cadastrals.parquet,talname,string,text,331057,331057,0.0,0.0,CANACONA
+Goa/Onemapgoa_GA_Cadastrals.parquet,taluka,string,integer,331057,331057,0.0,100.0,30020005
+Goa/Onemapgoa_GA_Cadastrals.parquet,village,string,int_with_leading_zeros,331057,331057,0.0,100.0,00035200
+Goa/Onemapgoa_GA_Cadastrals.parquet,villagenam,string,text,331057,331057,0.0,0.0,Cola
+Goa/Onemapgoa_GA_Cadastrals.parquet,lname,string,text,331057,331057,0.0,0.0,Canacona
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,id,int32,typed_in_file,,,,,
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,shape_area,double,typed_in_file,,,,,
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,added_from_original,bool,typed_in_file,,,,,
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,category,string,int_with_leading_zeros,336397,11222,96.7,100.0,07
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,district,string,int_with_leading_zeros,336397,336397,0.0,100.0,02
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,giscode,string,text,336397,336397,0.0,0.0,023002000500035200000VILLAGE
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,occupant_name,string,text,336397,197922,41.2,0.0,Communidade of Agonda One
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,plot,string,text,336397,332916,1.0,0.0,282/3
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,shape_leng,string,empty,336397,0,100.0,0,
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,subdiv,string,text,336397,336392,0.0,86.9,3
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,survey,string,mostly_numeric,336397,332230,1.2,99.9,282
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,talname,string,text,336397,336397,0.0,0.0,CANACONA
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,taluka,string,integer,336397,336397,0.0,100.0,30020005
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,village,string,int_with_leading_zeros,336397,336397,0.0,100.0,00035200
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,villagenam,string,text,336397,336397,0.0,0.0,Cola
+Goa/Onemapgoa_GA_Cadastrals_Mar2026.parquet,lname,string,text,336397,336397,0.0,0.0,Canacona
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,DTV_Code,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,NewSno,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,OldSNO1,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Khata_No,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Khata_Area,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Khtdar_Ass,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,RoR_Area,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,ROR_Ass,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LandUseCod,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,TenureCode,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LykArea1,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LykArea2,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LykArea3,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LayakArea,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Pot1_Code,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Pot1_Area,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Pot2_Code,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Pot2_Area,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,PotKharaba,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,TotalArea,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,JudiWater,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,VIL_LGD,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Dist_LGD,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,State_LGD,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Subdt_LGD,int32,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,D_NameG,string,text,13197,13197,0.0,0.0,દાહોદ
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,T_NameG,string,text,13197,13197,0.0,0.0,ઝાલોદ
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,V_NameG,string,text,13197,13197,0.0,0.0,ગોલાણા
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Chalto_No,string,mostly_numeric,13197,13197,0.0,97.6,74
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,OldSNO2,string,text,13197,5725,56.6,0.0,/૨
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,OldSNO,string,text,13197,13197,0.0,62.6,46/૨
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Landuse,string,text,13197,13197,0.0,0.0,ખેતીલાયક ઉપયોગ
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Tenure,string,text,13197,13197,0.0,0.0,ગધાક. ૪૩ ૭૩ AA
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LykName1,string,text,13197,13197,0.0,0.0,જરાયત
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LykName2,string,text,13197,13197,0.0,0.0,બાગાયત
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,LykName3,string,text,13197,13197,0.0,0.0,ક્યારી
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Pot1_Detai,string,text,13197,4457,66.2,0.0,પો.ખ. અ
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Pot2_Detai,string,text,13197,1697,87.1,0.0,પો.ખ. અ
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,D_Name,string,text,13197,13197,0.0,0.0,Dahod
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,T_Name,string,text,13197,13197,0.0,0.0,Zalod
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,V_Name,string,text,13197,13197,0.0,0.0,Golana
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,Remarks1,string,text,13197,9888,25.1,0.0,નવી શરત ઈ.ટે.
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,stcode11,string,integer,13197,13197,0.0,100.0,24
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,dtcode11,string,integer,13197,13197,0.0,100.0,485
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,sdtcode11,string,int_with_leading_zeros,13197,13197,0.0,100.0,03891
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,stname,string,text,13197,13197,0.0,0.0,GUJARAT
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,dtname,string,text,13197,13197,0.0,0.0,Dohad
+Gujarat/Matribhoomi_GJ_Cadastrals.parquet,sdtname,string,text,13197,13197,0.0,0.0,Jhalod
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,id,string,text,284512,284512,0.0,0.0,junagadh_cad_old.68483
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,gid,string,integer,284512,252003,11.4,100.0,68483
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,target_fid,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,objectid,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,bhucode,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,district,string,text,284512,283426,0.4,0.0,Junagadh
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,kid,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,taluka,string,text,284512,283426,0.4,0.0,Mangrol
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,village,string,text,284512,283426,0.4,0.0,Sharma
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,taluka_id,string,int_with_leading_zeros,284512,283426,0.4,100.0,12008
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,village_id,string,mostly_numeric,284512,283426,0.4,98.4,120080084600000
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,sno,string,text,284512,277121,2.6,81.8,421
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,giddist_id,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,name,string,text,284512,3829,98.7,0.0,Kotda paru
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,check,string,text,284512,4144,98.5,0.0,Check
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,dist_id,string,int_with_leading_zeros,284512,283426,0.4,100.0,12
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,vilnam_soi,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,tname,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,sdtcode_lg,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,dtcode_lg,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,stcode_lg,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,sname,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,dname,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,vname,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,villcode,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,sdtcode,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,dtcode,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,stcode,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,shape_leng,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,objectid_1,string,empty,284512,0,100.0,0,
+Gujarat/NCOG_Gujarat_Cadastrals.parquet,shape_area,string,empty,284512,0,100.0,0,
+Gujarat/NCSCM_GJ_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Gujarat/NCSCM_GJ_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Gujarat/NCSCM_GJ_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Gujarat/NCSCM_GJ_Cadastrals.parquet,District,string,text,248959,248959,0.0,0.0,Junagadh
+Gujarat/NCSCM_GJ_Cadastrals.parquet,Taluka,string,text,248959,248959,0.0,0.0,Sutrapada
+Gujarat/NCSCM_GJ_Cadastrals.parquet,Village,string,text,248959,248959,0.0,0.0,Vadodra (Jhala)
+Gujarat/NCSCM_GJ_Cadastrals.parquet,Sno,string,text,248959,236882,4.9,80.7,1
+Gujarat/NCSCM_GJ_Cadastrals.parquet,SP_BK,string,text,248959,242180,2.7,78.9,1
+Gujarat/Vedas_GJ_Cadastrals.parquet,dtv_code,string,decimal,100543,100541,0.0,100.0,1910063.00000
+Gujarat/Vedas_GJ_Cadastrals.parquet,d_nameg,string,text,100543,100541,0.0,0.0,વડોદરા
+Gujarat/Vedas_GJ_Cadastrals.parquet,t_nameg,string,text,100543,100541,0.0,0.0,પાદરા
+Gujarat/Vedas_GJ_Cadastrals.parquet,v_nameg,string,text,100543,100541,0.0,0.0,કણઝટ
+Gujarat/Vedas_GJ_Cadastrals.parquet,newsno,string,mostly_numeric,100543,100541,0.0,100.0,580
+Gujarat/Vedas_GJ_Cadastrals.parquet,chalto_no,string,mostly_numeric,100543,100541,0.0,96.5,728
+Gujarat/Vedas_GJ_Cadastrals.parquet,oldsno1,string,mostly_numeric,100543,99229,1.3,100.0,603.000000000
+Gujarat/Vedas_GJ_Cadastrals.parquet,oldsno2,string,text,100543,34644,65.5,0.0,p૧
+Gujarat/Vedas_GJ_Cadastrals.parquet,oldsno,string,text,100543,100541,0.0,65.5,603
+Gujarat/Vedas_GJ_Cadastrals.parquet,khata_no,string,mostly_numeric,100543,100541,0.0,100.0,483
+Gujarat/Vedas_GJ_Cadastrals.parquet,khata_area,string,decimal,100543,100541,0.0,100.0,15950.5679048
+Gujarat/Vedas_GJ_Cadastrals.parquet,khtdar_ass,string,decimal,100543,100541,0.0,100.0,6.25000000000
+Gujarat/Vedas_GJ_Cadastrals.parquet,ror_area,string,decimal,100543,100541,0.0,100.0,0.939500000000
+Gujarat/Vedas_GJ_Cadastrals.parquet,ror_ass,string,decimal,100543,100541,0.0,100.0,6.25000000000
+Gujarat/Vedas_GJ_Cadastrals.parquet,landusecod,string,decimal,100543,100541,0.0,100.0,27.0000000000
+Gujarat/Vedas_GJ_Cadastrals.parquet,landuse,string,text,100543,100541,0.0,0.0,ગૌચર
+Gujarat/Vedas_GJ_Cadastrals.parquet,tenurecode,string,decimal,100543,100541,0.0,100.0,11.0000000000
+Gujarat/Vedas_GJ_Cadastrals.parquet,tenure,string,text,100543,100541,0.0,0.0,સરકારી પડતર
+Gujarat/Vedas_GJ_Cadastrals.parquet,lykname1,string,text,100543,91319,9.2,0.0,જરાયત
+Gujarat/Vedas_GJ_Cadastrals.parquet,lykarea1,string,decimal,100543,100541,0.0,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,lykname2,string,text,100543,40,100.0,0.0,જરાયત
+Gujarat/Vedas_GJ_Cadastrals.parquet,lykarea2,string,decimal,100543,100541,0.0,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,lykname3,string,text,100543,36,100.0,0.0,ન.ક્યારી
+Gujarat/Vedas_GJ_Cadastrals.parquet,lykarea3,string,decimal,100543,100541,0.0,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,layakarea,string,decimal,100543,100541,0.0,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,pot1_code,string,mostly_numeric,100543,98829,1.7,99.9,16
+Gujarat/Vedas_GJ_Cadastrals.parquet,pot1_detai,string,text,100543,12351,87.7,0.0,પો.ખ. અ
+Gujarat/Vedas_GJ_Cadastrals.parquet,pot1_area,string,decimal,100543,100541,0.0,100.0,15950.5679048
+Gujarat/Vedas_GJ_Cadastrals.parquet,pot2_code,string,integer,100543,38925,61.3,100.0,18
+Gujarat/Vedas_GJ_Cadastrals.parquet,pot2_detai,string,text,100543,4952,95.1,0.0,પો.ખ. મારગ
+Gujarat/Vedas_GJ_Cadastrals.parquet,pot2_area,string,decimal,100543,100541,0.0,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,potkharaba,string,decimal,100543,100541,0.0,100.0,15950.5679048
+Gujarat/Vedas_GJ_Cadastrals.parquet,totalarea,string,decimal,100543,100541,0.0,100.0,15950.5679048
+Gujarat/Vedas_GJ_Cadastrals.parquet,judiwater,string,decimal,100543,100541,0.0,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,d_name,string,text,100543,100541,0.0,0.0,Vadodara
+Gujarat/Vedas_GJ_Cadastrals.parquet,t_name,string,text,100543,100541,0.0,0.0,Padra
+Gujarat/Vedas_GJ_Cadastrals.parquet,v_name,string,text,100543,100541,0.0,0.0,Kanjat
+Gujarat/Vedas_GJ_Cadastrals.parquet,remarks1,string,text,100543,96387,4.1,33.6,જુનો સરવૈ નંબર-પ૪૧.
+Gujarat/Vedas_GJ_Cadastrals.parquet,remarks2,string,text,100543,32336,67.8,0.0,રોડ મારગ
+Gujarat/Vedas_GJ_Cadastrals.parquet,dd,string,decimal,100543,29458,70.7,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,objectid,string,integer,100543,29458,70.7,100.0,0
+Gujarat/Vedas_GJ_Cadastrals.parquet,area,string,decimal,100543,29458,70.7,100.0,0E-11
+Gujarat/Vedas_GJ_Cadastrals.parquet,title,string,text,100543,100543,0.0,0.0,padra_villages_landrecord.2656
+Haryana/HRSAC_HR_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Haryana/HRSAC_HR_Cadastrals.parquet,objectid_1,int32,typed_in_file,,,,,
+Haryana/HRSAC_HR_Cadastrals.parquet,last_edited_date,int64,typed_in_file,,,,,
+Haryana/HRSAC_HR_Cadastrals.parquet,shape.STArea(),double,typed_in_file,,,,,
+Haryana/HRSAC_HR_Cadastrals.parquet,shape.STLength(),double,typed_in_file,,,,,
+Haryana/HRSAC_HR_Cadastrals.parquet,n_d_code,string,int_with_leading_zeros,349435,349435,0.0,100.0,10
+Haryana/HRSAC_HR_Cadastrals.parquet,n_d_name,string,text,349435,349434,0.0,0.0,Jhajjar
+Haryana/HRSAC_HR_Cadastrals.parquet,n_t_code,string,int_with_leading_zeros,349435,349434,0.0,100.0,043
+Haryana/HRSAC_HR_Cadastrals.parquet,n_t_name,string,text,349435,349434,0.0,0.0,Beri
+Haryana/HRSAC_HR_Cadastrals.parquet,n_v_code,string,int_with_leading_zeros,349435,349434,0.0,100.0,03465
+Haryana/HRSAC_HR_Cadastrals.parquet,n_v_name,string,text,349435,341376,2.3,0.0,Bahmbeva
+Haryana/HRSAC_HR_Cadastrals.parquet,n_murr_no,string,mostly_numeric,349435,349431,0.0,100.0,0
+Haryana/HRSAC_HR_Cadastrals.parquet,n_khas_no,string,text,349435,345047,1.3,70.4,0
+Haryana/HRSAC_HR_Cadastrals.parquet,created_user,string,empty,349435,0,100.0,0,
+Haryana/HRSAC_HR_Cadastrals.parquet,created_date,string,empty,349435,0,100.0,0,
+Haryana/HRSAC_HR_Cadastrals.parquet,last_edited_user,string,text,349435,325354,6.9,0.0,SDE
+Haryana/HRSAC_HR_Cadastrals.parquet,uq,string,text,349435,349389,0.0,0.0,07//043//03465//0//0
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,TOT_AREA_K,int32,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,TOT_AREA_M,double,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,VILL_ID,int32,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,CREATED_DATE,int64,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,STATUS,int32,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,MAP_K,int32,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,MAP_M,int32,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,SHAPE.AREA,double,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,SHAPE.LEN,double,typed_in_file,,,,,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,KHEWAT_NO,string,mostly_numeric,352304,319028,9.4,100.0,165
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,KHASRA_NO,string,mostly_numeric,352304,346245,1.7,98.6,273
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,OWNER,string,mostly_numeric,352304,10035,97.2,99.6,68
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,DIST_E,string,text,352304,352304,0.0,0.0,Jammu
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,GLOBALID,string,text,352304,351163,0.3,0.0,{3FCEDB4F-7659-4141-8ECB-B06D3
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,CREATED_USER,string,text,352304,349512,0.8,0.0,SDE
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,VERSIONNUMBER,string,empty,352304,0,100.0,0,
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,VILL_NAME,string,text,352304,352304,0.0,0.0,Matrial
+J&K/LRIS_JK_Khasra_Cadastrals.parquet,KHEWAT_ID,string,integer,352304,346,99.9,100.0,378
+J&K/LRIS_JK_ULPIN_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+J&K/LRIS_JK_ULPIN_Cadastrals.parquet,ULPIN,string,text,360463,355040,1.5,0.4,8ARE2ED7C60JH0
+J&K/Matribhoomi_JK_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,TOT_AREA_K,int32,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,TOT_AREA_M,double,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,VILL_ID,int32,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,MAP_K,int32,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,MAP_M,int32,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,VIL_LGD,int32,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,Area_Hect,double,typed_in_file,,,,,
+J&K/Matribhoomi_JK_Cadastrals.parquet,KHEWAT_NO,string,integer,13338,6313,52.7,100.0,61
+J&K/Matribhoomi_JK_Cadastrals.parquet,KHASRA_NO,string,mostly_numeric,13338,13329,0.1,99.3,467
+J&K/Matribhoomi_JK_Cadastrals.parquet,OWNER,string,empty,13338,0,100.0,0,
+J&K/Matribhoomi_JK_Cadastrals.parquet,DIST_E,string,text,13338,13338,0.0,0.0,Jammu
+J&K/Matribhoomi_JK_Cadastrals.parquet,VILL_NAME,string,text,13338,13338,0.0,0.0,Khanpur Bhawan
+J&K/Matribhoomi_JK_Cadastrals.parquet,stname,string,text,13338,13338,0.0,0.0,JAMMU & KASHMIR
+J&K/Matribhoomi_JK_Cadastrals.parquet,dtname,string,text,13338,13338,0.0,0.0,Jammu
+J&K/Matribhoomi_JK_Cadastrals.parquet,sdtname,string,text,13338,13338,0.0,0.0,Jammu West
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,KGISCadastralID,int32,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,KGISVillageID,int32,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,surveynumberi,int32,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,SHAPE.STArea(),double,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,SHAPE.STLength(),double,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Landcode,int32,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,created_date,int64,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,last_edited_date,int64,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,LGD_VillageCode,int32,typed_in_file,,,,,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,KGISVillageCode,string,int_with_leading_zeros,256607,256607,0.0,100.0,2409020014
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,UniqueVillageCode,string,text,256607,256607,0.0,0.0,2409020014_1
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,bhucode,string,int_with_leading_zeros,256607,256607,0.0,100.0,240101002034
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Category,string,text,256607,256607,0.0,0.0,Parcel
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Surnoc,string,empty,256607,0,100.0,0,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,HissaNo,string,empty,256607,0,100.0,0,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Kharab,string,text,256607,20947,91.8,0.0,STREAM
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Label,string,text,256607,238141,7.2,86.7,84
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Akharbhand,string,empty,256607,0,100.0,0,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,Surveynumber_Old,string,text,256607,256607,0.0,79.5,84
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,created_user,string,text,256607,102316,60.1,0.0,SURESHBV
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,last_edited_user,string,text,256607,256607,0.0,0.0,SURESHBV
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,HissaCategory,string,empty,256607,0,100.0,0,
+Karnataka/KGISMAPS_KN_Cadastrals.parquet,ULPIN,string,text,256607,218806,14.7,0.0,74ZJ5SD7QKV5
+Karnataka/NCSCM_KN_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Karnataka/NCSCM_KN_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Karnataka/NCSCM_KN_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Karnataka/NCSCM_KN_Cadastrals.parquet,Survey_Number,string,text,171606,170307,0.8,83.3,207
+Karnataka/NCSCM_KN_Cadastrals.parquet,Village_Name,string,text,171606,171481,0.1,0.0,Araga
+Karnataka/NCSCM_KN_Cadastrals.parquet,Taluk,string,text,171606,163531,4.7,0.0,Karwara
+Karnataka/NCSCM_KN_Cadastrals.parquet,Hobli,string,text,171606,162595,5.3,0.0,Bada
+Karnataka/NCSCM_KN_Cadastrals.parquet,District,string,text,171606,162509,5.3,0.0,Uttara Kannada
+Kerala/Bhuvan_Kerala_Cadastrals.parquet,par_num,string,mostly_numeric,286035,283505,0.9,100.0,7
+Kerala/LSGDP_KL_Urban_Cadastrals.parquet,blockno,string,integer,73156,5958,91.9,100.0,20
+Kerala/LSGDP_KL_Urban_Cadastrals.parquet,surveynumb,string,integer,73156,58509,20.0,100.0,10
+Kerala/LSGDP_KL_Urban_Cadastrals.parquet,nameofvill,string,text,73156,58378,20.2,0.0,Kasaragod
+Kerala/LSGDP_KL_Urban_Cadastrals.parquet,unparsed,string,empty,73156,0,100.0,0,
+Kerala/LSGDP_KL_Urban_Cadastrals.parquet,layer,string,text,73156,73156,0.0,0.0,kas
+Kerala/NCSCM_KL_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Kerala/NCSCM_KL_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Kerala/NCSCM_KL_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Kerala/NCSCM_KL_Cadastrals.parquet,Plot,string,text,286265,277816,3.0,78.4,229
+Kerala/NCSCM_KL_Cadastrals.parquet,Village_Name,string,text,286265,278518,2.7,0.0,Padana Village
+Kerala/NCSCM_KL_Cadastrals.parquet,District_Name,string,text,286265,279017,2.5,0.0,Kasaragod
+Kerala/NCSCM_KL_Cadastrals.parquet,State_Name,string,text,286265,279017,2.5,0.0,Kerala
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Survey_No,int32,typed_in_file,,,,,
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,SURVEY_NO_1,int32,typed_in_file,,,,,
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,AREA_IN_ARE,double,typed_in_file,,,,,
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,DocVer,string,text,8006,6403,20.0,0.0,V7
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Remarks_RPNo,string,mostly_numeric,8006,294,96.3,98.6,1977
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Parcel_No_OR_Subdivision_No,string,text,8006,300,96.3,47.3,1A2&1B
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,House_Name,string,text,8006,196,97.6,0.0,Kunjhelium
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Name_Of_Owners,string,text,8006,298,96.3,0.0,Govt Land(SDO)
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Area_as_per_FMB_In_ARES,string,mostly_numeric,8006,293,96.3,99.0,68.9
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Remarks,string,text,8006,2,100.0,0.0,Mosqub
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,PARCEL_ID,string,mostly_numeric,8006,6883,14.0,91.4,84805
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,Parcel_ID_1,string,text,8006,681,91.5,38.9,92405A
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,SUB_DIV_NO,string,text,8006,7551,5.7,86.7,5A
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,NAME_OF_OWNER,string,text,8006,670,91.6,0.0,"FATHAHULLA&FIVE OTHERS,KUNHIMA"
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,OWNERS_NAME,string,text,8006,1842,77.0,0.0,AMINABI
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,RP_NO,string,mostly_numeric,8006,4812,39.9,95.7,715
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,R_P_NO,string,mostly_numeric,8006,2578,67.8,97.4,149
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,REMARKS_1,string,text,8006,139,98.3,0.0,SCHOOL
+Lakshadeep/Bharatmaps_Lakshadweep_Cadastrals.parquet,AREA_SQ_METRES,string,empty,8006,0,100.0,0,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Id,int32,typed_in_file,,,,,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Area,double,typed_in_file,,,,,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,NO,int32,typed_in_file,,,,,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,ET_Name,string,text,203,1,99.5,0.0,Island Boundary New
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,ET_Descr,string,empty,203,0,100.0,0,
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Name,string,text,203,51,74.9,0.0,5D
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,PLOT_ID,string,text,203,43,78.8,0.0,9A
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Plot_ID_1,string,text,203,59,70.9,0.0,5C
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,Plot_id_2,string,text,203,9,95.6,0.0,4B
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,plot_id_3,string,text,203,12,94.1,0.0,3D
+Lakshadeep/NCSCM_LK_Cadastrals.parquet,island,string,text,203,203,0.0,0.0,Agatti
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,id,string,text,347160,347160,0.0,0.0,vp_villagemap_bnd.fid--2efaa14
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,parcel_id,string,integer,347160,347092,0.0,100.0,1608087058
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,parcel_no,string,mostly_numeric,347160,347160,0.0,100.0,324
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,parcel_type,string,text,347160,347160,0.0,0.0,P
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,land_type_id,string,integer,347160,347084,0.0,100.0,10
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,landuse_id,string,integer,347160,347084,0.0,100.0,3
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,ulpin,string,text,347160,347115,0.0,0.0,7DK2N0D7LNURH0
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,district_name_en,string,text,347160,347160,0.0,0.0,Barwani
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,district_name_hi,string,text,347160,347160,0.0,0.0,बड़वानी
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,district_lgd_code,string,integer,347160,347160,0.0,100.0,393
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,tehsil_name_en,string,text,347160,347160,0.0,0.0,Pansemal
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,tehsil_name_hi,string,text,347160,347160,0.0,0.0,पानसेमल
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,tehsil_lgd_code,string,integer,347160,347160,0.0,100.0,3559
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,village_name_en,string,text,347160,347160,0.0,0.0,Baljhiri
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,village_name_hi,string,text,347160,347160,0.0,0.0,बालझिरी
+Madhya Pradesh/MPBhulekh_MP_Plot_Cadastrals.parquet,village_lgd_code,string,integer,347160,347160,0.0,100.0,478425
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,id,string,text,257914,257914,0.0,0.0,vp_villagemap_bnd.fid-5bfbb882
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,parcel_id,string,integer,257914,250145,3.0,100.0,1321444934
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,parcel_no,string,text,257914,257914,0.0,38.5,411
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,parcel_type,string,text,257914,257914,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,land_type_id,string,integer,257914,245438,4.8,100.0,9
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,landuse_id,string,integer,257914,245957,4.6,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,ulpin,string,text,257914,257785,0.1,0.0,7DHBQED81TH9H0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,district_name_en,string,text,257914,257914,0.0,0.0,Barwani
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,district_name_hi,string,text,257914,257914,0.0,0.0,बड़वानी
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,district_lgd_code,string,integer,257914,257914,0.0,100.0,393
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,tehsil_name_en,string,text,257914,257914,0.0,0.0,Varla
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,tehsil_name_hi,string,text,257914,257914,0.0,0.0,वरला
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,tehsil_lgd_code,string,integer,257914,257913,0.0,100.0,3562
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,village_name_en,string,text,257914,257914,0.0,0.0,Malwan
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,village_name_hi,string,text,257914,257914,0.0,0.0,मालवन
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0000.parquet,village_lgd_code,string,integer,257914,257914,0.0,100.0,478654
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,id,string,text,284242,284242,0.0,0.0,vp_villagemap_bnd.fid-5bfbb882
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,parcel_id,string,integer,284242,273067,3.9,100.0,1036939331
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,parcel_no,string,text,284242,284241,0.0,31.0,29
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,parcel_type,string,text,284242,284242,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,land_type_id,string,integer,284242,269369,5.2,100.0,10
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,landuse_id,string,integer,284242,269386,5.2,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,ulpin,string,text,284242,283735,0.2,0.0,7D5BD4D93ZSTH0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,district_name_en,string,text,284242,284242,0.0,0.0,Burhanpur
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,district_name_hi,string,text,284242,284242,0.0,0.0,बुरहानपुर
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,district_lgd_code,string,integer,284242,284242,0.0,100.0,397
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,tehsil_name_en,string,text,284242,284242,0.0,0.0,Burhanpur
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,tehsil_name_hi,string,text,284242,284242,0.0,0.0,बुरहानपुर
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,tehsil_lgd_code,string,integer,284242,284242,0.0,100.0,3719
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,village_name_en,string,text,284242,284242,0.0,0.0,Baroli
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,village_name_hi,string,text,284242,284242,0.0,0.0,वारोली
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0001.parquet,village_lgd_code,string,integer,284242,284242,0.0,100.0,506222
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,id,string,text,295681,295681,0.0,0.0,vp_villagemap_bnd.fid-34f533a7
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,parcel_id,string,integer,295681,280899,5.0,100.0,1038479275
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,parcel_no,string,text,295681,295681,0.0,40.0,30/17
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,parcel_type,string,text,295681,295681,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,land_type_id,string,integer,295681,274321,7.2,100.0,10
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,landuse_id,string,integer,295681,274357,7.2,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,ulpin,string,text,295681,295526,0.1,0.0,81FEP0D7LLN2H0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,district_name_en,string,text,295681,295681,0.0,0.0,Ratlam
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,district_name_hi,string,text,295681,295681,0.0,0.0,रतलाम
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,district_lgd_code,string,integer,295681,295681,0.0,100.0,423
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,tehsil_name_en,string,text,295681,295681,0.0,0.0,Sailana
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,tehsil_name_hi,string,text,295681,295681,0.0,0.0,सैलाना
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,tehsil_lgd_code,string,integer,295681,295681,0.0,100.0,3504
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,village_name_en,string,text,295681,295681,0.0,0.0,Borda
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,village_name_hi,string,text,295681,295681,0.0,0.0,बोरदा
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0010.parquet,village_lgd_code,string,integer,295681,295681,0.0,100.0,470523
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,id,string,text,364117,364117,0.0,0.0,vp_villagemap_bnd.fid--6b8489a
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,parcel_id,string,integer,364117,348781,4.2,100.0,1241367366
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,parcel_no,string,text,364117,364116,0.0,53.8,256
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,parcel_type,string,text,364117,364117,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,land_type_id,string,integer,364117,342472,5.9,100.0,10
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,landuse_id,string,integer,364117,342534,5.9,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,ulpin,string,text,364117,363929,0.1,0.0,81FYCPDAC8G0H0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,district_name_en,string,text,364117,364117,0.0,0.0,Bhopal
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,district_name_hi,string,text,364117,364117,0.0,0.0,भोपाल
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,district_lgd_code,string,integer,364117,364117,0.0,100.0,396
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,tehsil_name_en,string,text,364117,364117,0.0,0.0,Berasia
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,tehsil_name_hi,string,text,364117,364117,0.0,0.0,बैरसिया
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,tehsil_lgd_code,string,integer,364117,364063,0.0,100.0,3580
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,village_name_en,string,text,364117,364117,0.0,0.0,Rusalli
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,village_name_hi,string,text,364117,364117,0.0,0.0,रूसल्ली
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0011.parquet,village_lgd_code,string,integer,364117,364117,0.0,100.0,482283
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,id,string,text,263110,263110,0.0,0.0,vp_villagemap_bnd.fid-21057b2d
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,parcel_id,string,integer,263110,249547,5.2,100.0,1166337999
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,parcel_no,string,text,263110,263110,0.0,38.1,156
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,parcel_type,string,text,263110,263110,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,land_type_id,string,integer,263110,240810,8.5,100.0,10
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,landuse_id,string,integer,263110,240879,8.4,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,ulpin,string,text,263110,263073,0.0,0.0,7DFKEPDBDKM4H0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,district_name_en,string,text,263110,263110,0.0,0.0,PANDHURNA
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,district_name_hi,string,text,263110,263110,0.0,0.0,पांढुर्णा
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,district_lgd_code,string,integer,263110,263110,0.0,100.0,785
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,tehsil_name_en,string,text,263110,263110,0.0,0.0,PANDHURNA
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,tehsil_name_hi,string,text,263110,263110,0.0,0.0,पांढुर्णा
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,tehsil_lgd_code,string,integer,263110,263110,0.0,100.0,3658
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,village_name_en,string,text,263110,263110,0.0,0.0,Umarikalan
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,village_name_hi,string,text,263110,263110,0.0,0.0,उमरीकला
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0100.parquet,village_lgd_code,string,integer,263110,263110,0.0,100.0,495609
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,id,string,text,276620,276620,0.0,0.0,vp_villagemap_bnd.fid--1e3f10a
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,parcel_id,string,integer,276620,244527,11.6,100.0,1376367748
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,parcel_no,string,text,276620,276620,0.0,42.8,582
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,parcel_type,string,text,276620,276620,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,land_type_id,string,integer,276620,230548,16.7,100.0,9
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,landuse_id,string,integer,276620,230719,16.6,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,ulpin,string,text,276620,276568,0.0,0.0,7DEUH5DDC8EKH0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,district_name_en,string,text,276620,276620,0.0,0.0,Balaghat
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,district_name_hi,string,text,276620,276620,0.0,0.0,बालाघाट
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,district_lgd_code,string,integer,276620,276620,0.0,100.0,392
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,tehsil_name_en,string,text,276620,276620,0.0,0.0,Lanji
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,tehsil_name_hi,string,text,276620,276620,0.0,0.0,लाँजी
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,tehsil_lgd_code,string,integer,276620,276620,0.0,100.0,3676
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,village_name_en,string,text,276620,276620,0.0,0.0,Umari
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,village_name_hi,string,text,276620,276620,0.0,0.0,उमरी
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0101.parquet,village_lgd_code,string,integer,276620,276620,0.0,100.0,498478
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,id,string,text,349198,349198,0.0,0.0,vp_villagemap_bnd.fid-34f533a7
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,parcel_id,string,integer,349198,340618,2.5,100.0,1107414257
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,parcel_no,string,text,349198,349198,0.0,73.8,93
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,parcel_type,string,text,349198,349198,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,land_type_id,string,integer,349198,334980,4.1,100.0,10
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,landuse_id,string,integer,349198,334987,4.1,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,ulpin,string,text,349198,349077,0.0,0.0,8219A0DBD6Y9H0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,district_name_en,string,text,349198,349198,0.0,0.0,Sagar
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,district_name_hi,string,text,349198,349198,0.0,0.0,सागर
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,district_lgd_code,string,integer,349198,349198,0.0,100.0,425
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,tehsil_name_en,string,text,349198,349198,0.0,0.0,Khurai
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,tehsil_name_hi,string,text,349198,349198,0.0,0.0,खुरई
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,tehsil_lgd_code,string,integer,349198,349198,0.0,100.0,3444
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,village_name_en,string,text,349198,349198,0.0,0.0,Badoli
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,village_name_hi,string,text,349198,349198,0.0,0.0,बडौली
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0110.parquet,village_lgd_code,string,integer,349198,349198,0.0,100.0,459893
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,l1_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,l2_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,l3_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,l4_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,l5_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,l6_id,int32,typed_in_file,,,,,
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,id,string,text,306112,306112,0.0,0.0,vp_villagemap_bnd.fid-64840e07
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,parcel_id,string,integer,306112,273915,10.5,100.0,1267205668
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,parcel_no,string,text,306112,306111,0.0,56.0,303/2
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,parcel_type,string,text,306112,306112,0.0,0.0,S
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,land_type_id,string,integer,306112,253998,17.0,100.0,9
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,landuse_id,string,integer,306112,254014,17.0,100.0,6
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,ulpin,string,text,306112,306017,0.0,0.0,802SQQDCACY9H0
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,district_name_en,string,text,306112,306112,0.0,0.0,Chhindwara
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,district_name_hi,string,text,306112,306112,0.0,0.0,छिंदवाड़ा
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,district_lgd_code,string,integer,306112,306112,0.0,100.0,399
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,tehsil_name_en,string,text,306112,306112,0.0,0.0,Chaurai
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,tehsil_name_hi,string,text,306112,306112,0.0,0.0,चौरई
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,tehsil_lgd_code,string,integer,306112,306112,0.0,100.0,3650
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,village_name_en,string,text,306112,306112,0.0,0.0,Machiwada
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,village_name_hi,string,text,306112,306112,0.0,0.0,माचीवाडा
+Madhya Pradesh/MPBhulekh_MP_Survey_Cadastrals.0111.parquet,village_lgd_code,string,integer,306112,306112,0.0,100.0,494277
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,bhucode,string,int_with_leading_zeros,297602,294928,0.9,100.0,49060100015093
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,kid,string,text,297602,297602,0.0,65.5,33
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,villagee,string,text,297602,289712,2.7,0.0,Rajmali
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,khasranum,string,text,297602,289712,2.7,67.3,33
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,lgdcd,string,integer,297602,297602,0.0,100.0,478549
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,bhucode2,string,integer,297602,2671,99.1,100.0,49060100015093
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,fiiled,string,empty,297602,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,filled,string,integer,297602,297602,0.0,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,bhucode_1,string,empty,297602,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0000.parquet,district,string,text,297602,297602,0.0,0.0,BARWANI
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,bhucode,string,integer,301871,301871,0.0,100.0,41010300039067
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,kid,string,text,301871,301871,0.0,56.8,84
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,villagee,string,text,301871,301871,0.0,0.0,Varoli
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,khasranum,string,text,301871,301871,0.0,56.8,84
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,lgdcd,string,integer,301871,301871,0.0,100.0,506222
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,bhucode2,string,empty,301871,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,fiiled,string,empty,301871,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,filled,string,integer,301871,301871,0.0,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,bhucode_1,string,empty,301871,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0001.parquet,district,string,text,301871,301871,0.0,0.0,BURHANPUR
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,bhucode,string,int_with_leading_zeros,309131,308827,0.1,100.0,17010200031111
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,kid,string,text,309131,309131,0.0,80.9,2
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,villagee,string,text,309131,309131,0.0,0.0,Khedavda
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,khasranum,string,text,309131,309131,0.0,80.9,2
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,lgdcd,string,integer,309131,309131,0.0,100.0,470032
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,bhucode2,string,empty,309131,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,fiiled,string,empty,309131,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,filled,string,integer,309131,309131,0.0,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,bhucode_1,string,empty,309131,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0010.parquet,district,string,text,309131,309131,0.0,0.0,RATLAM
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,bhucode,string,int_with_leading_zeros,323767,323767,0.0,100.0,28011000084165
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,kid,string,text,323767,323767,0.0,81.3,3
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,villagee,string,text,323767,323767,0.0,0.0,Bineka
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,khasranum,string,text,323767,323767,0.0,81.3,3
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,lgdcd,string,integer,323767,323767,0.0,100.0,482266
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,bhucode2,string,empty,323767,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,fiiled,string,empty,323767,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,filled,string,integer,323767,323767,0.0,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,bhucode_1,string,empty,323767,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0011.parquet,district,string,text,323767,323767,0.0,0.0,BHOPAL
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,bhucode,string,integer,312475,312475,0.0,100.0,36080200135139
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,kid,string,text,312475,312475,0.0,59.4,122/2
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,villagee,string,text,312475,312475,0.0,0.0,Joga
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,khasranum,string,text,312475,312475,0.0,59.4,122/2
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,lgdcd,string,integer,312475,312475,0.0,100.0,495606
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,bhucode2,string,empty,312475,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,fiiled,string,empty,312475,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,filled,string,integer,312475,312475,0.0,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,bhucode_1,string,empty,312475,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0100.parquet,district,string,text,312475,312475,0.0,0.0,CHHINDWARA
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,bhucode,string,integer,272834,271246,0.6,100.0,38050200041045
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,kid,string,text,272834,271246,0.6,67.6,127/1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,villagee,string,text,272834,272640,0.1,0.0,Kulpa
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,khasranum,string,text,272834,272640,0.1,67.8,127/1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,lgdcd,string,integer,272834,272834,0.0,100.0,498513
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,bhucode2,string,integer,272834,1588,99.4,100.0,39060200040196
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,fiiled,string,empty,272834,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,filled,string,integer,272834,266623,2.3,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,bhucode_1,string,empty,272834,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0101.parquet,district,string,text,272834,272834,0.0,0.0,BALAGHAT
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,bhucode,string,int_with_leading_zeros,261437,261437,0.0,100.0,10020300084327
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,kid,string,mostly_numeric,261437,261437,0.0,93.9,99
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,villagee,string,text,261437,261437,0.0,0.0,Janraho
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,khasranum,string,mostly_numeric,261437,261437,0.0,93.9,99
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,lgdcd,string,integer,261437,261437,0.0,100.0,459933
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,bhucode2,string,empty,261437,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,fiiled,string,empty,261437,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,filled,string,integer,261437,261437,0.0,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,bhucode_1,string,empty,261437,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0110.parquet,district,string,text,261437,261437,0.0,0.0,SAGAR
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,objectid_1,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,objectid,int32,typed_in_file,,,,,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,bhucode,string,int_with_leading_zeros,280159,280159,0.0,100.0,9999
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,kid,string,text,280159,280159,0.0,85.7,23
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,villagee,string,text,280159,280159,0.0,0.0,Jhhinna
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,khasranum,string,text,280159,280159,0.0,85.7,23
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,lgdcd,string,integer,280159,280159,0.0,100.0,393401
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,bhucode2,string,empty,280159,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,fiiled,string,empty,280159,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,filled,string,integer,280159,245760,12.3,100.0,1
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,bhucode_1,string,empty,280159,0,100.0,0,
+Madhya Pradesh/MPSSDI_MP_Cadastrals.0111.parquet,district,string,text,280159,280159,0.0,0.0,PANNA
+Maharashtra/MRSAC_Cadastrals.00.parquet,OBJECTID,int32,typed_in_file,,,,,
+Maharashtra/MRSAC_Cadastrals.00.parquet,Shape_Length,double,typed_in_file,,,,,
+Maharashtra/MRSAC_Cadastrals.00.parquet,Shape_Area,double,typed_in_file,,,,,
+Maharashtra/MRSAC_Cadastrals.00.parquet,DTNCODE,string,integer,310428,310266,0.1,100.0,529
+Maharashtra/MRSAC_Cadastrals.00.parquet,DTENAME,string,text,310428,310266,0.1,0.0,Sindhudurg
+Maharashtra/MRSAC_Cadastrals.00.parquet,THNCODE,string,int_with_leading_zeros,310428,310266,0.1,100.0,04279
+Maharashtra/MRSAC_Cadastrals.00.parquet,THENAME,string,text,310428,310266,0.1,0.0,Vengurla
+Maharashtra/MRSAC_Cadastrals.00.parquet,VINCODE,string,integer,310428,310266,0.1,100.0,566713
+Maharashtra/MRSAC_Cadastrals.00.parquet,VIL_NAME,string,text,310428,310266,0.1,0.0,Kanyale
+Maharashtra/MRSAC_Cadastrals.00.parquet,CCODE,string,mostly_numeric,310428,307966,0.8,100.0,330005000304149300
+Maharashtra/MRSAC_Cadastrals.00.parquet,PIN,string,mostly_numeric,310428,283887,8.5,90.5,1
+Maharashtra/MRSAC_Cadastrals.00.parquet,REMARK,string,integer,310428,313,99.9,100.0,1
+Maharashtra/MRSAC_Cadastrals.01.parquet,OBJECTID,int32,typed_in_file,,,,,
+Maharashtra/MRSAC_Cadastrals.01.parquet,Shape_Length,double,typed_in_file,,,,,
+Maharashtra/MRSAC_Cadastrals.01.parquet,Shape_Area,double,typed_in_file,,,,,
+Maharashtra/MRSAC_Cadastrals.01.parquet,DTNCODE,string,integer,344827,344290,0.2,100.0,531
+Maharashtra/MRSAC_Cadastrals.01.parquet,DTENAME,string,text,344827,344290,0.2,0.0,Sangli
+Maharashtra/MRSAC_Cadastrals.01.parquet,THNCODE,string,int_with_leading_zeros,344827,344290,0.2,100.0,04304
+Maharashtra/MRSAC_Cadastrals.01.parquet,THENAME,string,text,344827,344290,0.2,0.0,Jat
+Maharashtra/MRSAC_Cadastrals.01.parquet,VINCODE,string,integer,344827,344290,0.2,100.0,568889
+Maharashtra/MRSAC_Cadastrals.01.parquet,VIL_NAME,string,text,344827,344290,0.2,0.0,Suslad
+Maharashtra/MRSAC_Cadastrals.01.parquet,CCODE,string,mostly_numeric,344827,344364,0.1,99.9,350009000404364500
+Maharashtra/MRSAC_Cadastrals.01.parquet,PIN,string,mostly_numeric,344827,326555,5.3,96.6,37
+Maharashtra/MRSAC_Cadastrals.01.parquet,REMARK,string,mostly_numeric,344827,4520,98.7,98.7,1
+Maharashtra/NCSCM_MH_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Survey_Number,string,mostly_numeric,358016,326437,8.8,90.1,50
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Ward,string,text,358016,56323,84.3,0.0,M
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Village,string,text,358016,354117,1.1,0.0,Jakimirya
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Taluk,string,text,358016,266842,25.5,0.0,Ratnagiri
+Maharashtra/NCSCM_MH_Cadastrals.parquet,District,string,text,358016,33210,90.7,0.0,Thane
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Other_Info,string,text,358016,89082,75.1,0.0,Chembur CSO
+Maharashtra/NCSCM_MH_Cadastrals.parquet,Remarks,string,text,358016,9,100.0,11.1,MCGM AQUARE DTD.12/01/2006.LAQ
+Manipur/MARSAC_MN_Cadastrals.parquet,id,string,text,348345,348345,0.0,0.0,moirangcadastral.25907
+Manipur/MARSAC_MN_Cadastrals.parquet,objectid_1,string,decimal,348345,348345,0.0,100.0,135599.0
+Manipur/MARSAC_MN_Cadastrals.parquet,objectid,string,decimal,348345,348345,0.0,100.0,136471.0
+Manipur/MARSAC_MN_Cadastrals.parquet,sub_divn,string,text,348345,52549,84.9,0.0,Patsoi
+Manipur/MARSAC_MN_Cadastrals.parquet,survey_no,string,mostly_numeric,348345,337240,3.2,99.8,290
+Manipur/MARSAC_MN_Cadastrals.parquet,vill_name,string,text,348345,348107,0.1,0.0,Torbung 1
+Manipur/MARSAC_MN_Cadastrals.parquet,village_no,string,mostly_numeric,348345,335850,3.6,96.7,98
+Manipur/MARSAC_MN_Cadastrals.parquet,vcen_code,string,mostly_numeric,348345,102200,70.7,98.2,1488
+Manipur/MARSAC_MN_Cadastrals.parquet,sdc_name,string,text,348345,63304,81.8,0.0,Heingang
+Manipur/MARSAC_MN_Cadastrals.parquet,sd_name,string,text,348345,159226,54.3,0.0,Kakching
+Manipur/MARSAC_MN_Cadastrals.parquet,sd_code,string,int_with_leading_zeros,348345,127025,63.5,100.0,0003
+Manipur/MARSAC_MN_Cadastrals.parquet,dist_name,string,text,348345,286175,17.8,0.0,Bishnupur
+Manipur/MARSAC_MN_Cadastrals.parquet,dcen_code,string,integer,348345,251706,27.7,100.0,1
+Manipur/MARSAC_MN_Cadastrals.parquet,area_ha,string,decimal,348345,348345,0.0,100.0,8.48619799650
+Manipur/MARSAC_MN_Cadastrals.parquet,shape_leng,string,decimal,348345,348345,0.0,100.0,2114.89023628
+Manipur/MARSAC_MN_Cadastrals.parquet,shape_le_1,string,decimal,348345,348345,0.0,100.0,2114.89023628
+Manipur/MARSAC_MN_Cadastrals.parquet,shape_area,string,decimal,348345,348345,0.0,100.0,84861.9799650
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,revenue_plot,string,mostly_numeric,351929,351929,0.0,99.8,737
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,d_id,string,integer,351929,351929,0.0,100.0,116
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,b_id,string,int_with_leading_zeros,351929,351929,0.0,100.0,2504
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,p_id,string,int_with_leading_zeros,351929,351929,0.0,100.0,25040026
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,v_id,string,int_with_leading_zeros,351929,351929,0.0,100.0,2502012
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,d_name,string,text,351929,351929,0.0,0.0,Malkanagiri
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,b_name,string,text,351929,351929,0.0,0.0,Kalimela
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,p_name,string,text,351929,351929,0.0,0.0,Motu
+Odissa/Odisha4kgeo_OD_Cadastrals.000.parquet,v_name,string,text,351929,351929,0.0,0.0,Motu
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,revenue_plot,string,mostly_numeric,353925,353924,0.0,100.0,1507
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,d_id,string,integer,353925,353925,0.0,100.0,112
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,b_id,string,int_with_leading_zeros,353925,353925,0.0,100.0,2103
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,p_id,string,int_with_leading_zeros,353925,353925,0.0,100.0,21030009
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,v_id,string,int_with_leading_zeros,353925,353925,0.0,100.0,2103054
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,d_name,string,text,353925,353925,0.0,0.0,Nuapada
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,b_name,string,text,353925,353925,0.0,0.0,Boden
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,p_name,string,text,353925,353925,0.0,0.0,Nagapada
+Odissa/Odisha4kgeo_OD_Cadastrals.001.parquet,v_name,string,text,353925,353925,0.0,0.0,Nagapara
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,revenue_plot,string,mostly_numeric,287352,287352,0.0,100.0,910
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,d_id,string,integer,287352,287352,0.0,100.0,60
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,b_id,string,int_with_leading_zeros,287352,287352,0.0,100.0,1101
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,p_id,string,int_with_leading_zeros,287352,287352,0.0,100.0,11010001
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,v_id,string,int_with_leading_zeros,287352,287352,0.0,100.0,1101021
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,d_name,string,text,287352,287352,0.0,0.0,Puri
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,b_name,string,text,287352,287352,0.0,0.0,Krishnaprasad
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,p_name,string,text,287352,287352,0.0,0.0,Bajrakot
+Odissa/Odisha4kgeo_OD_Cadastrals.010.parquet,v_name,string,text,287352,287352,0.0,0.0,Udayagiri
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,revenue_plot,string,mostly_numeric,357310,357310,0.0,100.0,5830
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,d_id,string,integer,357310,357310,0.0,100.0,179
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,b_id,string,int_with_leading_zeros,357310,357310,0.0,100.0,1406
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,p_id,string,int_with_leading_zeros,357310,357310,0.0,100.0,14060017
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,v_id,string,int_with_leading_zeros,357310,357310,0.0,100.0,1406118
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,d_name,string,text,357310,357310,0.0,0.0,Anugul
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,b_name,string,text,357310,357310,0.0,0.0,Banarpal
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,p_name,string,text,357310,357310,0.0,0.0,Budhapanka
+Odissa/Odisha4kgeo_OD_Cadastrals.011.parquet,v_name,string,text,357310,357310,0.0,0.0,Budhapanka-116
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Mang50Bufr,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Mang50mBfr,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,CRZ_IA,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,CRZ_IB,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,CRZ_II,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,NDZ,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,CRZ_IVB,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,HTL200_500,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,HazardLine,double,typed_in_file,,,,,
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Survey_No,string,mostly_numeric,6715,6714,0.0,99.8,69
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Village_Name,string,text,6715,6715,0.0,0.0,Mahe
+Pondicherry/NCSCM_PC_Cadastrals.parquet,District,string,text,6715,6548,2.5,0.0,Yanam
+Pondicherry/NCSCM_PC_Cadastrals.parquet,District_Name,string,text,6715,167,97.5,0.0,Mahe
+Pondicherry/NCSCM_PC_Cadastrals.parquet,Village,string,text,6715,455,93.2,0.0,Kanakalapet
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,id,string,text,336155,336155,0.0,0.0,combined_khasra_spatialjoin.11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,join_count,string,integer,336155,336155,0.0,100.0,1
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,target_fid,string,integer,336155,336155,0.0,100.0,114901
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,join_cou_1,string,integer,336155,336155,0.0,100.0,1
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,target_f_1,string,integer,336155,336155,0.0,100.0,114901
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,entity,string,text,336155,210356,37.4,0.0,Multi Text
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,handle,string,text,336155,210356,37.4,19.5,3DD1B
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,layer,string,text,336155,210356,37.4,0.0,RED TEXT
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrfrzn,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrlock,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyron,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrvpfrzn,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrhandle,string,text,336155,210356,37.4,31.2,256DE
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,color,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,entcolor,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrcolor,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,blkcolor,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,linetype,string,text,336155,210356,37.4,0.0,Continuous
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,entlinetyp,string,text,336155,210356,37.4,0.0,Continuous
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrlntype,string,text,336155,210356,37.4,0.0,Continuous
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,elevation,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,thickness,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,linewt,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,entlinewt,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lyrlinewt,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,blklinewt,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,refname,string,text,336155,210356,37.4,1.0,{\fVerdana|b0|i0|c0|p34;3}
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,ltscale,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,extx,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,exty,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,extz,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,docname,string,text,336155,210356,37.4,0.0,part 3.dwg
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,docpath,string,text,336155,210356,37.4,0.0,D:\ARVIND_WORK\JALANDHAR_LPA_G
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,doctype,string,text,336155,210356,37.4,0.0,DWG
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,docver,string,text,336155,210356,37.4,0.0,AC1027
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,scalex,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,scaley,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,scalez,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,style,string,text,336155,210356,37.4,0.0,Standard
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,fontid,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,text,string,text,336155,210376,37.4,68.9,3
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,height,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtangle,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtwidth,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtoblique,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtjust,string,text,336155,210356,37.4,0.0,Left
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,vertalign,string,text,336155,210356,37.4,0.0,Baseline
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtfont,string,text,336155,210356,37.4,0.0,Arial
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtboxht,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtboxwd,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtrefwd,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtattach,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtdir,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,lnspace,string,integer,336155,336155,0.0,100.0,0
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,spacefct,string,decimal,336155,336155,0.0,100.0,0E-11
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,txtmemo,string,text,336155,210356,37.4,1.0,{\fVerdana|b0|i0|c0|p34;3}
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,khasra_no,string,text,336155,210376,37.4,68.9,3
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,vilnam_soi,string,text,336155,336155,0.0,0.0,SAIDUPUR
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,st_2011,string,int_with_leading_zeros,336155,336155,0.0,100.0,03
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,dt_2011,string,int_with_leading_zeros,336155,336155,0.0,100.0,037
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,sdt_2011,string,int_with_leading_zeros,336155,331277,1.5,100.0,00210
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,vil_2011,string,int_with_leading_zeros,336155,331277,1.5,100.0,029888
+Punjab/NCOG_PB_Jalandhar_Cadastrals.parquet,vil_name11,string,text,336155,331277,1.5,0.0,Saidupur (136)
+Punjab/NCOG_Punjab_Cadastrals.parquet,id,string,text,313181,313181,0.0,0.0,ludhiana_khasara.193465
+Punjab/NCOG_Punjab_Cadastrals.parquet,join_count,string,integer,313181,278504,11.1,100.0,0
+Punjab/NCOG_Punjab_Cadastrals.parquet,target_fid,string,integer,313181,278504,11.1,100.0,257876
+Punjab/NCOG_Punjab_Cadastrals.parquet,khasra_no,string,text,313181,221364,29.3,89.8,13
+Punjab/NCOG_Punjab_Cadastrals.parquet,name,string,text,313181,278504,11.1,0.0,Amritsar
+Punjab/NCOG_Punjab_Cadastrals.parquet,subdt_lgd,string,decimal,313181,313179,0.0,100.0,228.000000000
+Punjab/NCOG_Punjab_Cadastrals.parquet,stcode11,string,int_with_leading_zeros,313181,313179,0.0,100.0,03
+Punjab/NCOG_Punjab_Cadastrals.parquet,dtcode11,string,int_with_leading_zeros,313181,313179,0.0,100.0,041
+Punjab/NCOG_Punjab_Cadastrals.parquet,sdtcode11,string,int_with_leading_zeros,313181,313179,0.0,100.0,00228
+Punjab/NCOG_Punjab_Cadastrals.parquet,stname,string,text,313181,313179,0.0,0.0,PUNJAB
+Punjab/NCOG_Punjab_Cadastrals.parquet,dtname,string,text,313181,313179,0.0,0.0,Ludhiana
+Punjab/NCOG_Punjab_Cadastrals.parquet,sdtname,string,text,313181,313179,0.0,0.0,Ludhiana (West)
+Punjab/NCOG_Punjab_Cadastrals.parquet,dist_lgd,string,decimal,313181,313179,0.0,100.0,36.0000000000
+Punjab/NCOG_Punjab_Cadastrals.parquet,state_lgd,string,decimal,313181,313179,0.0,100.0,3.00000000000
+Punjab/NCOG_Punjab_Cadastrals.parquet,jsid,string,integer,313181,313179,0.0,100.0,224
+Punjab/NCOG_Punjab_Cadastrals.parquet,textstring,string,text,313181,33456,89.3,52.0,7
+Punjab/NCOG_Punjab_Cadastrals.parquet,textstri_1,string,text,313181,14027,95.5,0.0,26//
+Punjab/NCOG_Punjab_Cadastrals.parquet,village_na,string,text,313181,34675,88.9,0.0,Mor Karima
+Punjab/NCOG_Punjab_Cadastrals.parquet,hb_no_,string,integer,313181,34675,88.9,100.0,109
+Punjab/NCOG_Punjab_Cadastrals.parquet,tehsil_nam,string,text,313181,34675,88.9,0.0,Phillaur
+Punjab/NCOG_Punjab_Cadastrals.parquet,mustatil_n,string,text,313181,32828,89.5,0.0,21//
+Punjab/NCOG_Punjab_Cadastrals.parquet,parcel_no,string,text,313181,33456,89.3,52.0,7
+Punjab/NCOG_Punjab_Cadastrals.parquet,vilnam_soi,string,text,313181,265645,15.2,0.0,DAOKE
+Punjab/NCOG_Punjab_Cadastrals.parquet,st_2011,string,int_with_leading_zeros,313181,265645,15.2,100.0,03
+Punjab/NCOG_Punjab_Cadastrals.parquet,dt_2011,string,int_with_leading_zeros,313181,265645,15.2,100.0,049
+Punjab/NCOG_Punjab_Cadastrals.parquet,sdt_2011,string,int_with_leading_zeros,313181,265645,15.2,100.0,00257
+Punjab/NCOG_Punjab_Cadastrals.parquet,vil_2011,string,int_with_leading_zeros,313181,265645,15.2,100.0,037668
+Punjab/NCOG_Punjab_Cadastrals.parquet,vil_name11,string,text,313181,300320,4.1,0.0,Mor Karima
+Punjab/PunjabGIS_PB_Cadastrals.parquet,gid,int32,typed_in_file,,,,,
+Punjab/PunjabGIS_PB_Cadastrals.parquet,area_sqmtr,double,typed_in_file,,,,,
+Punjab/PunjabGIS_PB_Cadastrals.parquet,district,string,text,348067,348067,0.0,0.0,MOGA
+Punjab/PunjabGIS_PB_Cadastrals.parquet,tehsil,string,text,348067,348067,0.0,0.0,NIHAL_SINGH_WALA
+Punjab/PunjabGIS_PB_Cadastrals.parquet,village,string,text,348067,348067,0.0,0.0,SIADO KE
+Punjab/PunjabGIS_PB_Cadastrals.parquet,hb_no,string,mostly_numeric,348067,348067,0.0,99.1,159
+Punjab/PunjabGIS_PB_Cadastrals.parquet,layer,string,text,348067,348067,0.0,0.0,KILLA_POLYGON
+Punjab/PunjabGIS_PB_Cadastrals.parquet,landuse,string,text,348067,5487,98.4,0.0,ROAD
+Punjab/PunjabGIS_PB_Cadastrals.parquet,killa_no,string,text,348067,330732,5.0,59.5,23
+Punjab/PunjabGIS_PB_Cadastrals.parquet,mustil_no,string,mostly_numeric,348067,313499,9.9,99.9,171
+Punjab/PunjabGIS_PB_Cadastrals.parquet,fid,string,text,348067,348067,0.0,0.0,revenue_moga_siado_ke_159_kill
+Punjab/PunjabGIS_PB_Cadastrals.parquet,geometry_name,string,text,348067,348067,0.0,0.0,geom
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,id,string,text,252470,252470,0.0,0.0,banswara_cad_rajasthan.3050
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,gid,string,integer,252470,252388,0.0,100.0,3050
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,objectid,string,integer,252470,242028,4.1,100.0,9337
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,objectid_1,string,integer,252470,6691,97.3,100.0,187
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,bhucode,string,mostly_numeric,252470,252388,0.0,99.9,2400600040001000008
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,feat_type_,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,oid_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,patwarmand,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,raj_ak_vco,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,unparsed,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vill_code,string,int_with_leading_zeros,252470,119861,52.5,100.0,355
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vill_name,string,text,252470,252388,0.0,0.0,à¤¡à¥à¤à¤à¤¿à¤¯à¤¾
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,district_n,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,khasra_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,length,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,sno,string,text,252470,250354,0.8,79.7,2
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,50a,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,f2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,f23,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,f24,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,f4,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,sheet_n0,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tarmim_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tarmin,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tehsil_nam,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vill_area,string,decimal,252470,232863,7.8,100.0,4.45133943931122E-03
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ax,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,orig_fid,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,sheet_no,string,int_with_leading_zeros,252470,242611,3.9,100.0,1
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,feat_type,string,text,252470,249252,1.3,0.0,PA
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,district,string,text,252470,252389,0.0,0.0,à¤¬à¤¾à¤à¤¸à¤µà¤¾à¤¡à¤¼à¤¾
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,srsac_area,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tehsil_coa,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tehsil,string,text,252470,252389,0.0,0.0,à¤à¥à¤à¥à¤¸à¤°à¤µà¤¨
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ilr_coad,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,khasra,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,block_name,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,block_name  ,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,gp_name_en,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,census_cd_,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,census_nm_,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,census_n_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ilr_name_e,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,patwar_nam,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pc_coad,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ilr,string,text,252470,242035,4.1,0.0,à¤¦à¤¾à¤¨à¤ªà¥à¤°
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pc,string,text,252470,242035,4.1,0.0,à¤¹à¤°à¤¨à¤¾à¤¥à¤ªà¥à¤°à¤¾
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,apk_code,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,remarks,string,text,252470,30511,87.9,0.0,A2006204320165606091
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,shape_leng,string,decimal,252470,242028,4.1,100.0,30.250084405399999
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,shape_area,string,decimal,252470,242028,4.1,100.0,468.774742379870531
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,code,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,count_vill,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,fid,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,gp,string,text,252470,242028,4.1,0.0,BHAISRA CHHOTA
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,area_in_he,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,block,string,text,252470,242028,4.1,0.0,GALIAKOT
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,lineweight,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,objectid_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,overlapped,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,remark2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,sheet_no_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tahsil,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pargana,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vil_area,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vil_code,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village__n,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ccode_11,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village_co,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village_h,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,area_srs,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,district_c,string,int_with_leading_zeros,252470,104263,58.7,100.0,01
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,census_cod,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tehsil_cod,string,int_with_leading_zeros,252470,119862,52.5,100.0,01
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ccode11,string,mostly_numeric,252470,252381,0.0,94.2,98130
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,khasra_sha,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,khasra_s_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pc_name,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,shape_le_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,shape_ar_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village_ar,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vname_e,string,text,252470,252381,0.0,0.0,LIKHATIYA
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vname_e_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vname_h,string,text,252470,252381,0.0,4.1,fy[kfr;k
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,fid_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ilr_code,string,int_with_leading_zeros,252470,119770,52.6,100.0,07
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pc_code,string,integer,252470,119770,52.6,100.0,2
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,dist_code,string,int_with_leading_zeros,252470,15691,93.8,100.0,01
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,string,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,join_count,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tah_code,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pat_code,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,kid_h,string,text,252470,92,100.0,79.3,64
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,par_type,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,par_err,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,area,string,decimal,252470,7352,97.1,100.0,1.314224367100062
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,f27,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,f29,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,patwar,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,perimeter,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,scale,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,kid_,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,sc_nic,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,musavi_no,string,int_with_leading_zeros,252470,92,100.0,100.0,0112040631502
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,target_fid,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,a,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,join_cou_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,target_f_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,join_cou_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,target_f_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,join_cou_3,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,target_f_3,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,join_cou_4,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,target_f_4,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tehsil_h,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_ang_3,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,textstring,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_size,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_angle,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,textstri_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_size_,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_ang_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,textstri_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_size1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_ang_2,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,textstri_3,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,text_siz_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,type,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,aera,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,khasara_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,termiim_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,act_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,v_code_new,string,integer,252470,92,100.0,100.0,0
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village_e,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,area_hec,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,viilage_h,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,village_na,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,remark,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vname_h_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vnameh,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,khasra_are,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ilr1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pc1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,district_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tehsil_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ilr_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,pc_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,block_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,gp_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,shape_le_1,string,decimal,252470,14455,94.3,100.0,98.952636578597406
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,shape_ar_1,string,decimal,252470,6691,97.3,100.0,3520.04531222000
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,vill_name_,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,layer,string,text,252470,132246,47.6,0.0,A11500917087731
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,linetype,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,linewt,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,path,string,text,252470,132246,47.6,0.0,/home/user/Hemant/Drive A/Jina
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ccoce,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,ccode,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,distt_name,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,"gid
+",string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,devlopment,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,dist_twn_c,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,dist_sub_c,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,s_code,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,tarmim,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,area_1,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,teh_name,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,edarti,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,map_number,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,murba_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,killa,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,killa_no,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.00.parquet,mapcode,string,empty,252470,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,id,string,text,295324,295324,0.0,5.0,pratapgarh_cad_rajasthan.34923
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,gid,string,integer,295324,295302,0.0,100.0,34923
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,objectid,string,integer,295324,291942,1.1,100.0,34923
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,objectid_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,bhucode,string,int_with_leading_zeros,295324,172714,41.5,100.0,3314604220160305818
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,feat_type_,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,oid_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,patwarmand,string,integer,295324,7,100.0,100.0,232
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,raj_ak_vco,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,unparsed,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vill_code,string,int_with_leading_zeros,295324,106630,63.9,100.0,157
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vill_name,string,text,295324,283085,4.1,0.0,LUHAR KHALI
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,district_n,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,khasra_no,string,text,295324,17014,94.2,82.3,2676
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,length,string,decimal,295324,176,99.9,100.0,0E-15
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,sno,string,text,295324,259604,12.1,82.2,1133
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,50a,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,f2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,f23,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,f24,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,f4,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,sheet_n0,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tarmim_no,string,text,295324,90,100.0,0.0,TR
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tarmin,string,text,295324,109,100.0,0.0,TR
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tehsil_nam,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vill_area,string,decimal,295324,143541,51.4,100.0,460.12209972842
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ax,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,orig_fid,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,sheet_no,string,decimal,295324,134142,54.6,100.0,01
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,feat_type,string,text,295324,201185,31.9,0.0,PA
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,district,string,text,295324,232018,21.4,1.4,PRATAPGARH
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,srsac_area,string,decimal,295324,12688,95.7,100.0,0.442585138800657
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tehsil_coa,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tehsil,string,text,295324,232019,21.4,1.4,PRATAPGARH
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ilr_coad,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,khasra,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,block_name,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,block_name  ,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,gp_name_en,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,census_cd_,string,int_with_leading_zeros,295324,8943,97.0,100.0,102496
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,census_nm_,string,text,295324,8943,97.0,0.0,CHAREL
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,census_n_1,string,text,295324,8943,97.0,0.0,pjsy
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ilr_name_e,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,patwar_nam,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pc_coad,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ilr,string,text,295324,232019,21.4,1.4,THARA
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pc,string,text,295324,232019,21.4,1.4,BARDEEYA
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,apk_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,remarks,string,text,295324,21936,92.6,4.7,TR
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,shape_leng,string,decimal,295324,291948,1.1,100.0,87.879254579319735
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,shape_area,string,decimal,295324,291948,1.1,100.0,369.884815340335592
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,count_vill,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,fid,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,gp,string,text,295324,232019,21.4,0.0,BARDEEYA
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,area_in_he,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,block,string,text,295324,232018,21.4,0.0,PRATAPGARH
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,lineweight,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,objectid_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,overlapped,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,remark2,string,text,295324,8105,97.3,0.0,MANPURA MANCHERI 2
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,sheet_no_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tahsil,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pargana,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vil_area,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vil_code,string,int_with_leading_zeros,295324,736,99.8,100.0,02900188006790
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village__n,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ccode_11,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village_co,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village_h,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,area_srs,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,district_c,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,census_cod,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tehsil_cod,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ccode11,string,mostly_numeric,295324,232017,21.4,99.4,108462
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,khasra_sha,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,khasra_s_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pc_name,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,shape_le_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,shape_ar_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village_ar,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vname_e,string,text,295324,172429,41.6,0.0,KHORA SHYAMDAS
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vname_e_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vname_h,string,text,295324,170184,42.4,0.0,[kksjk ';kenkl
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,fid_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ilr_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pc_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,dist_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,string,string,text,295324,4264,98.6,83.4,1065/737
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,join_count,string,integer,295324,345,99.9,100.0,0
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tah_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pat_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,kid_h,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,par_type,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,par_err,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,area,string,decimal,295324,130979,55.6,100.0,0
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,f27,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,f29,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,patwar,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,perimeter,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,scale,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,kid_,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,sc_nic,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,musavi_no,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,target_fid,string,integer,295324,345,99.9,100.0,0
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,a,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,join_cou_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,target_f_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,join_cou_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,target_f_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,join_cou_3,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,target_f_3,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,join_cou_4,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,target_f_4,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tehsil_h,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_ang_3,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,textstring,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_size,string,decimal,295324,345,99.9,100.0,0E-15
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_angle,string,decimal,295324,345,99.9,100.0,0E-15
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,textstri_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_size_,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_ang_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,textstri_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_size1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_ang_2,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,textstri_3,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,text_siz_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,type,string,text,295324,2367,99.2,0.2,2314
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,aera,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,khasara_no,string,text,295324,14417,95.1,80.4,13
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,termiim_no,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,act_no,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,v_code_new,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village_e,string,text,295324,59590,79.8,0.0,KHERA
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,area_hec,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,viilage_h,string,text,295324,59590,79.8,0.0,[ksMk
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,village_na,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,remark,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vname_h_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vnameh,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,khasra_are,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ilr1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pc1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,district_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tehsil_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ilr_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,pc_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,block_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,gp_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,shape_le_1,string,decimal,295324,10917,96.3,100.0,1719.900791899868636
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,shape_ar_1,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,vill_name_,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,layer,string,text,295324,35042,88.1,0.0,TEXT_PARCEL
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,linetype,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,linewt,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,path,string,text,295324,3360,98.9,0.0,/home/user/Hemant/Drive A/Jina
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ccoce,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,ccode,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,distt_name,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,"gid
+",string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,devlopment,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,dist_twn_c,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,dist_sub_c,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,s_code,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,tarmim,string,text,295324,4861,98.4,0.1,TR
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,area_1,string,decimal,295324,7,100.0,100.0,0.202598134917952
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,teh_name,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,edarti,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,map_number,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,murba_no,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,killa,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,killa_no,string,empty,295324,0,100.0,0,
+Rajasthan/NCOG_Rajasthan_Cadastrals.01.parquet,mapcode,string,empty,295324,0,100.0,0,
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,Village,string,text,220663,220662,0.0,0.0,Keezhkulam
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,Taluk,string,text,220663,220663,0.0,0.0,Vilavancode
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,District,string,text,220663,220663,0.0,0.0,Kanyakumari
+Tamil Nadu/NCSCM_TN_Cadastrals.parquet,Survey_Number,string,mostly_numeric,220663,218019,1.2,98.0,432
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"dtcp_land_master
+
+updated_at",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_priid,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"govt_priview_cadastral
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,idview_fmb.fid--6196ede_193438559f0_397f,string,integer,364717,1,100.0,100.0,156736427
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,idview_fmb.fid--6196ede_19343f82a2b_c70,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,unparsed,string,text,364717,33,100.0,0.0,"<li><strong><span class=""atr-n"
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+created_at",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+govt_pri",string,integer,364717,1,100.0,100.0,2
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+created_at",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+govt_pri",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+govt_pri
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+id",string,integer,364717,1,100.0,100.0,155720926
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+id
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_fmb
+
+created_at",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,id,string,mostly_numeric,364717,363835,0.2,100.0,191182928
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_atlgd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"govt_pri
+  ",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_iddistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idlgd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"lgd_district_code
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"lgd_district_code
+  ",string,integer,364717,1,100.0,100.0,729
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_district_code  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,sub_divisionlgd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+lgd_district_code",string,integer,364717,1,100.0,100.0,593
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_cadastrallgd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_fmb
+
+lgd_district_code",string,integer,364717,1,100.0,100.0,729
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_1934360383c_215did,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19343a99bca_-717algd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19343c9b06a_-7c94id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19343e9d811_-24c8id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_1934553683f_-6869id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_193485b185d_5ebbid,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19349644cb6_7ed2id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_district_code,string,mostly_numeric,364717,281327,22.9,100.0,733
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,576id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,639325district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Mar 13, 2024 1",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,district_codedistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,district_codeview_fmb.fid--6196ede_193439ceeef_7a86,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,district_codeview_fmb.fid--6196ede_1934812c4f5_7a9c,string,integer,364717,1,100.0,100.0,30
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,district_codeview_fmb.fid--6196ede_19348c6b370_8bf,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_pridistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,iddistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_fmbdistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,sub_divisiondistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,taluk_codelgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_1934588d5b9_-2e60district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19349c77845_-68d5id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,district_code,string,mostly_numeric,364717,363921,0.2,100.0,34
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,370lgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_attaluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idlgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_taluk_code,string,integer,364717,281384,22.8,100.0,5874
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,2taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,5803lgd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_fmbtaluk_code,string,text,364717,1,100.0,0.0,:
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idtaluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_taluk_code  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"lgd_taluk_codeview_cadastral
+
+
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,sub_divisiontaluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"taluk_code
+  ",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,taluk_code  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+lgd_taluk_code",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+taluk_code",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--15747d4a_1933f7adb53_-2114lgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19343790b39_-443ctaluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19343c57d21_-6473lgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19343c89214_2233taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19344cc433f_-1804lgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19345099a79_5f2algd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,taluk_code,string,mostly_numeric,364717,363986,0.2,100.0,6
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_atlgd_village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idlgd_village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,survey_numbervillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+lgd_village_code",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_1934354a5e6_25c0lgd_village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19349a6d6e9_-2dfbtaluk_code,string,integer,364717,1,100.0,100.0,9
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_village_code,string,mostly_numeric,364717,281429,22.8,100.0,933495
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,1village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,643929lgd_village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_atvillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_privillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,idvillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_activevillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idvillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,sub_divisionkide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+village_code",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+village_code
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_cadastralvillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19345783e1a_73b2village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19349a71411_7e67village_code,string,integer,364717,1,100.0,100.0,276
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmbvillage_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,village_codedistrict_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,village_codelgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,village_code,string,mostly_numeric,364717,364058,0.2,100.0,001
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,5883kide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_prikide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,kide,string,text,364717,364101,0.2,77.0,2
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,028survey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,061survey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_at  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_atis_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"kide
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,kide  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idis_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,sub_divisionsurvey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,survey_number  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,survey_numbersurvey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"survey_numberview_cadastral
+
+
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+kide",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+survey_number",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+survey_number
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19344ccd01a_-66cdsurvey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19348cfb53f_-12a7kide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19348d2696e_-6c16kide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_19349ec672b_-1032kide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,survey_number,string,mostly_numeric,364717,364140,0.2,99.7,2
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_atcreated_at,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,district_code  ,string,integer,364717,1,100.0,100.0,28
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_pri  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_priis_fmb,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,kideis_fmb,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,sub_division,string,text,364717,19,100.0,42.1,11
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,v123,string,int_with_leading_zeros,364717,1,100.0,100.0,005
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,932730kide,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"is_fmbview_cadastral
+
+
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,survey_numberis_fmb,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+is_fmb",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+sub_division",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+is_fmb",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+is_fmb
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+sub_division",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_fmb,string,mostly_numeric,364717,364209,0.1,100.0,0
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,1id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,1lgd_taluk_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,4is_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_active,string,mostly_numeric,364717,364262,0.1,100.0,1
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,173created_at,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,1lgd_village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,1survey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,deleted_at,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_activeid,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_activeis_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_village_code  ,string,integer,364717,1,100.0,100.0,642428
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,lgd_village_codeis_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"taluk_code
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+is_active",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+is_active",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+is_active
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_cadastralis_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_fmb
+
+is_active",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,view_fmb.fid--6196ede_193430f15ed_-6b5bis_active,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,created_at,string,text,364717,350315,3.9,0.0,"Mar 5, 2024 5:48:50 PM"
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Nov 14, 2023 10",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Nov 7, 2023 10",string,text,364717,2,100.0,0.0,54:21 AM
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Nov 8, 2023 2",string,text,364717,3,100.0,0.0,52:54 PMvillage_code:
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Oct 22, 2024 10",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Oct 24, 2024 7",string,text,364717,2,100.0,0.0,45:17 PM
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"created_at
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,govt_pri,string,text,364717,28,100.0,89.3,"created_at: 2
+  Nov 7, 2023 10"
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,2created_at,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,2survey_number,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,2village_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"Mar 5, 2024 5",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"id
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"is_active
+  ",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,is_fmb  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"land_type_id
+  ",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_id  ,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"land_type_idOct 24, 2024 1",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idcreated_at,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_idid,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"lgd_village_code
+  ",string,integer,364717,1,100.0,100.0,642779
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"sub_division
+",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,updated_at,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,land_type_id,string,text,364717,29,100.0,79.3,id:
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,1is_fmb,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,2id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,2lgd_district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,6district_code,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,landuse_name,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,layer_id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,object_id,string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+
+land_type_id",string,empty,364717,0,100.0,0,
+Tamil Nadu/TNGIS_TN_Cadastrals.parquet,"view_cadastral
+
+land_type_id",string,empty,364717,0,100.0,0,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,OBJECTID_12,int32,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Shape_Leng,double,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,SNo,int32,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,DMV_Code_91,int32,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Feature_Co,string,int_with_leading_zeros,259709,258258,0.6,100.0,1101
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Descriptio,string,text,259709,258267,0.6,0.0,Parcel Boundary
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Parcel_num,string,text,259709,250320,3.6,85.3,114
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Remarks,string,text,259709,10930,95.8,0.1,Stream
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,V_Name,string,text,259709,259709,0.0,0.0,Kudakanoor
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,M_Name,string,text,259709,259709,0.0,0.0,Aiza
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,D_Name,string,text,259709,259709,0.0,0.0,Mahabubnagar
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,DMV_Code,string,integer,259709,259709,0.0,100.0,1458016
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,New_District,string,text,259709,259414,0.1,0.0,Jogulamba Gadwal
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,New_Revenue_Division,string,text,259709,259414,0.1,0.0,Gadwal
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,New_Mandal,string,text,259709,259414,0.1,0.0,Aiza
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Census_Code_2011,string,integer,259709,259415,0.1,100.0,576295
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,New_Villagename,string,text,259709,259415,0.1,0.0,Kudakanoor
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,Classification_code,string,text,259709,259415,0.1,0.0,576295-Habited Village
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,dmvcode91,string,integer,259709,259415,0.1,100.0,1458016
+Telangana/TRACGIS_Bhunaksha_Cadastrals.parquet,dmv_syno,string,empty,259709,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,OBJECTID,int32,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Dist_LGD,int32,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,State_LGD,int32,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Subdt_LGD,int32,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,VIL_LGD,int32,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Shape_Length,double,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Shape_Area,double,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Area_Hect,double,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Area,double,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,PLOT_NO,int32,typed_in_file,,,,,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Dag_No,string,mostly_numeric,153093,152932,0.1,100.0,357
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Sub_div,string,text,153093,152037,0.7,0.0,Mohanpur
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,District,string,text,153093,153037,0.0,0.0,West
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Mouja,string,text,153093,16393,89.3,0.0,Mohanpur
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Feature,string,text,153093,16393,89.3,0.0,Dag
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,stcode11,string,integer,153093,153093,0.0,100.0,16
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,dtcode11,string,integer,153093,153093,0.0,100.0,289
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,sdtcode11,string,empty,153093,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,stname,string,text,153093,153093,0.0,0.0,TRIPURA
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,dtname,string,text,153093,153093,0.0,0.0,West Tripura
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,sdtname,string,text,153093,153093,0.0,0.0,Mohanpur
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Mouja_Name,string,text,153093,135644,11.4,0.0,Gandhi Gram
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Rev_Circle,string,text,153093,200,99.9,0.0,Mohanpur
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Tehsil,string,text,153093,1394,99.1,0.0,Gandhi Gram
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Rev_Mouja,string,empty,153093,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Forest_Div,string,text,153093,1194,99.2,0.0,Sadar
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Range,string,empty,153093,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Beat,string,empty,153093,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Management,string,empty,153093,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Com_No,string,empty,153093,0,100.0,0,
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Sheet_No,string,integer,153093,22456,85.3,100.0,0
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,khatian,string,mostly_numeric,153093,89814,41.3,99.8,0
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Classifica,string,text,153093,1194,99.2,0.0,Tilla
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Status,string,text,153093,1394,99.1,0.0,UGF
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,RF_PRF,string,text,153093,710,99.5,0.0,Hatipara RF
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,VILNAME11,string,text,153093,136700,10.7,0.0,Gandhigram
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Block,string,text,153093,200,99.9,0.0,Mohanpur
+Tripura/Matribhoomi_Tripura_Cadastrals.parquet,Class,string,text,153093,200,99.9,0.0,Forest
+Tripura/NESDR_Tripura_Cadastrals.parquet,id,string,text,273773,273773,0.0,2.5,trip_plots_merged_geo_final.14
+Tripura/NESDR_Tripura_Cadastrals.parquet,dag_no,string,mostly_numeric,273773,266779,2.6,99.9,2213
+Tripura/NESDR_Tripura_Cadastrals.parquet,subdiv_n,string,text,273773,112206,59.0,0.0,Sonamura
+Tripura/NESDR_Tripura_Cadastrals.parquet,dist_name,string,text,273773,173418,36.7,0.0,West
+Tripura/NESDR_Tripura_Cadastrals.parquet,vill_name,string,text,273773,226792,17.2,0.0,Nirbhoypur
+Tripura/NESDR_Tripura_Cadastrals.parquet,shape_leng,string,decimal,273773,267735,2.2,100.0,114.774828918
+Tripura/NESDR_Tripura_Cadastrals.parquet,shape_area,string,decimal,273773,270370,1.2,100.0,538.044104305
+Tripura/NESDR_Tripura_Cadastrals.parquet,sub_div,string,text,273773,156246,42.9,0.0,Sonamura
+Tripura/NESDR_Tripura_Cadastrals.parquet,district,string,text,273773,74432,72.8,0.0,West
+Tripura/NESDR_Tripura_Cadastrals.parquet,mouja,string,text,273773,74432,72.8,0.0,Maheshpur
+Tripura/NESDR_Tripura_Cadastrals.parquet,khaitan,string,text,273773,17427,93.6,57.3,3--21
+Tripura/NESDR_Tripura_Cadastrals.parquet,area,string,decimal,273773,108514,60.4,100.0,805.181
+Tripura/NESDR_Tripura_Cadastrals.parquet,dag_no_1,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,subdiv_nam,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,tehshil,string,text,273773,8606,96.9,0.0,Karbook
+Tripura/NESDR_Tripura_Cadastrals.parquet,khatian,string,text,273773,36800,86.6,49.1,3--8
+Tripura/NESDR_Tripura_Cadastrals.parquet,plot_no,string,integer,273773,8606,96.9,100.0,50
+Tripura/NESDR_Tripura_Cadastrals.parquet,gid,string,integer,273773,127739,53.3,100.0,35119
+Tripura/NESDR_Tripura_Cadastrals.parquet,block,string,text,273773,16655,93.9,0.0,Karbook
+Tripura/NESDR_Tripura_Cadastrals.parquet,rev_circle,string,text,273773,18183,93.4,0.0,Silachhari
+Tripura/NESDR_Tripura_Cadastrals.parquet,plot,string,integer,273773,16824,93.9,100.0,113
+Tripura/NESDR_Tripura_Cadastrals.parquet,objectid,string,integer,273773,124522,54.5,100.0,281
+Tripura/NESDR_Tripura_Cadastrals.parquet,fid_,string,integer,273773,12672,95.4,100.0,0
+Tripura/NESDR_Tripura_Cadastrals.parquet,subdivisio,string,text,273773,1528,99.4,0.0,Teliamura
+Tripura/NESDR_Tripura_Cadastrals.parquet,tehsil,string,text,273773,1528,99.4,0.0,Kalyanpur
+Tripura/NESDR_Tripura_Cadastrals.parquet,forest_div,string,text,273773,1528,99.4,0.0,Teliamura
+Tripura/NESDR_Tripura_Cadastrals.parquet,sheet_no,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,classifica,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,status,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,rf_prf,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,ogc_fid,string,integer,273773,139188,49.2,100.0,281010
+Tripura/NESDR_Tripura_Cadastrals.parquet,sub_divv,string,text,273773,1578,99.4,0.0,Sonamura
+Tripura/NESDR_Tripura_Cadastrals.parquet,subdiv,string,text,273773,8775,96.8,0.0,Khowai
+Tripura/NESDR_Tripura_Cadastrals.parquet,revcircle,string,text,273773,8775,96.8,0.0,Khowai
+Tripura/NESDR_Tripura_Cadastrals.parquet,tehashil,string,text,273773,8775,96.8,0.0,Shingichhara
+Tripura/NESDR_Tripura_Cadastrals.parquet,sub_divn,string,text,273773,29598,89.2,0.0,Khowai
+Tripura/NESDR_Tripura_Cadastrals.parquet,district_1,string,text,273773,1640,99.4,0.0,Khowai
+Tripura/NESDR_Tripura_Cadastrals.parquet,mouja_1,string,text,273773,1190,99.6,0.0,Paschim Singicherra
+Tripura/NESDR_Tripura_Cadastrals.parquet,objectid_1,string,decimal,273773,4479,98.4,100.0,2160.0
+Tripura/NESDR_Tripura_Cadastrals.parquet,shape_le_1,string,decimal,273773,16374,94.0,100.0,336.599429473
+Tripura/NESDR_Tripura_Cadastrals.parquet,distt_name,string,text,273773,48466,82.3,0.0,West
+Tripura/NESDR_Tripura_Cadastrals.parquet,forest_ran,string,text,273773,1528,99.4,0.0,Kalyanpur
+Tripura/NESDR_Tripura_Cadastrals.parquet,khowai__ar,string,decimal,273773,11541,95.8,100.0,0.0
+Tripura/NESDR_Tripura_Cadastrals.parquet,layer,string,text,273773,54940,79.9,0.0,Paschim_Singichhara
+Tripura/NESDR_Tripura_Cadastrals.parquet,feature,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,class,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,entity,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,color,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,forest_sta,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,linetype,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,linewt,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,fid_1,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,features,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,mouja_name,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,hal_dag_no,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,name,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,area_1,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,orig_fid,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,plot_no_,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,plot_numbe,string,integer,273773,1528,99.4,100.0,2
+Tripura/NESDR_Tripura_Cadastrals.parquet,string_,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,subdiv_n_1,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,text_,string,integer,273773,861,99.7,100.0,1
+Tripura/NESDR_Tripura_Cadastrals.parquet,textstring,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,vill_nam_1,string,empty,273773,0,100.0,0,
+Tripura/NESDR_Tripura_Cadastrals.parquet,dist_nam_1,string,empty,273773,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,id,string,text,359278,359278,0.0,0.0,jhansi_cadastral.454969
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,area_srs,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,gid,string,integer,359278,359266,0.0,100.0,454969
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,objectid,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,join_count,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,target_fid,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,bhucode,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,tehsil,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,layer,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,path,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,"gid
+",string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,unparsed,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,vill_code,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,vill_name,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,sno,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,area,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,par_type,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,area_decim,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,gidstcode11,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,remarks,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,sheet_no,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,feat_type,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,ilr,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,scale,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,stcode11,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,dtcode11,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,name11,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,shape_leng,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,shape_area,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,devlopment,string,text,359278,359266,0.0,0.0,UTTAR PRADESH
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,pc,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,dist_twn_c,string,integer,359278,359266,0.0,100.0,166
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,dist_sub_c,string,int_with_leading_zeros,359278,359267,0.0,100.0,00856
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,s_code,string,integer,359278,216052,39.9,100.0,126977
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,khasra,string,mostly_numeric,359278,355035,1.2,98.6,25
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,block_name,string,text,359278,357270,0.6,0.0,Parcel
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,block_name  ,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,district,string,text,359278,359269,0.0,0.0,JHANSI
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,shape_le_1,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,tahsil,string,text,359278,359269,0.0,0.0,MOTH
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,pargana,string,text,359278,357295,0.6,0.0,MOTH
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,village,string,text,359278,359270,0.0,0.0,Saurai
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,village_co,string,integer,359278,359270,0.0,100.0,16600856152176
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,vname_e,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,vname_h,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,gp,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,block,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,ccode11,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,tehsil_cod,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.00.parquet,district_c,string,empty,359278,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,id,string,text,289224,289224,0.0,0.0,mirzapur_cadastral.320484
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,area_srs,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,gid,string,integer,289224,289213,0.0,100.0,320484
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,objectid,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,join_count,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,target_fid,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,bhucode,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,tehsil,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,layer,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,path,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,"gid
+",string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,unparsed,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,vill_code,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,vill_name,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,sno,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,area,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,par_type,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,area_decim,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,gidstcode11,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,remarks,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,sheet_no,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,feat_type,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,ilr,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,scale,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,stcode11,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,dtcode11,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,name11,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,shape_leng,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,shape_area,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,devlopment,string,text,289224,195849,32.3,0.0,UTTAR PRADESH
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,pc,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,dist_twn_c,string,integer,289224,183400,36.6,100.0,199
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,dist_sub_c,string,int_with_leading_zeros,289224,183400,36.6,100.0,01001
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,s_code,string,integer,289224,206825,28.5,100.0,212014
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,khasra,string,mostly_numeric,289224,195359,32.5,98.6,2047
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,block_name,string,text,289224,195846,32.3,0.0,KHASRA
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,block_name  ,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,district,string,text,289224,206826,28.5,0.0,MIRZAPUR
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,shape_le_1,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,tahsil,string,text,289224,195851,32.3,0.0,LALGANJ
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,pargana,string,text,289224,183403,36.6,0.0,KANTIT
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,village,string,text,289224,195852,32.3,0.0,BNAJARI KALAN
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,village_co,string,integer,289224,195852,32.3,100.0,19901001212014
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,vname_e,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,vname_h,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,gp,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,block,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,ccode11,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,tehsil_cod,string,empty,289224,0,100.0,0,
+Uttar Pradesh/NCOG_UttarPradesh_Cadastrals.01.parquet,district_c,string,empty,289224,0,100.0,0,
+West Bengal/Bhuvan_SISDP_WestBengal_Cadastrals.parquet,id,string,text,362951,340817,6.1,0.0,WestBengal__Cad_sisdp_p2.54678
+West Bengal/Bhuvan_SISDP_WestBengal_Cadastrals.parquet,par_num,string,mostly_numeric,362951,360694,0.6,99.9,1907
+West Bengal/Bhuvan_WestBengal_Cadastrals.parquet,Parcel_num,string,text,248509,248509,0.0,0.0,3125/3195-46
+West Bengal/Bhuvan_WestBengal_Cadastrals.parquet,Village,string,text,248509,248506,0.0,0.0,MEHAGRAM
+West Bengal/Bhuvan_WestBengal_Cadastrals.parquet,Tehsil,string,text,248509,159213,35.9,0.0,NALHATI-I
+West Bengal/Bhuvan_WestBengal_Cadastrals.parquet,District,string,text,248509,248508,0.0,0.0,BIRBHUM
+West Bengal/Bhuvan_WestBengal_Cadastrals.parquet,par_desc,string,text,248509,248505,0.0,0.0,PARCEL
+West Bengal/WB_AMRUT_Cadastrals.parquet,Area,double,typed_in_file,,,,,
+West Bengal/WB_AMRUT_Cadastrals.parquet,id,string,text,260558,260558,0.0,0.0,Cadastre_Poly.250230_0028237
+West Bengal/WB_AMRUT_Cadastrals.parquet,Cad_ID,string,text,260558,260558,0.0,0.0,250230_0028237
+West Bengal/WB_AMRUT_Cadastrals.parquet,Code,string,text,260558,260558,0.0,0.0,36-01
+West Bengal/WB_AMRUT_Cadastrals.parquet,JL_No_Sector,string,integer,260558,135544,48.0,100.0,151
+West Bengal/WB_AMRUT_Cadastrals.parquet,Mouza_Name,string,text,260558,260558,0.0,0.3,Tantigere
+West Bengal/WB_AMRUT_Cadastrals.parquet,Survey_Num,string,text,260558,212766,18.3,76.0,6867
+West Bengal/WB_AMRUT_Cadastrals.parquet,Plot_No,string,integer,260558,260558,0.0,100.0,1
+West Bengal/WB_AMRUT_Cadastrals.parquet,Remarks,string,text,260558,12199,95.3,89.9,LR
+West Bengal/WB_AMRUT_Cadastrals.parquet,ULB_Code,string,mostly_numeric,260558,260558,0.0,90.3,250230
+jharkhand/JSAC_JH_Cadastrals.000.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,OBJECTID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,MA11_1_,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,OBJECTID_12,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Join_Count,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,PERIMETER,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,TARGET_FID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,PERIMETER_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,POLYGONID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,THANANO,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Shape_Leng,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Shape_Le_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Shape_STAr,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Shape_STLe,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Shape.STArea(),double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,BHUCODE,string,integer,329855,329855,0.0,100.0,220300000065
+jharkhand/JSAC_JH_Cadastrals.000.parquet,KAPARTE,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,KIDE,string,mostly_numeric,329855,329512,0.1,100.0,2667
+jharkhand/JSAC_JH_Cadastrals.000.parquet,KIDZ,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,KPARTE,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,KPARTH,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,PAR_ERR,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,PAR_TYPE,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,SCALE,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,SC_NIC,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,SHEETS_NO,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,SHEET_NO,string,text,329855,329855,0.0,0.0,220300000065-04
+jharkhand/JSAC_JH_Cadastrals.000.parquet,BHUCODE_1,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,REMARKS,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,BLOCK_1,string,text,329855,3256,99.0,0.0,BHANDRA
+jharkhand/JSAC_JH_Cadastrals.000.parquet,CCODE91,string,int_too_long,329855,325960,1.2,100.0,370180018001800065
+jharkhand/JSAC_JH_Cadastrals.000.parquet,CCODE01,string,int_with_leading_zeros,329855,325960,1.2,100.0,02771500
+jharkhand/JSAC_JH_Cadastrals.000.parquet,DISTRICT_1,string,text,329855,3256,99.0,0.0,LOHARDAGA
+jharkhand/JSAC_JH_Cadastrals.000.parquet,SDISTRICT,string,text,329855,326599,1.0,0.0,SIMDEGA
+jharkhand/JSAC_JH_Cadastrals.000.parquet,SANCHAL,string,text,329855,326599,1.0,0.0,BOLBA
+jharkhand/JSAC_JH_Cadastrals.000.parquet,MOUZA,string,text,329855,326599,1.0,0.0,BEHRAINBASU
+jharkhand/JSAC_JH_Cadastrals.000.parquet,MAPYEAR,string,text,329855,326599,1.0,0.0,1930-31
+jharkhand/JSAC_JH_Cadastrals.000.parquet,COMMENTS,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,VILLAGEN_1,string,text,329855,3256,99.0,0.0,Jhiko
+jharkhand/JSAC_JH_Cadastrals.000.parquet,PANCHAYA_1,string,text,329855,3256,99.0,0.0,JAMGAE
+jharkhand/JSAC_JH_Cadastrals.000.parquet,VILL_NAME,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,BLOCK,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,REMARK,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,VILLAGE_NA,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,BLOCK_NAME,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,DIST_NAME,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.000.parquet,Dist_name_1,string,empty,329855,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,OBJECTID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,MA11_1_,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,OBJECTID_12,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Join_Count,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,PERIMETER,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,TARGET_FID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,PERIMETER_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,POLYGONID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,THANANO,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Shape_Leng,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Shape_Le_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Shape_STAr,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Shape_STLe,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Shape.STArea(),double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,BHUCODE,string,mostly_numeric,246024,246023,0.0,99.9,011400000202
+jharkhand/JSAC_JH_Cadastrals.001.parquet,KAPARTE,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,KIDE,string,mostly_numeric,246024,245610,0.2,100.0,1427
+jharkhand/JSAC_JH_Cadastrals.001.parquet,KIDZ,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,KPARTE,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,KPARTH,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,PAR_ERR,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,PAR_TYPE,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,SCALE,string,text,246024,16345,93.4,0.0,16 INCH=1 MILE OR 1 CM=39.6 M
+jharkhand/JSAC_JH_Cadastrals.001.parquet,SC_NIC,string,text,246024,16345,93.4,0.0,1:3.96M
+jharkhand/JSAC_JH_Cadastrals.001.parquet,SHEETS_NO,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,SHEET_NO,string,text,246024,246023,0.0,0.0,011400000202-03
+jharkhand/JSAC_JH_Cadastrals.001.parquet,BHUCODE_1,string,int_with_leading_zeros,246024,16345,93.4,100.0,040200000089
+jharkhand/JSAC_JH_Cadastrals.001.parquet,REMARKS,string,text,246024,2,100.0,0.0,URBAN_VILLAGE
+jharkhand/JSAC_JH_Cadastrals.001.parquet,BLOCK_1,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,CCODE91,string,int_too_long,246024,123144,49.9,100.0,350080008000800202
+jharkhand/JSAC_JH_Cadastrals.001.parquet,CCODE01,string,int_with_leading_zeros,246024,123144,49.9,100.0,00088500
+jharkhand/JSAC_JH_Cadastrals.001.parquet,DISTRICT_1,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,SDISTRICT,string,text,246024,123144,49.9,0.0,GARHWA
+jharkhand/JSAC_JH_Cadastrals.001.parquet,SANCHAL,string,text,246024,123144,49.9,0.0,BHANDARIA
+jharkhand/JSAC_JH_Cadastrals.001.parquet,MOUZA,string,text,246024,123144,49.9,0.0,BARKOL KHURD
+jharkhand/JSAC_JH_Cadastrals.001.parquet,MAPYEAR,string,text,246024,123144,49.9,0.0,2007-08
+jharkhand/JSAC_JH_Cadastrals.001.parquet,COMMENTS,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,VILLAGEN_1,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,PANCHAYA_1,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,VILL_NAME,string,text,246024,16345,93.4,0.0,BAIRISAL
+jharkhand/JSAC_JH_Cadastrals.001.parquet,BLOCK,string,text,246024,16345,93.4,0.0,BARHI
+jharkhand/JSAC_JH_Cadastrals.001.parquet,REMARK,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.001.parquet,VILLAGE_NA,string,text,246024,106509,56.7,0.0,Chandarpur
+jharkhand/JSAC_JH_Cadastrals.001.parquet,BLOCK_NAME,string,text,246024,106509,56.7,0.0,JAINAGAR
+jharkhand/JSAC_JH_Cadastrals.001.parquet,DIST_NAME,string,text,246024,122880,50.1,0.0,HAZARIBAGH
+jharkhand/JSAC_JH_Cadastrals.001.parquet,Dist_name_1,string,empty,246024,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,OBJECTID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,MA11_1_,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,OBJECTID_12,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Join_Count,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,PERIMETER,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,TARGET_FID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,PERIMETER_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,POLYGONID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,THANANO,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Shape_Leng,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Shape_Le_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Shape_STAr,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Shape_STLe,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Shape.STArea(),double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,BHUCODE,string,integer,272223,272223,0.0,100.0,171500000386
+jharkhand/JSAC_JH_Cadastrals.010.parquet,KAPARTE,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,KIDE,string,mostly_numeric,272223,271361,0.3,99.9,1063
+jharkhand/JSAC_JH_Cadastrals.010.parquet,KIDZ,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,KPARTE,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,KPARTH,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,PAR_ERR,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,PAR_TYPE,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,SCALE,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,SC_NIC,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,SHEETS_NO,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,SHEET_NO,string,text,272223,272223,0.0,0.0,171500000386-03
+jharkhand/JSAC_JH_Cadastrals.010.parquet,BHUCODE_1,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,REMARKS,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,BLOCK_1,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,CCODE91,string,int_too_long,272223,149343,45.1,100.0,400080008000800386
+jharkhand/JSAC_JH_Cadastrals.010.parquet,CCODE01,string,int_with_leading_zeros,272223,149343,45.1,100.0,03083200
+jharkhand/JSAC_JH_Cadastrals.010.parquet,DISTRICT_1,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,SDISTRICT,string,text,272223,149343,45.1,0.0,PASCHIMI SINGHBUM
+jharkhand/JSAC_JH_Cadastrals.010.parquet,SANCHAL,string,text,272223,149343,45.1,0.0,MAJHGAON
+jharkhand/JSAC_JH_Cadastrals.010.parquet,MOUZA,string,text,272223,149343,45.1,0.0,HESELBEREL
+jharkhand/JSAC_JH_Cadastrals.010.parquet,MAPYEAR,string,text,272223,149343,45.1,0.0,1960-61
+jharkhand/JSAC_JH_Cadastrals.010.parquet,COMMENTS,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,VILLAGEN_1,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,PANCHAYA_1,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,VILL_NAME,string,text,272223,122880,54.9,0.0,DABARBAHAL
+jharkhand/JSAC_JH_Cadastrals.010.parquet,BLOCK,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,REMARK,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,VILLAGE_NA,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.010.parquet,BLOCK_NAME,string,text,272223,122880,54.9,0.0,CHAS
+jharkhand/JSAC_JH_Cadastrals.010.parquet,DIST_NAME,string,text,272223,122880,54.9,0.0,BOKARO
+jharkhand/JSAC_JH_Cadastrals.010.parquet,Dist_name_1,string,empty,272223,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,OBJECTID_1,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,OBJECTID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,MA11_1_,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,OBJECTID_12,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Join_Count,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,PERIMETER,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,TARGET_FID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,PERIMETER_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,POLYGONID,int32,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,THANANO,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Shape_Leng,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Shape_Le_1,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Shape_STAr,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Shape_STLe,double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Shape.STArea(),double,typed_in_file,,,,,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,BHUCODE,string,int_with_leading_zeros,331393,331393,0.0,100.0,061000000108
+jharkhand/JSAC_JH_Cadastrals.011.parquet,KAPARTE,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,KIDE,string,mostly_numeric,331393,330947,0.1,100.0,4681
+jharkhand/JSAC_JH_Cadastrals.011.parquet,KIDZ,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,KPARTE,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,KPARTH,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,PAR_ERR,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,PAR_TYPE,string,text,331393,11173,96.6,0.0,PA
+jharkhand/JSAC_JH_Cadastrals.011.parquet,SCALE,string,text,331393,237516,28.3,0.0,16 INCH=1 MILE OR 1 CM=39.6 M
+jharkhand/JSAC_JH_Cadastrals.011.parquet,SC_NIC,string,text,331393,237516,28.3,0.0,1:3.96M
+jharkhand/JSAC_JH_Cadastrals.011.parquet,SHEETS_NO,string,text,331393,80277,75.8,0.0,100100000119-00
+jharkhand/JSAC_JH_Cadastrals.011.parquet,SHEET_NO,string,text,331393,251099,24.2,0.0,061000000108-00
+jharkhand/JSAC_JH_Cadastrals.011.parquet,BHUCODE_1,string,int_with_leading_zeros,331393,11190,96.6,100.0,080300000372
+jharkhand/JSAC_JH_Cadastrals.011.parquet,REMARKS,string,text,331393,21,100.0,0.0,Not Recived/Jani Maqo
+jharkhand/JSAC_JH_Cadastrals.011.parquet,BLOCK_1,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,CCODE91,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,CCODE01,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,DISTRICT_1,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,SDISTRICT,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,SANCHAL,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,MOUZA,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,MAPYEAR,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,COMMENTS,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,VILLAGEN_1,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,PANCHAYA_1,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,VILL_NAME,string,text,331393,241490,27.1,0.0,JARMUNE
+jharkhand/JSAC_JH_Cadastrals.011.parquet,BLOCK,string,empty,331393,0,100.0,0,
+jharkhand/JSAC_JH_Cadastrals.011.parquet,REMARK,string,text,331393,2,100.0,0.0,Not Recived
+jharkhand/JSAC_JH_Cadastrals.011.parquet,VILLAGE_NA,string,text,331393,80275,75.8,0.0,AMTOLA
+jharkhand/JSAC_JH_Cadastrals.011.parquet,BLOCK_NAME,string,text,331393,331391,0.0,0.0,BAGODHAR
+jharkhand/JSAC_JH_Cadastrals.011.parquet,DIST_NAME,string,text,331393,331391,0.0,0.0,GIRIDIH
+jharkhand/JSAC_JH_Cadastrals.011.parquet,Dist_name_1,string,empty,331393,0,100.0,0,
