@@ -1,0 +1,5 @@
+# Search results (kept 24 h) and uploaded DXF files (kept 6 h): everything the app writes under web/data
+/data/
+__pycache__/
+*.pyc
+*.log

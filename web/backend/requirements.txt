@@ -1,0 +1,6 @@
+# What the project imports directly. Exact tested versions are in ../../requirements-lock.txt.
+fastapi
+uvicorn
+python-multipart
+psycopg[binary]
+pyarrow

@@ -1,0 +1,22 @@
+# The parcel data from the file server (about 50 GB of parquet), mounted or copied here: never commit it.
+/data/mount/
+*.parquet
+*.pmtiles
+
+# Python
+lapenv/
+__pycache__/
+*.pyc
+
+# Run-time output
+*.log
+
+# Leftover copies
+*.bak
+*.bak[0-9]
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
