@@ -20,3 +20,9 @@ __pycache__/
 !.vscode/extensions.json
 .idea/
 .DS_Store
+
+# Docker deployment: certificate, sign-in users and settings stay on the server
+deploy/certs/
+deploy/auth/
+deploy/initial_admin_password.txt
+.env

@@ -37,9 +37,9 @@ export default function Resizer({ onResize }: Props) {
       style={{
         width: 6,
         cursor: "col-resize",
-        background: "#eee",
-        borderLeft: "1px solid #ddd",
-        borderRight: "1px solid #ddd",
+        background: "linear-gradient(90deg, #d3e3f6, #e8f1fb)",
+        borderLeft: "1px solid #b9d0ec",
+        borderRight: "1px solid #b9d0ec",
         flexShrink: 0,
       }}
     />

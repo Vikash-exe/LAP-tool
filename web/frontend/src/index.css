@@ -1,3 +1,21 @@
+/* The look of the dashboard: a blue theme. Every section of the side panel is a card with a title bar in its own
+   shade of blue, buttons are raised and lift when hovered, and the header is a bar across the top. */
+
+:root {
+  --blue-900: #0d47a1;
+  --blue-800: #1565c0;
+  --blue-700: #1976d2;
+  --blue-600: #1e88e5;
+  --blue-500: #2196f3;
+  --blue-300: #64b5f6;
+  --blue-200: #90caf9;
+  --blue-100: #bbdefb;
+  --blue-50: #e3f2fd;
+  --ink: #1f2d3a;
+  --muted: #5f7183;
+  --line: #cfe0f3;
+}
+
 html, body, #root {
   width: 100%;
   height: 100%;
@@ -7,20 +25,309 @@ body {
   margin: 0;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
-  color: #222;
-  background: #fff;
+  color: var(--ink);
+  background: #eef3f9;
 }
 
 h3, h4 {
   margin: 0 0 8px;
 }
 
+/* ---------------------------------------------------------------- layout */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 76px;
+  padding: 0 22px;
+  flex-shrink: 0;
+  color: #fff;
+  background: linear-gradient(100deg, #0b3d91 0%, #1565c0 48%, #2196f3 100%);
+  box-shadow: 0 3px 14px rgba(13, 71, 161, 0.35);
+  position: relative;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.brand .logo {
+  width: 46px;
+  height: 46px;
+  padding: 7px;
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 13px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  flex-shrink: 0;
+}
+
+.brand-text {
+  min-width: 360px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.page-title h3 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.page-title h3 {
+  flex: 0 0 auto !important;
+}
+
+.tagline {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px 6px 16px;
+  font-size: 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 16px 14px 24px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #e6f0fb 0%, #f3f8fd 100%);
+  border-right: 1px solid #c9daf0;
+}
+
+/* ---------------------------------------------------------------- section cards, each in its own blue */
+
+.card {
+  --accent: var(--blue-700);
+  --accent2: var(--blue-500);
+  --tint: #f5f9fe;
+  position: relative;
+  margin: 0 0 16px;
+  padding: 0 14px 14px;
+  background: var(--tint);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(13, 71, 161, 0.1), 0 6px 16px rgba(13, 71, 161, 0.08);
+}
+
+.card.c-data   { --accent: #0277bd; --accent2: #29b6f6; --tint: #f2fafe; }   /* sky blue */
+.card.c-area   { --accent: #1565c0; --accent2: #42a5f5; --tint: #f3f8fe; }   /* blue */
+.card.c-match  { --accent: #283593; --accent2: #5c6bc0; --tint: #f4f5fc; }   /* indigo */
+.card.c-result { --accent: #00838f; --accent2: #26c6da; --tint: #f1fbfc; }   /* cyan */
+.card.c-layers { --accent: #0d47a1; --accent2: #3f7fd6; --tint: #f2f6fc; }   /* navy */
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -14px 12px;
+  padding: 9px 14px;
+  color: #fff;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 11px 11px 0 0;
+  position: relative;
+}
+
+.card-head h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #fff;
+}
+
+/* the white panel for Download inside the Result card */
+.inner {
+  padding: 8px 12px 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+/* ---------------------------------------------------------------- raised buttons */
+
 button {
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--blue-900);
+  background: linear-gradient(180deg, #ffffff 0%, #e3f1fd 100%);
+  border: 1px solid var(--blue-200);
+  border-radius: 9px;
+  padding: 6px 13px;
   cursor: pointer;
+  box-shadow: 0 2px 0 var(--blue-200), 0 4px 10px rgba(21, 101, 192, 0.16);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow: 0 3px 0 var(--blue-200), 0 8px 16px rgba(21, 101, 192, 0.24);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--blue-200), 0 1px 3px rgba(21, 101, 192, 0.2);
 }
 
 button:disabled {
   cursor: not-allowed;
+  color: #8a9aab;
+  background: #e8edf3;
+  border-color: #d3dce6;
+  box-shadow: none;
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(33, 150, 243, 0.45);
+  outline-offset: 1px;
+}
+
+/* the main actions */
+button.primary {
+  color: #fff;
+  background: linear-gradient(180deg, #4da3f5 0%, #1976d2 100%);
+  border-color: #0d5cb6;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 0 #0b4f9e, 0 6px 14px rgba(13, 71, 161, 0.35);
+}
+
+button.primary:hover:not(:disabled) {
+  box-shadow: 0 4px 0 #0b4f9e, 0 10px 20px rgba(13, 71, 161, 0.42);
+}
+
+button.primary:active:not(:disabled) {
+  box-shadow: 0 0 0 #0b4f9e, 0 2px 4px rgba(13, 71, 161, 0.3);
+}
+
+button.primary:disabled {
+  color: #fff;
+  background: #a9bfd9;
+  border-color: #98b0cf;
+  text-shadow: none;
+}
+
+button.big {
+  padding: 9px 22px;
+  font-size: 15px;
+  border-radius: 11px;
+}
+
+/* small actions inside lists */
+button.mini {
+  padding: 1px 9px;
+  font-size: 11.5px;
+  border-radius: 7px;
+  box-shadow: 0 1px 0 var(--blue-200), 0 2px 5px rgba(21, 101, 192, 0.14);
+}
+
+/* a button that is only an icon or arrow: no frame */
+button.plain {
+  background: none;
+  border: none;
+  box-shadow: none;
+  text-shadow: none;
+  transform: none;
+  filter: none;
+}
+
+button.plain:hover:not(:disabled), button.plain:active:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.85);
+}
+
+/* on the dark header */
+button.on-dark {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+button.on-dark:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2), 0 8px 14px rgba(0, 0, 0, 0.22);
+}
+
+/* ---------------------------------------------------------------- form controls */
+
+input[type="file"]::file-selector-button {
+  margin-right: 10px;
+  padding: 5px 12px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--blue-900);
+  background: linear-gradient(180deg, #ffffff 0%, #e3f1fd 100%);
+  border: 1px solid var(--blue-200);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--blue-200);
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+  filter: brightness(1.04);
+}
+
+input[type="radio"], input[type="checkbox"], input[type="range"] {
+  accent-color: var(--blue-700);
+}
+
+select, input[type="text"] {
+  padding: 4px 6px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--blue-200);
+  border-radius: 7px;
+}
+
+select:focus, input[type="text"]:focus {
+  outline: 2px solid rgba(33, 150, 243, 0.4);
+  border-color: var(--blue-600);
+}
+
+summary {
+  cursor: pointer;
+}
+
+a {
+  color: var(--blue-700);
 }
 
 .maplibregl-popup-content {

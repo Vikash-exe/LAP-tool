@@ -153,6 +153,16 @@ export interface DxfUpload {
 
 export interface DxfAlignmentInfo {
   lines_found: number;
+  /** Area files only: how many line pieces there were before pieces whose ends meet were joined. */
+  pieces?: number;
+  /** Area files only: "parallel_pair" = the two edges of a corridor were found, "longest_lines" = the longest line(s) were taken. */
+  method?: "parallel_pair" | "longest_lines";
+  /** Area files, parallel pair: how far apart the two lines run (narrowest, typical, widest) in metres. */
+  width_m?: number[] | null;
+  /** Area files, parallel pair: gaps in an edge that were bridged. */
+  bridged?: { count: number; metres: number } | null;
+  /** Area files, parallel pair: lengths in metres of other stretches of parallel lines that were left out. */
+  other_sections_m?: number[];
   lines_used: number;
   mode_used: "two" | "single";
   lengths_m: number[];
@@ -181,6 +191,22 @@ export interface ChainageMeta {
   parcels_with_chainage?: number;
   parcels_with_labels_inside?: number;
   error?: string;
+}
+
+/** The session ran out (or sign-in is required): go to the sign-in page, and come back here afterwards. */
+export function signInAgain(): void {
+  window.location.href = `/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+}
+
+/** Who is signed in; user is null when sign-in is switched off on the server. */
+export async function getMe(): Promise<{ user: string | null; auth: boolean }> {
+  const res = await fetch(`${BASE}/api/me`);
+  if (!res.ok) throw new Error(`Could not read the signed-in user (${res.status})`);
+  return res.json();
+}
+
+export async function logout(): Promise<void> {
+  await fetch(`${BASE}/api/logout`, { method: "POST" });
 }
 
 async function errorMessage(res: Response, fallback: string): Promise<string> {
@@ -255,6 +281,10 @@ function startQuery(
     };
     xhr.upload.onload = () => onUploadComplete?.();
     xhr.onload = () => {
+      if (xhr.status === 401) {
+        signInAgain();
+        return;
+      }
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.response));
       } else {
@@ -275,7 +305,7 @@ export function previewArea(
   files: File[],
   onProgress?: ProgressCallback,
   onUploadComplete?: () => void,
-): Promise<FeatureCollection> {
+): Promise<{ aoi: FeatureCollection; alignment: DxfAlignmentInfo | null }> {
   const form = new FormData();
   files.forEach((f) => form.append("files", f));
   return new Promise((resolve, reject) => {
@@ -286,8 +316,12 @@ export function previewArea(
     };
     xhr.upload.onload = () => onUploadComplete?.();
     xhr.onload = () => {
+      if (xhr.status === 401) {
+        signInAgain();
+        return;
+      }
       if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(JSON.parse(xhr.response).aoi);
+        resolve(JSON.parse(xhr.response));
       } else {
         try {
           reject(new Error(JSON.parse(xhr.response).detail ?? `Could not read the file (${xhr.status})`));
@@ -319,6 +353,10 @@ export function uploadDxf(
     };
     xhr.upload.onload = () => onUploadComplete?.();
     xhr.onload = () => {
+      if (xhr.status === 401) {
+        signInAgain();
+        return;
+      }
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.response));
       } else {

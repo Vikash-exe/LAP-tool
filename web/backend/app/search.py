@@ -21,7 +21,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 
-from . import aoi, chainage, config, dxf, loader, query, statedata
+from . import alignment, aoi, chainage, config, dxf, loader, query, statedata
 
 JOBS: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
@@ -183,6 +183,8 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
                 labels, chainage_read = dxf.read_chainage(Path(c["path"]), c["crs"], c["field"])
         else:
             area = aoi.load_aoi(upload_dir)
+            # A file of lines is an alignment: line pieces are joined (1 m), the longest one or two are kept.
+            area, alignment_info = alignment.pick(area)
         (result_dir / "aoi.geojson").write_text(json.dumps(area), encoding="utf-8")
         # Exactly two lines are read as the two edges of a strip.
         lines = query.extract_two_lines(area) if strip else None

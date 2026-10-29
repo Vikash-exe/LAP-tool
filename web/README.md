@@ -52,7 +52,87 @@ backend), and `LAP/web/build_frontend.sh` rebuilds the version the backend serve
 
 First time only: `LAP/setup.sh`, see *Setting up on a new machine*.
 
+## Running in Docker (how it runs now)
+
+The dashboard runs as two containers from `LAP/compose.yaml` (project `lap`), which replaced the systemd service below:
+
+| Container | What it is |
+|---|---|
+| `lap-gateway` | nginx: **HTTPS** (self-signed certificate). The only part reachable from the network. |
+| `lap` | the app (API + built dashboard + its own **sign-in page**), one process. Not published: only the gateway can reach it. |
+
+**Address:** `https://172.16.60.60:8443`. The old `http://172.16.60.60:8010` redirects there. The browser warns once about the
+self-signed certificate; to avoid it, import `deploy/certs/lap.crt` as a trusted certificate on the PC (or replace the two
+files in `deploy/certs/` with a certificate from your own CA, then `docker compose restart gateway`).
+
+**Signing in.** Everyone sees a sign-in page (`/login`, a small static page: `backend/login.html`) and needs a user name and
+password. A successful sign-in sets a signed session cookie (HttpOnly, Secure, SameSite=Lax) that lasts 12 hours
+(`SESSION_HOURS`); the dashboard shows who is signed in and has a **Sign out** link, and a session that ran out sends the
+person back to the sign-in page. Without a valid session every page redirects to `/login` and every `/api` call answers
+401; only the container's own loopback health check is let through. After 8 wrong passwords an address is blocked for 5
+minutes (nginx also limits sign-in attempts to 20 a minute). The code is `backend/app/auth.py`.
+
+The users and their password hashes (scrypt) are in `deploy/auth/users`; manage them on the server (changes take effect
+at once, no restart, and a user that is removed is signed out immediately):
+
+```bash
+cd ~/tools/LAP
+deploy/users.sh list
+deploy/users.sh add <name>        # asks for the password twice; run it again to change a password
+deploy/users.sh remove <name>
+```
+
+The first user, `admin`, was created with a random password stored in `deploy/initial_admin_password.txt`. Set your own with
+`deploy/users.sh add admin`, then delete that file.
+
+**Everyday commands** (run in `~/tools/LAP`):
+
+```bash
+docker compose ps                         # both containers, with the health of the app
+docker compose logs -f lap                # live log of the app (Ctrl-C leaves the log, it keeps running)
+docker compose logs --tail 100 gateway    # sign-in attempts and requests
+docker compose restart lap                # restart the app
+docker compose up -d --build              # after a code change: rebuild the image and replace the container
+docker compose down                       # stop everything (docker compose up -d starts it again)
+docker exec -it lap bash                  # a shell inside the app container
+docker exec lap python /app/src/load_cadastral.py --list      # the command-line tools work inside it too
+```
+
+Both containers restart by themselves after a crash or a reboot (`restart: unless-stopped`; Docker starts at boot).
+For a foreground run with the log in your terminal use `docker compose up` (without `-d`).
+
+**What is mounted into the app container**
+
+| Host | Container | Why |
+|---|---|---|
+| `LAP/data/mount` (the file-server share, read-only) | `/app/data/mount` | the parcel data. The share must be mounted on the server first (`mount_share.sh`). |
+| `LAP/web/data` | `/app/web/data` | search results (kept 24 h) and uploaded DXFs (kept 6 h) |
+| `LAP/deploy/auth` (read-only) | `/app/auth` | the users who may sign in |
+| `~/.pgpass` (read-only) | `/home/lap/.pgpass` | the database password |
+
+The container runs as the same numeric user as `cigma` (uid 1001, gid 1002) so these folders keep the right ownership. The database
+is reached at `172.16.60.60:5432` as before (`PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` and `MAX_UPLOAD_MB` can be set in a
+`.env` file next to `compose.yaml`; so can the ports `LAP_HTTPS_PORT` / `LAP_HTTP_PORT`). To cap the memory of a very large search,
+uncomment `mem_limit` in `compose.yaml`.
+
+**Files:** `Dockerfile` (stage 1 builds the dashboard, stage 2 is Python 3.13 + GDAL 3.10 + the backend), `compose.yaml`,
+`.dockerignore`, `deploy/nginx.conf.template`, `deploy/make_cert.sh` (makes the certificate), `deploy/users.sh`. The certificate,
+the users file and `.env` are in `.gitignore`. If the users file is missing or empty nobody can sign in (the dashboard stays
+locked, it is never opened by mistake). Setting it up on another server: `deploy/make_cert.sh`, `deploy/users.sh add <name>`,
+make sure `~/.pgpass` and the mounted share exist, then `docker compose up -d --build`.
+
+**Going back to the systemd service** (below), if ever needed: `docker compose down`, then
+`systemctl --user enable --now lap-backend`. It also asks for a sign-in (same users file), but over plain http on 8010, so
+use it only temporarily.
+
+**Developing without signing in.** Sign-in applies to every way of starting the backend. For local development (for
+example `run_backend.sh` or the Vite dev server on 5174, whose pages are not served by the backend) start the backend with
+`LAP_AUTH=off ./run_backend.sh`; never do that on a server other people can reach.
+
 ## Running it as a service (systemd) and watching it in the terminal
+
+> **Note:** the systemd service described in this section is the previous way of running the dashboard. It is disabled now and
+> the dashboard runs in Docker (previous section). The commands below remain valid if you switch back.
 
 The backend runs as a systemd **user** service, `lap-backend`, so it no longer lives in a tmux pane: it restarts by
 itself 5 seconds after any crash (`Restart=always`), starts again after a reboot, and survives SSH logouts
@@ -222,6 +302,62 @@ The check runs at the end of every search, while the state's parcel table is sti
   it, only for a village just outside the detected states), or *no parcel lies inside this village*.
 * A failure of this check never fails the search; the result then carries `villages.no_parcels.error`.
 
+## Look and feel
+
+The dashboard has a blue theme, all in `frontend/src/index.css` (colours are variables at the top): a header bar across the top
+(logo, title with its "i" card, who is signed in and **Sign out**; markup in `App.tsx`), and every section of the side panel is a
+**card with a title bar in its own shade of blue**: *Parcel data* sky blue (`.c-data`), *1. Area of interest* blue (`.c-area`),
+*2. Match* indigo (`.c-match`), *Result* cyan (`.c-result`), *Layers* navy (`.c-layers`). Change a section's colours by editing its
+`--accent`, `--accent2` (title bar gradient) and `--tint` (card background). Buttons are raised and lift when hovered; the
+classes are `primary` (the main actions: Find parcels, the CSV tables), `big`, `mini` (small actions in lists), `plain` (an icon
+or arrow without a frame) and `on-dark` (on the header); a plain `<button>` gets the soft style. The sign-in page
+(`backend/login.html`) carries the same colours in its own small stylesheet. After a change: `docker compose up -d --build`.
+
+## Lines in an area file (the alignment)
+
+A KML, KMZ, shapefile, GeoJSON, GeoPackage or GML file that holds **lines** is treated as an alignment, found automatically
+(`backend/app/alignment.py`; the search and the map preview use the same step, so the map shows the lines that will be searched).
+It is built for the messy files these usually are: the two edges of a corridor drawn as hundreds of short pieces, with gaps and
+overlaps, in any order and direction, with elevation values, tick marks, side roads, stray points and other lines elsewhere,
+over hundreds of kilometres, with the edges 5 to 150+ m apart.
+
+1. **Flatten.** Every line is split into simple pieces (MultiLineStrings and geometry collections are taken apart), **elevation
+   and M are thrown away completely** and everything is projected to horizontal metres (UTM). Repeated points and pieces shorter
+   than 1 m are dropped and the pieces are simplified by 0.25 m. Points are ignored. From here only horizontal distances and
+   directions are used, so lines crossing at different heights, or points with different elevation at the same place, are never
+   merged: only the **ends** of pieces are ever joined.
+2. **Join pieces.** Two ends join when they touch (1 m), or when they point at each other (opposite directions within 30 degrees),
+   the gap is up to 40 m (or an overlap up to 40 m, which is trimmed) and the sideways offset is small (1.5 m + 5% of the gap, so a
+   join can never jump to the other edge, which is at least 5 m away). Each end joins one other end, best fit first.
+3. **Find the corridor.** Lines are looked at every 40 m for a partner on each side: another line that runs in parallel (within 30
+   degrees), roughly across, 4 to 400 m away. Chains with partners form the corridor; the group with the most side-by-side length
+   wins, and groups whose ends line up across a break of up to 2 km are one corridor (an edge keeps its partner on the same side
+   before and after the break, so the two edges are never crossed over). The chains are pointed the same way and **stacked across
+   the corridor**, built from the strongest relations first so that a few metres of pinched corridor cannot overrule hundreds of
+   kilometres. The two stacks with the most length are the edges; when they are about as long as a stack between them the
+   outermost pair wins, so a **centreline between the edges is left out**, and so is a short service road or ramp beside one edge.
+   Ticks, side roads and lines that do not run alongside another line are markings and are ignored.
+4. **Bridge and choose.** Within each edge the chains are ordered along the route and joined across larger gaps: up to 5 km where
+   the other edge shows the corridor goes on, up to 2 km where both edges are missing. A longer break in both edges starts a
+   separate **section**; the longest section is used and the others are reported (a warning, and their lengths) so they can be
+   searched separately, for example state by state. Both lines are then cut to the stretch where they run side by side.
+
+If no two lines run side by side the older rule applies: the longest joined line, or the two longest when the second is at least
+half as long as the longest. Two lines are searched as the strip between them unless *Two lines = the strip* is unticked. The
+summary (the two lines' lengths, how far apart they run, how many pieces were joined, gaps bridged, lines ignored) is in the info
+card of *1. Area of interest* and in the result.
+
+**When it applies.** A file with any **polygon** is an area and is searched as drawn; a file with only points too; a file with
+lines and points uses the lines. A **DXF** has its own rule (`dxf.py`): there the longest lines are taken without joining, because
+a DXF drawing often stores the centreline in pieces next to the two edges.
+
+**Tested** by `backend/tests/test_corridor.py` (run from `web/`: `../lapenv/bin/python backend/tests/test_corridor.py`; synthetic
+corridors checked against the known true edges; no database needed): a 600 km winding route with edges
+6 to 150 m apart, pieces of 1 to 6 km with gaps of up to 12 m and overlaps of up to 3 m, random order and direction, 60 ticks, 12 side
+roads, a centreline in pieces, a decoy corridor and two long unrelated lines; missing stretches of one edge (bridged); a 1.2 km break
+in both edges (bridged); a 5 km break (two sections); one edge missing its first 100 km; a hairpin with the two legs 300 m apart; a
+drawing with a vertex every 5 m (548,000 vertices, 1.3 s). Each gives one line on each true edge, with the right length.
+
 ## DXF alignment and chainage
 
 Instead of an area file, the dashboard takes a **DXF alignment** and, optionally, a second **DXF with chainage
@@ -248,6 +384,9 @@ file, and flags an empty column; the column with the most CH/KM values is presel
 `KM: 12+500`, `CH 12+345.5` (kilometres + metres, a minus sign makes the whole value negative), `KM 12.5` (kilometres),
 `CH 12500` (metres), `CH 5 km`. A label that starts with CH/KM but holds no readable chainage is counted and reported.
 Other texts (for example `TPTC1 AT CH ...`) are left out.
+
+If one DXF holds both the alignment and the chainage labels, tick **Chainage is in the same DXF**: the chainage then uses the
+alignment file (no second file or upload) and its coordinate system, and the text column is chosen the same way.
 
 **What the parcel table gets.** Three more columns, after *district*:
 

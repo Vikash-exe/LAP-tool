@@ -11,16 +11,16 @@ export interface Basemap {
 
 export const BASEMAPS: Basemap[] = [
   {
-    id: "osm",
-    label: "OpenStreetMap",
-    tiles: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: "© OpenStreetMap contributors",
-  },
-  {
     id: "google-roadmap",
     label: "Google Roadmap",
     tiles: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
     attribution: "© Google",
+  },
+  {
+    id: "osm",
+    label: "OpenStreetMap",
+    tiles: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: "© OpenStreetMap contributors",
   },
   {
     id: "google-satellite",

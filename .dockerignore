@@ -1,0 +1,11 @@
+.git
+lapenv
+data
+deploy
+web/data
+**/node_modules
+**/dist
+**/__pycache__
+*.pyc
+*.log
+*.csv

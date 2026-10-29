@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Cadastral Parcel Finder</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #1f2d3a;
+      background: linear-gradient(160deg, #eaf2fb 0%, #f7f9fb 55%, #e3edf7 100%);
+    }
+    .card {
+      width: 100%; max-width: 360px; margin: 16px; padding: 28px 26px 20px; background: #fff;
+      border: 1px solid #dbe3ec; border-radius: 12px; box-shadow: 0 8px 28px rgba(31, 45, 58, .10);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand img { width: 36px; height: 36px; }
+    h1 { margin: 0; font-size: 20px; font-weight: 800; color: #0d47a1; }
+    .sub { margin: 4px 0 18px; font-size: 13px; color: #607080; }
+    label { display: block; margin: 12px 0 4px; font-size: 12px; font-weight: 600; color: #546e7a; }
+    input {
+      width: 100%; padding: 9px 10px; font: inherit; font-size: 15px;
+      border: 1px solid #b8c4d0; border-radius: 6px; background: #fff;
+    }
+    input:focus { outline: 2px solid #90caf9; border-color: #1976d2; }
+    .pw { position: relative; }
+    .pw input { padding-right: 60px; }
+    .toggle {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      padding: 4px 6px; border: 0; background: none; color: #1976d2; font-size: 12px; cursor: pointer;
+    }
+    .card { overflow: hidden; }
+    .card::before {
+      content: ""; display: block; height: 7px; margin: -28px -26px 22px;
+      background: linear-gradient(90deg, #0b3d91, #1976d2 55%, #42a5f5);
+    }
+    .go {
+      width: 100%; margin-top: 16px; padding: 11px; font: inherit; font-size: 15px; font-weight: 700;
+      color: #fff; background: linear-gradient(180deg, #4da3f5, #1976d2); border: 1px solid #0d5cb6; border-radius: 10px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, .25); box-shadow: 0 3px 0 #0b4f9e, 0 6px 14px rgba(13, 71, 161, .35);
+      cursor: pointer; transition: transform .08s, box-shadow .08s;
+    }
+    .go:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 0 #0b4f9e, 0 10px 20px rgba(13, 71, 161, .42); }
+    .go:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 #0b4f9e, 0 2px 4px rgba(13, 71, 161, .3); }
+    .go:disabled { opacity: .6; cursor: default; }
+    .err { min-height: 20px; margin-top: 12px; font-size: 13px; color: #b00020; }
+    .foot { margin-top: 12px; font-size: 11px; color: #8a98a6; text-align: center; }
+  </style>
+</head>
+<body>
+  <form class="card" id="form">
+    <div class="brand"><img src="/favicon.svg" alt=""><h1>Cadastral Parcel Finder</h1></div>
+    <div class="sub">Sign in to continue</div>
+
+    <label for="user">User name</label>
+    <input id="user" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+
+    <label for="pass">Password</label>
+    <div class="pw">
+      <input id="pass" name="password" type="password" autocomplete="current-password" required>
+      <button type="button" class="toggle" id="toggle">Show</button>
+    </div>
+
+    <div class="err" id="err" role="alert"></div>
+    <button class="go" id="go" type="submit">Sign in</button>
+    <div class="foot">For authorised users only.</div>
+  </form>
+
+  <script>
+    const form = document.getElementById("form");
+    const user = document.getElementById("user");
+    const pass = document.getElementById("pass");
+    const err = document.getElementById("err");
+    const go = document.getElementById("go");
+
+    // After signing in, go back to where the person was heading, but only to a page on this site.
+    function nextPage() {
+      const n = new URLSearchParams(location.search).get("next") || "/";
+      return n.startsWith("/") && !n.startsWith("//") && !n.startsWith("/\\") && !n.startsWith("/login") ? n : "/";
+    }
+
+    document.getElementById("toggle").addEventListener("click", (e) => {
+      const show = pass.type === "password";
+      pass.type = show ? "text" : "password";
+      e.target.textContent = show ? "Hide" : "Show";
+    });
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      err.textContent = "";
+      go.disabled = true;
+      go.textContent = "Signing in...";
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: user.value.trim(), password: pass.value }),
+        });
+        if (res.ok) {
+          location.replace(nextPage());
+          return;
+        }
+        const body = await res.json().catch(() => ({}));
+        err.textContent = body.detail || "Could not sign in.";
+        pass.value = "";
+        pass.focus();
+      } catch (e) {
+        err.textContent = "Cannot reach the server. Try again.";
+      }
+      go.disabled = false;
+      go.textContent = "Sign in";
+    });
+  </script>
+</body>
+</html>

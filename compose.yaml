@@ -1,0 +1,71 @@
+# The Cadastral Parcel Finder, as two containers:
+#
+#   gateway  nginx: HTTPS (self-signed certificate); the only part that is reachable from the network.
+#            https://<this server>:8443  (http://<this server>:8010 redirects to it)
+#   lap      the app (API + dashboard) with its own sign-in page. Not published: only the gateway reaches it.
+#
+# First time:   deploy/make_cert.sh && deploy/users.sh add <name> && docker compose up -d --build
+# Afterwards:   docker compose up -d --build     (after a code change)   |   docker compose logs -f lap
+# Ports can be changed with LAP_HTTPS_PORT / LAP_HTTP_PORT (shell or a .env file next to this file).
+
+name: lap
+
+services:
+  lap:
+    build: .
+    image: lap-app:latest
+    container_name: lap
+    restart: unless-stopped
+    environment:
+      # database (the defaults are what the app uses without them); the password comes from ~/.pgpass below
+      PGHOST: ${PGHOST:-172.16.60.60}
+      PGPORT: ${PGPORT:-5432}
+      PGDATABASE: ${PGDATABASE:-Vikash}
+      PGUSER: ${PGUSER:-geouser}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-200}
+      # who may sign in (name:hash per line; manage with deploy/users.sh) and how long a sign-in lasts
+      LAP_AUTH_FILE: /app/auth/users
+      SESSION_HOURS: ${SESSION_HOURS:-12}
+    volumes:
+      # the parcel data (the file server share, mounted on this server by mount_share.sh), read-only
+      - type: bind
+        source: ./data/mount
+        target: /app/data/mount
+        read_only: true
+        bind:
+          propagation: rslave
+      # search results (kept 24 h) and uploaded DXF files (kept 6 h)
+      - ./web/data:/app/web/data
+      # the users allowed to sign in
+      - ./deploy/auth:/app/auth:ro
+      # the database password, as on the server (a libpq password file, mode 600)
+      - ${HOME}/.pgpass:/home/lap/.pgpass:ro
+    expose:
+      - "8010"
+    # mem_limit: 24g      # uncomment to stop one huge search from using all the memory of the server
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  gateway:
+    image: nginx:1.27-alpine
+    container_name: lap-gateway
+    restart: unless-stopped
+    depends_on:
+      lap:
+        condition: service_healthy
+    environment:
+      LAP_HTTPS_PORT: ${LAP_HTTPS_PORT:-8443}
+    ports:
+      - "${LAP_HTTPS_PORT:-8443}:8443"
+      - "${LAP_HTTP_PORT:-8010}:8010"
+    volumes:
+      - ./deploy/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

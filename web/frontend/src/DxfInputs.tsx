@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { FeatureCollection } from "geojson";
 import ProgressBar from "./ProgressBar";
+import Header, { P } from "./Header";
 import { previewDxf, uploadDxf, type DxfAlignmentInfo, type DxfChainageInfo, type DxfCrsOption, type DxfUpload } from "./api";
 
 /** What the search needs from the two DXF files once both are ready (chainage is optional). */
@@ -25,7 +26,7 @@ interface Props {
 const OTHER = "__other__";
 type Stage = "uploading" | "reading" | "drawing" | null;
 
-const label: CSSProperties = { display: "block", fontSize: 12, color: "#444", margin: "8px 0 2px", fontWeight: "bold" };
+const label: CSSProperties = { display: "block", fontSize: 12, color: "#666", margin: "8px 0 2px", fontWeight: "bold" };
 const small: CSSProperties = { fontSize: 11, color: "#666", marginTop: 3 };
 const warn: CSSProperties = { fontSize: 11, color: "#b00020", marginTop: 3 };
 const select: CSSProperties = { width: "100%", fontSize: 12 };
@@ -107,9 +108,11 @@ export default function DxfInputs({ active, disabled, onSelection, onAlignmentPr
   const [cPrev, setCPrev] = useState<FeatureCollection | null>(null);
   const cSeq = useRef(0);
   const cInput = useRef<HTMLInputElement>(null);
+  // The chainage labels are in the alignment DXF itself: its upload, CRS and text columns are reused.
+  const [sameFile, setSameFile] = useState(false);
 
   const aCrsValue = effectiveCrs(aCrs, aOther);
-  const cCrsValue = effectiveCrs(cCrs, cOther);
+  const cCrsValue = sameFile ? aCrsValue : effectiveCrs(cCrs, cOther);
 
   async function chooseAlignment(file: File | undefined) {
     const seq = ++aSeq.current;
@@ -167,6 +170,27 @@ export default function DxfInputs({ active, disabled, onSelection, onAlignmentPr
     if (cInput.current) cInput.current.value = "";
     void chooseChainage(undefined);
   }
+
+  function toggleSameFile(on: boolean) {
+    setSameFile(on);
+    if (!on) removeChainage(); // back to choosing a separate chainage file
+  }
+
+  // "Same DXF": the chainage follows the alignment upload (a separate chainage file or upload in progress is dropped).
+  useEffect(() => {
+    if (!sameFile) return;
+    cSeq.current++;
+    setCStage(null);
+    setCError(null);
+    if (cInput.current) cInput.current.value = "";
+    setCUp(aUp);
+    if (aUp) setCField(aUp.default_field ?? aUp.fields[0]?.name ?? "Text");
+    else {
+      setCInfo(null);
+      setCPrev(null);
+      onChainagePreview(null);
+    }
+  }, [sameFile, aUp]);
 
   // Draw the alignment (its longest line(s)) whenever the file, CRS or alignment type changes.
   useEffect(() => {
@@ -279,35 +303,80 @@ export default function DxfInputs({ active, disabled, onSelection, onAlignmentPr
           <span style={label}>Coordinate system of the alignment file</span>
           <CrsSelect options={aUp.crs_options} value={aCrs} other={aOther} onValue={setACrs} onOther={setAOther} disabled={disabled} />
           {!aCrsValue && <div style={small}>A DXF does not say which coordinate system it uses. The ones that put the drawing on land in India are listed first.</div>}
-          <span style={label}>The alignment is</span>
+          <Header
+            level="sub"
+            title="The alignment is"
+            info={
+              <>
+                <P>
+                  Only the longest line(s) of the DXF are the alignment: every shorter line (tick marks, outlines of labels, pieces of a
+                  centreline) is a marking and is ignored. <strong>Detect</strong> takes two lines when the second longest is at least half as
+                  long as the longest, otherwise one. <strong>Two lines</strong> are the corridor's edges (the strip between them is searched);
+                  <strong> a single centreline</strong> is searched as a line. Arcs are kept as drawn, not straightened.
+                </P>
+                {aInfo && (
+                  <P>
+                    <strong>In this file:</strong> using the {aInfo.lines_used === 2 ? "two longest lines" : "longest line"} (
+                    {aInfo.lengths_m.map(km).join(" and ")}). {num(aInfo.ignored)} shorter line{aInfo.ignored === 1 ? "" : "s"} ignored as markings.
+                  </P>
+                )}
+              </>
+            }
+          />
           <select value={aMode} onChange={(e) => setAMode(e.target.value)} disabled={disabled} style={select}>
             <option value="auto">Detect: the 1 or 2 longest lines</option>
             <option value="two">Two lines (the corridor's edges)</option>
             <option value="single">A single centreline</option>
           </select>
-          {aInfo && (
-            <div style={small}>
-              Using the {aInfo.lines_used === 2 ? "two longest lines" : "longest line"} ({aInfo.lengths_m.map(km).join(" and ")}).{" "}
-              {num(aInfo.ignored)} shorter line{aInfo.ignored === 1 ? "" : "s"} ignored as markings.
-            </div>
-          )}
           {aInfo?.warning && <div style={warn}>{aInfo.warning}</div>}
         </>
       )}
 
-      <span style={{ ...label, marginTop: 12 }}>Chainage (DXF, optional)</span>
-      <input
-        ref={cInput}
-        type="file"
-        accept=".dxf"
-        disabled={disabled}
-        onChange={(e) => void chooseChainage(e.target.files?.[0])}
-        style={{ fontSize: 12, maxWidth: "100%" }}
-      />
-      {cUp && (
-        <button type="button" onClick={removeChainage} disabled={disabled} style={{ fontSize: 11, marginLeft: 6 }}>
-          Remove
-        </button>
+      <div style={{ marginTop: 12 }}>
+        <Header
+          level="sub"
+          title="Chainage (DXF, optional)"
+          info={
+            <>
+              <P>
+                The chainage labels are the text points (TEXT / MTEXT) whose text starts with <strong>CH</strong> or <strong>KM</strong>, for
+                example <em>CH -2+400</em>, <em>KM: 12+500</em> or <em>CH 12500</em>. They give the parcel table its <em>chainage from / to</em> and{" "}
+                <em>chainage labels inside</em> columns.
+              </P>
+              <P>
+                Tick <strong>Chainage is in the same DXF</strong> when one file holds both the alignment and the labels: the alignment upload and
+                its coordinate system are used, no second file is needed.
+              </P>
+              {sameFile && (
+                <P>
+                  <strong>Now:</strong>{" "}
+                  {aUp ? `using the chainage labels (text starting with CH or KM) of ${aUp.filename}.` : "choose the alignment DXF first; its chainage labels will be used."}
+                </P>
+              )}
+            </>
+          }
+        />
+      </div>
+      <label style={{ display: "block", fontSize: 12, marginBottom: 4 }} title="Use the CH/KM text points of the alignment DXF itself: no second file, no second upload">
+        <input type="checkbox" checked={sameFile} onChange={(e) => toggleSameFile(e.target.checked)} disabled={disabled || (!aUp && !sameFile)} /> Chainage is in the
+        same DXF
+      </label>
+      {!sameFile && (
+        <>
+          <input
+            ref={cInput}
+            type="file"
+            accept=".dxf"
+            disabled={disabled}
+            onChange={(e) => void chooseChainage(e.target.files?.[0])}
+            style={{ fontSize: 12, maxWidth: "100%" }}
+          />
+          {cUp && (
+            <button type="button" className="mini" onClick={removeChainage} disabled={disabled} style={{ marginLeft: 6 }}>
+              Remove
+            </button>
+          )}
+        </>
       )}
       {cStage === "uploading" && <ProgressBar fraction={cFrac} label="Uploading the chainage DXF" />}
       {cStage === "reading" && <ProgressBar fraction={1} label="Reading the DXF..." indeterminate />}
@@ -315,9 +384,30 @@ export default function DxfInputs({ active, disabled, onSelection, onAlignmentPr
       {cError && <div style={warn}>{cError}</div>}
       {cUp && (
         <>
-          <span style={label}>Coordinate system of the chainage file</span>
-          <CrsSelect options={cUp.crs_options} value={cCrs} other={cOther} onValue={setCCrs} onOther={setCOther} disabled={disabled} />
-          <span style={label}>Column with the chainage text</span>
+          {!sameFile && (
+            <>
+              <span style={label}>Coordinate system of the chainage file</span>
+              <CrsSelect options={cUp.crs_options} value={cCrs} other={cOther} onValue={setCCrs} onOther={setCOther} disabled={disabled} />
+            </>
+          )}
+          <Header
+            level="sub"
+            title="Column with the chainage text"
+            info={
+              <>
+                <P>
+                  The text of each chainage label is read from this column. The columns of the file are listed with how many values start with CH or
+                  KM and how many are filled; the one with the most CH/KM values is chosen for you. The first 10 text rows of the file are shown
+                  below to help you pick.
+                </P>
+                {cInfo && (
+                  <P>
+                    <strong>In this file:</strong> {num(cInfo.count)} chainage labels read, {cInfo.first} to {cInfo.last}.
+                  </P>
+                )}
+              </>
+            }
+          />
           {cUp.fields.length === 0 ? (
             <div style={warn}>This DXF has no text points (TEXT / MTEXT), so there is no chainage in it.</div>
           ) : (
@@ -362,10 +452,9 @@ export default function DxfInputs({ active, disabled, onSelection, onAlignmentPr
               </div>
             </details>
           )}
-          {cInfo && (
-            <div style={small}>
-              {num(cInfo.count)} chainage labels read, {cInfo.first} to {cInfo.last}.
-              {cInfo.unparsed > 0 && ` ${num(cInfo.unparsed)} start with CH/KM but hold no readable chainage (e.g. ${cInfo.unparsed_examples.slice(0, 2).join(", ")}).`}
+          {cInfo && cInfo.unparsed > 0 && (
+            <div style={warn}>
+              {num(cInfo.unparsed)} start with CH/KM but hold no readable chainage (e.g. {cInfo.unparsed_examples.slice(0, 2).join(", ")}); they are ignored.
             </div>
           )}
         </>

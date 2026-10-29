@@ -7,13 +7,15 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import aoi, chainage, config, dxf, exports, search, statedata
+from pydantic import BaseModel
+
+from . import alignment, aoi, auth, chainage, config, dxf, exports, search, statedata
 
 
 @asynccontextmanager
@@ -32,6 +34,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(GZipMiddleware, minimum_size=1024)
+# Added last, so it is the outermost layer: nothing is reached without signing in (see auth.py).
+app.add_middleware(auth.SignInGuard)
 
 _RESULT_ID = re.compile(r"^[0-9a-f]{32}$")
 
@@ -54,6 +58,59 @@ def _purge_old_results() -> None:
     for d in config.RESULTS_DIR.iterdir():
         if d.is_dir() and d.stat().st_mtime < cutoff:
             shutil.rmtree(d, ignore_errors=True)
+
+
+class LoginBody(BaseModel):
+    username: str
+    password: str
+
+
+@app.get("/login", include_in_schema=False)
+def login_page(request: Request, next: str = "/"):
+    """The sign-in page (a small static page). Someone who is already signed in is sent on."""
+    if auth.ENABLED and auth.user_from_request(request):
+        return RedirectResponse(auth.safe_next(next), status_code=303)
+    return FileResponse(
+        Path(__file__).resolve().parents[1] / "login.html",
+        headers={
+            "Cache-Control": "no-store",
+            "X-Frame-Options": "DENY",
+            "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:",
+        },
+    )
+
+
+@app.post("/api/login")
+def login(body: LoginBody, request: Request):
+    if not auth.ENABLED:
+        return {"user": None, "auth": False}
+    ip = auth.client_ip(request)
+    if auth.blocked(ip):
+        return JSONResponse({"detail": "Too many failed attempts. Wait a few minutes and try again."}, status_code=429)
+    name = body.username.strip()
+    if not auth.verify(name, body.password):
+        auth.record_failure(ip)
+        return JSONResponse({"detail": "Wrong user name or password."}, status_code=401)
+    auth.clear_failures(ip)
+    response = JSONResponse({"user": name, "auth": True})
+    response.set_cookie(
+        auth.COOKIE, auth.make_token(name), max_age=auth.SESSION_SECONDS,
+        httponly=True, secure=auth.is_https(request), samesite="lax", path="/",
+    )
+    return response
+
+
+@app.post("/api/logout")
+def logout():
+    response = JSONResponse({"ok": True})
+    response.delete_cookie(auth.COOKIE, path="/")
+    return response
+
+
+@app.get("/api/me")
+def me(request: Request):
+    """Who is signed in (user is null when sign-in is switched off with LAP_AUTH=off)."""
+    return {"user": getattr(request.state, "user", None), "auth": auth.ENABLED}
 
 
 @app.get("/api/health")
@@ -206,7 +263,9 @@ def preview_area(files: list[UploadFile] = File(...)):
     workdir = Path(tempfile.mkdtemp(prefix="lap_preview_"))
     try:
         aoi.save_upload_parts([(f.filename, f.file) for f in files], workdir)
-        return {"aoi": aoi.load_aoi(workdir)}
+        # the same step the search applies, so the map shows the lines that will be searched
+        area, info = alignment.pick(aoi.load_aoi(workdir))
+        return {"aoi": area, "alignment": info}
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
 

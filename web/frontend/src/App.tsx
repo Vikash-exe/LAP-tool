@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Feature, FeatureCollection } from "geojson";
 import MapView, { type MapViewHandle, type ParcelLayer } from "./MapView";
 import Resizer from "./Resizer";
 import DxfInputs, { type DxfSelection } from "./DxfInputs";
+import Header, { P, labelStyle } from "./Header";
 import ProgressBar from "./ProgressBar";
 import { BASEMAPS } from "./basemaps";
 import {
@@ -14,10 +15,13 @@ import {
   dropAllStateTables,
   dropStateTable,
   getStates,
+  getMe,
   getStateTables,
+  logout,
   previewArea,
   runSearch,
   type AreaStats,
+  type DxfAlignmentInfo,
   type BBox,
   type ExportFormat,
   type AvailableState,
@@ -64,8 +68,6 @@ interface SourceGroup {
   bbox: BBox | null;
 }
 
-const sectionStyle = { marginBottom: 20 } as const;
-const labelStyle = { fontSize: 12, fontWeight: "bold", color: "#666", margin: "4px 0" } as const;
 
 function fmt(n: number) {
   return n.toLocaleString("en-US");
@@ -168,7 +170,7 @@ function groupBySource(fc: FeatureCollection): Record<string, SourceGroup> {
 
 export default function App() {
   const mapViewRef = useRef<MapViewHandle>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(360);
+  const [sidebarWidth, setSidebarWidth] = useState(400);
 
   // Parcel data is loaded into the database per state, only when a search needs it, and dropped
   // again after a while. `availableStates` is what exists on the mount; `stateTables` is what is in
@@ -180,6 +182,7 @@ export default function App() {
   const [maxFeatures, setMaxFeatures] = useState<number | null>(null);
   const [ttlSeconds, setTtlSeconds] = useState<number | null>(null);
   const [backendError, setBackendError] = useState<string | null>(null);
+  const [me, setMe] = useState<{ user: string | null; auth: boolean } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [job, setJob] = useState<SearchJob | null>(null);
 
@@ -189,6 +192,8 @@ export default function App() {
   const previewSeq = useRef(0); // ignores the answer for a file that was replaced meanwhile
   // Loading bar while the chosen file is sent to the server and converted: uploading, then reading.
   const [previewStage, setPreviewStage] = useState<"uploading" | "reading" | null>(null);
+  // For an area file made of lines: which lines were found and used (shown in the info card of section 1).
+  const [areaAlignment, setAreaAlignment] = useState<DxfAlignmentInfo | null>(null);
   const [previewFraction, setPreviewFraction] = useState(0);
   const [mode, setMode] = useState<MatchMode>("intersects");
   // When the upload is exactly two lines, search the strip between them.
@@ -206,7 +211,7 @@ export default function App() {
   const [splitGpkg, setSplitGpkg] = useState(false);
   const [downloadClipped, setDownloadClipped] = useState(false);
 
-  const [basemapId, setBasemapId] = useState<string | null>("osm");
+  const [basemapId, setBasemapId] = useState<string | null>("google-roadmap");
   const [showAoi, setShowAoi] = useState(true);
   const [aoiOpacity, setAoiOpacity] = useState(1);
   const [showStrip, setShowStrip] = useState(true);
@@ -251,6 +256,7 @@ export default function App() {
   }
 
   useEffect(() => {
+    getMe().then(setMe).catch(() => {}); // who is signed in
     getStates()
       .then(({ states, max_features, ttl_seconds }) => {
         setAvailableStates(states);
@@ -344,6 +350,7 @@ export default function App() {
     setFiles(chosen);
     setError(null);
     setPreview(null);
+    setAreaAlignment(null);
     if (chosen.length === 0) {
       setPreviewStage(null);
       return;
@@ -351,9 +358,10 @@ export default function App() {
     setPreviewStage("uploading");
     setPreviewFraction(0);
     try {
-      const fc = await previewArea(chosen, (f) => seq === previewSeq.current && setPreviewFraction(f), () => seq === previewSeq.current && setPreviewStage("reading"));
+      const { aoi: fc, alignment } = await previewArea(chosen, (f) => seq === previewSeq.current && setPreviewFraction(f), () => seq === previewSeq.current && setPreviewStage("reading"));
       if (seq !== previewSeq.current) return;
       setPreview(fc);
+      setAreaAlignment(alignment);
       setShowAoi(true);
       const b = boundsOf(fc.features);
       if (b) mapViewRef.current?.fitBounds(b);
@@ -365,12 +373,18 @@ export default function App() {
     }
   }
 
+  async function signOut() {
+    await logout();
+    window.location.href = "/login";
+  }
+
   function switchInputKind(kind: "file" | "dxf") {
     if (kind === inputKind) return;
     previewSeq.current++;
     setPreviewStage(null);
     setError(null);
     setPreview(null);
+    setAreaAlignment(null);
     setChainagePreview(null);
     setInputKind(kind);
     if (kind === "file" && files.length > 0) void handleFilesChosen(files); // draw the chosen area file again
@@ -494,23 +508,43 @@ export default function App() {
   const villagesSelected = downloadSource === VILLAGES_SOURCE;
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      <div style={{ width: sidebarWidth, flexShrink: 0, padding: 16, overflowY: "auto", boxSizing: "border-box" }}>
-        <div style={{ marginBottom: 16 }}>
-          <Header
-            level="page"
-            title="Cadastral Parcel Finder"
-            info={
-              <>
-                <P>Upload an area (KML, Shapefile, GeoJSON...) and get every cadastral parcel that intersects it, together with the village boundaries it lies in.</P>
-                <P>Work down the panel: 1. choose the area, 2. choose how to match, then press Find parcels. The result, the layers and the downloads appear below.</P>
-              </>
-            }
-          />
+    <div className="app">
+      <header className="app-header">
+        <div className="brand">
+          <img className="logo" src="/favicon.svg" alt="" />
+          <div className="brand-text">
+            <Header
+              className="page-title"
+              level="page"
+              title="Cadastral Parcel Finder"
+              info={
+                <>
+                  <P>Upload an area (KML, Shapefile, GeoJSON...) and get every cadastral parcel that intersects it, together with the village boundaries it lies in.</P>
+                  <P>Work down the panel: 1. choose the area, 2. choose how to match, then press Find parcels. The result, the layers and the downloads appear below.</P>
+                </>
+              }
+            />
+            <div className="tagline">Find the parcels and villages along an area or an alignment</div>
+          </div>
         </div>
+        {me?.user && (
+          <div className="user-chip">
+            <span>
+              Signed in as <strong>{me.user}</strong>
+            </span>
+            <button className="mini on-dark" onClick={() => void signOut()}>
+              Sign out
+            </button>
+          </div>
+        )}
+      </header>
 
-        <section style={sectionStyle}>
+      <div className="app-body">
+      <aside className="sidebar" style={{ width: sidebarWidth }}>
+
+        <section className="card c-data">
           <Header
+            className="card-head"
             title="Parcel data in the database"
             info={
               <>
@@ -543,7 +577,7 @@ export default function App() {
                 {fmtBytes(stateTables.in_use_bytes)} of {fmtBytes(stateTables.budget_bytes)} budget in use
               </span>
               {stateTables.tables.length > 0 && (
-                <button onClick={handleDropAll} style={{ fontSize: 12 }} title="Drop every loaded state table">
+                <button onClick={handleDropAll} className="mini" title="Drop every loaded state table">
                   Clear all
                 </button>
               )}
@@ -568,8 +602,9 @@ export default function App() {
           )}
         </section>
 
-        <section style={sectionStyle}>
+        <section className="card c-area">
           <Header
+            className="card-head"
             title="1. Area of interest"
             info={
               <>
@@ -579,10 +614,35 @@ export default function App() {
                   and points all work.
                 </P>
                 <P>
-                  <strong>Two lines = the strip between them.</strong> With exactly two lines in the file, the area between them is
-                  searched and each parcel's area inside the strip is measured. Untick the box to treat them as two separate lines
-                  instead. It has no effect on any other kind of file.
+                  <strong>Lines are an alignment, found automatically.</strong> When the file holds lines (and no polygon), elevation is
+                  ignored, line pieces whose ends meet are joined (small gaps and overlaps are closed, longer breaks are bridged where the
+                  other edge shows the alignment goes on), and the two lines that run side by side, 4 to 400 m apart, are the edges of the
+                  alignment. A line between the edges, ticks, side roads and lines that do not run alongside another are ignored. If no two
+                  lines run side by side, the longest line, or the two longest, are used. Polygons are searched as drawn.
                 </P>
+                <P>
+                  <strong>Two lines = the strip between them.</strong> With two lines, the area between them is searched and each
+                  parcel's area inside the strip is measured. Untick the box to treat them as two separate lines instead.
+                </P>
+                {areaAlignment && (
+                  <P>
+                    <strong>In this file:</strong> using the{" "}
+                    {areaAlignment.method === "parallel_pair" ? "two parallel lines" : areaAlignment.lines_used === 2 ? "two longest lines" : "longest line"} (
+                    {areaAlignment.lengths_m.map((m) => `${(m / 1000).toFixed(2)} km`).join(" and ")}).{" "}
+                    {areaAlignment.width_m
+                      ? areaAlignment.width_m[2] - areaAlignment.width_m[0] < 2
+                        ? `They run about ${Math.round(areaAlignment.width_m[1])} m apart. `
+                        : `They run ${Math.round(areaAlignment.width_m[0])} to ${Math.round(areaAlignment.width_m[2])} m apart (typically ${Math.round(areaAlignment.width_m[1])} m). `
+                      : ""}
+                    {(areaAlignment.pieces ?? 0) > areaAlignment.lines_found
+                      ? `${areaAlignment.pieces!.toLocaleString()} pieces were joined into ${areaAlignment.lines_found.toLocaleString()} lines. `
+                      : ""}
+                    {areaAlignment.bridged && areaAlignment.bridged.count > 0
+                      ? `${areaAlignment.bridged.count} gap${areaAlignment.bridged.count === 1 ? "" : "s"} (${Math.round(areaAlignment.bridged.metres).toLocaleString()} m in all) bridged. `
+                      : ""}
+                    {areaAlignment.ignored.toLocaleString()} other line{areaAlignment.ignored === 1 ? "" : "s"} ignored.
+                  </P>
+                )}
               </>
             }
           />
@@ -614,6 +674,7 @@ export default function App() {
           />
           {previewStage === "uploading" && <ProgressBar fraction={previewFraction} label="Uploading the file" />}
           {previewStage === "reading" && <ProgressBar fraction={1} label="Reading the file and drawing it on the map..." indeterminate />}
+          {areaAlignment?.warning && <div style={{ fontSize: 11, color: "#b00020", marginTop: 3 }}>{areaAlignment.warning}</div>}
             </>
           )}
           <label style={{ display: "block", fontSize: 12, marginTop: 6 }} title="Applies only when the file holds exactly two lines">
@@ -622,8 +683,9 @@ export default function App() {
           </label>
         </section>
 
-        <section style={sectionStyle}>
+        <section className="card c-match">
           <Header
+            className="card-head"
             title="2. Match"
             info={
               <>
@@ -646,12 +708,12 @@ export default function App() {
           <button
             onClick={handleSearch}
             disabled={(inputKind === "file" ? files.length === 0 : !dxfSelection) || busy || !!backendError}
-            style={{ marginTop: 10, padding: "6px 14px", fontWeight: "bold" }}
+            className="primary big" style={{ marginTop: 12 }}
           >
             Find parcels
           </button>
           {result && (
-            <button onClick={handleClear} disabled={busy} style={{ marginTop: 10, marginLeft: 8, padding: "6px 10px" }}>
+            <button onClick={handleClear} disabled={busy} style={{ marginTop: 12, marginLeft: 8 }}>
               Clear
             </button>
           )}
@@ -664,8 +726,9 @@ export default function App() {
         </section>
 
         {result && (
-          <section style={sectionStyle}>
+          <section className="card c-result">
             <Header
+              className="card-head"
               title="Result"
               info={
                 <>
@@ -711,8 +774,9 @@ export default function App() {
             {result.alignment && (
               <div style={{ fontSize: 12, margin: "2px 0 6px" }}>
                 <span style={{ color: "#666" }}>Alignment: </span>
-                {result.alignment.lines_used === 2 ? "two longest lines" : "longest line"} (
-                {result.alignment.lengths_m.map((m) => `${(m / 1000).toFixed(2)} km`).join(", ")}); {fmt(result.alignment.ignored)} shorter lines ignored
+                {result.alignment.method === "parallel_pair" ? "two parallel lines" : result.alignment.lines_used === 2 ? "two longest lines" : "longest line"} (
+                {result.alignment.lengths_m.map((m) => `${(m / 1000).toFixed(2)} km`).join(", ")}); {fmt(result.alignment.ignored)} other lines ignored
+                {(result.alignment.pieces ?? 0) > result.alignment.lines_found ? `; ${fmt(result.alignment.pieces!)} pieces joined` : ""}
               </div>
             )}
             {result.chainage && !result.chainage.error && (
@@ -867,7 +931,7 @@ export default function App() {
             )}
 
             {(result.count > 0 || villageCount > 0) && (
-              <div style={{ marginTop: 10 }}>
+              <div className="inner" style={{ marginTop: 12 }}>
                 <Header
                   level="sub"
                   title="Download"
@@ -953,7 +1017,7 @@ export default function App() {
                     <button
                       onClick={() => handleDownload("table", downloadSource ? "parcel table" : "parcel tables")}
                       disabled={download !== null}
-                      style={{ fontSize: 12, fontWeight: "bold" }}
+                      className="primary" style={{ fontSize: 12 }}
                       title="CSV with three columns: total area, area affected, parcel number"
                     >
                       {downloadSource ? "Parcel table (CSV)" : "Parcel tables (one CSV per source file, .zip)"}
@@ -965,7 +1029,7 @@ export default function App() {
                     <button
                       onClick={handleDownloadNoParcels}
                       disabled={download !== null}
-                      style={{ fontSize: 12, fontWeight: "bold" }}
+                      className="primary" style={{ fontSize: 12 }}
                       title="CSV of the villages found by this search that have no cadastral parcels in the database: names, LGD codes, area and the reason"
                     >
                       Villages without parcels (CSV, {fmt(result.villages!.no_parcels!.count)})
@@ -990,8 +1054,9 @@ export default function App() {
           </section>
         )}
 
-        <section style={sectionStyle}>
+        <section className="card c-layers">
           <Header
+            className="card-head"
             title="Layers"
             info={
               <>
@@ -1125,7 +1190,7 @@ export default function App() {
             );
           })}
         </section>
-      </div>
+      </aside>
 
       <Resizer onResize={resizeSidebar} />
 
@@ -1160,109 +1225,9 @@ export default function App() {
           chainageColor={chainageColor}
         />
       </div>
+      </div>
     </div>
   );
-}
-
-// A section title with a small circular "i" button at its right. Clicking the button opens a card
-// with the explanation over the panel, so the panel itself holds only controls and results, not
-// paragraphs. The card closes on a click anywhere else or on Escape.
-function Header({ title, info, level = "section" }: { title: ReactNode; info?: ReactNode; level?: "page" | "section" | "sub" }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  const text =
-    level === "page" ? (
-      <h3 style={{ flex: 1, margin: 0 }}>{title}</h3>
-    ) : level === "section" ? (
-      <h4 style={{ flex: 1, margin: 0 }}>{title}</h4>
-    ) : (
-      <div style={{ ...labelStyle, flex: 1, margin: 0 }}>{title}</div>
-    );
-
-  return (
-    <div
-      ref={ref}
-      style={{ position: "relative", display: "flex", alignItems: "center", gap: 6, margin: level === "sub" ? "4px 0" : "0 0 8px" }}
-    >
-      {text}
-      {info && (
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="More information"
-          aria-expanded={open}
-          title="More information"
-          style={{
-            width: 18,
-            height: 18,
-            flexShrink: 0,
-            padding: 0,
-            borderRadius: "50%",
-            border: `1px solid ${open ? "#1976d2" : "#90a4ae"}`,
-            background: open ? "#1976d2" : "#fff",
-            color: open ? "#fff" : "#546e7a",
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontStyle: "italic",
-            fontWeight: "bold",
-            fontSize: 12,
-            lineHeight: "16px",
-            textAlign: "center",
-            cursor: "pointer",
-          }}
-        >
-          i
-        </button>
-      )}
-      {open && info && (
-        <div
-          role="dialog"
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            marginTop: 4,
-            zIndex: 30,
-            background: "#fff",
-            border: "1px solid #cfd8dc",
-            borderRadius: 6,
-            boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
-            padding: "10px 12px",
-            fontSize: 12,
-            lineHeight: 1.45,
-            color: "#333",
-            fontWeight: "normal",
-            maxHeight: "60vh",
-            overflowY: "auto",
-          }}
-        >
-          {info}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Paragraph spacing inside an info card.
-function P({ children }: { children: ReactNode }) {
-  return <p style={{ margin: "0 0 6px" }}>{children}</p>;
 }
 
 // What a running search is doing. While it loads a state's parcel data this shows that
@@ -1335,7 +1300,7 @@ function StateTableRow({
         <button
           onClick={onDrop}
           disabled={disabled}
-          style={{ fontSize: 11, padding: "0 6px" }}
+          className="mini"
           title={disabled ? "Loading in progress" : "Drop this state's whole parcel table from the database"}
         >
           Drop
@@ -1388,15 +1353,15 @@ function LayerRow({ label, title, detail, color, onColor, checked, onToggle, opa
         {detail && <span style={{ fontSize: 10, color: "#888" }}>{detail}</span>}
         {onUp && onDown && (
           <span style={{ display: "flex", flexDirection: "column", lineHeight: 0.7 }}>
-            <button onClick={onUp} disabled={upDisabled} title="Move up (render on top)" style={arrowStyle}>
+            <button onClick={onUp} disabled={upDisabled} title="Move up (render on top)" className="plain" style={arrowStyle}>
               &#9650;
             </button>
-            <button onClick={onDown} disabled={downDisabled} title="Move down (render below)" style={arrowStyle}>
+            <button onClick={onDown} disabled={downDisabled} title="Move down (render below)" className="plain" style={arrowStyle}>
               &#9660;
             </button>
           </span>
         )}
-        <button onClick={onZoom} disabled={!onZoom} style={{ fontSize: 11, padding: "0 4px" }} title="Zoom to this layer">
+        <button onClick={onZoom} disabled={!onZoom} className="mini" title="Zoom to this layer">
           &#8982;
         </button>
       </div>

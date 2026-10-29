@@ -13,7 +13,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 
-from . import config, query
+from . import config, dxf, query
 
 # format ->(file extension served to the user, media type)
 FORMATS = {
@@ -56,6 +56,15 @@ TABLE_HEADER = ["total area", "area affected", "parcel number", "village name", 
 
 
 CHAINAGE_HEADER = ["chainage from", "chainage to", "chainage labels inside"]
+
+
+def _chain_order(row: list):
+    """Sort key for the parcel table: increasing chainage from, then chainage to; parcels without a chainage last."""
+    start = dxf.parse_chainage(str(row[-3] or ""))
+    if start is None:
+        return (1, 0.0, 0.0)
+    end = dxf.parse_chainage(str(row[-2] or ""))
+    return (0, start, start if end is None else end)
 
 
 def _write_table(path: Path, rows: list[list], header: list[str] = TABLE_HEADER) -> None:
@@ -145,6 +154,10 @@ def export_table(result_dir: Path, sources: list[str], source: str | None = None
             name: [with_place(name, i, row, own, pid) for i, (_pt, row, own, pid) in enumerate(rows)]
             for name, rows in pending.items()
         }
+        if chain is not None:
+            # in order of increasing chainage (the sort is stable: parcels without one keep their order, at the end)
+            for rows in rows_by_source.values():
+                rows.sort(key=_chain_order)
 
         if source:
             _write_table(target, rows_by_source[source], header)
