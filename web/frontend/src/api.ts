@@ -5,7 +5,8 @@ const BASE = "";
 
 export type ProgressCallback = (fraction: number) => void;
 export type BBox = [number, number, number, number];
-export type MatchMode = "intersects" | "within" | "crossing";
+/** "both": the parcels that intersect the area, each tagged fully_inside, shown as two layers. */
+export type MatchMode = "intersects" | "within" | "crossing" | "both";
 /** "table" is the three-column CSV: total area, area affected, parcel number. */
 export type ExportFormat = "geojson" | "gpkg" | "shp" | "kml" | "csv" | "table";
 
@@ -117,11 +118,16 @@ export interface QueryResult {
   /** Area of the polygon/strip searched; null for lines and points. */
   aoi_area_m2: number | null;
   clipped_count: number;
+  /** How many of the parcels lie completely inside the area. */
+  fully_inside: number;
   bbox: BBox | null;
   seconds: number;
   aoi: FeatureCollection;
   /** DXF alignment searches: which lines were used. */
   alignment: DxfAlignmentInfo | null;
+  input_kind?: "linear" | "area" | "legacy";
+  /** The layer priority that was applied (null when there was a single layer): highest first, and how many parcels of each lower layer were left out as already covered. */
+  priority?: { order: string[]; dropped: Record<string, number>; drop_fraction: number } | null;
   /** DXF chainage: how it was applied to the parcels (error is set when it could not be). */
   chainage: ChainageMeta | null;
 }
@@ -182,6 +188,10 @@ export interface DxfChainageInfo {
 }
 
 export interface ChainageMeta {
+  /** "linear": from the start chainage of an alignment search (no labels). */
+  kind?: "linear";
+  start_m?: number;
+  start_end?: "A" | "B";
   labels?: number;
   labels_on_alignment?: number;
   labels_far?: number;
@@ -487,6 +497,10 @@ export interface DownloadOptions {
   villages?: boolean;
   /** Export the CSV of villages that have no parcels in the database (format csv). */
   villagesNoParcels?: boolean;
+  /** CSV and parcel tables: the processed LAP columns, or the columns of the source file. */
+  data?: "lap" | "source";
+  /** Parcel table: one CSV with the parcels of every layer (one parcel per place, by layer priority) instead of one per source. */
+  combined?: boolean;
 }
 
 export async function downloadResult(
@@ -501,6 +515,8 @@ export async function downloadResult(
   if (options.clipped) params.set("clipped", "true");
   if (options.villages) params.set("layer", "villages");
   if (options.villagesNoParcels) params.set("layer", "villages_no_parcels");
+  if (options.data && (format === "csv" || format === "table")) params.set("data", options.data);
+  if (options.combined) params.set("combined", "true");
   const { blob, filename } = await fetchBlob(`${BASE}/api/results/${resultId}/download?${params}`, onProgress);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -508,4 +524,101 @@ export async function downloadResult(
   a.download = filename ?? `cadastral_parcels_${resultId.slice(0, 8)}.${format}`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ------------------------------------------------------------------ alignment / right of way / area inputs
+
+export type InputRole = "alignment" | "row" | "area";
+
+export interface InputUpload {
+  token: string;
+  filename: string;
+  /** "dxf" files carry no coordinate system, so one is chosen; other formats define their own. */
+  kind: "dxf" | "gis";
+  crs_options: DxfCrsOption[];
+  crs_in_file: { name: string; code: number | null } | null;
+}
+
+export interface InputInfo {
+  warning: string | null;
+  /** alignment */
+  length_m?: number;
+  ends?: { A: [number, number]; B: [number, number] };
+  pieces?: number;
+  lines_found?: number;
+  ignored?: number;
+  /** right of way / area */
+  kind?: "polygon" | "two_lines";
+  count?: number;
+  lengths_m?: number[];
+}
+
+/** Uploads the file(s) of an alignment, right of way or area once; the preview and the search use the token. */
+export function uploadInput(files: File[], onProgress?: ProgressCallback, onUploadComplete?: () => void): Promise<InputUpload> {
+  const form = new FormData();
+  files.forEach((f) => form.append("files", f));
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${BASE}/api/input/upload`);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
+    };
+    xhr.upload.onload = () => onUploadComplete?.();
+    xhr.onload = () => {
+      if (xhr.status === 401) {
+        signInAgain();
+        return;
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(JSON.parse(xhr.response));
+      } else {
+        try {
+          reject(new Error(JSON.parse(xhr.response).detail ?? `Could not read the file (${xhr.status})`));
+        } catch {
+          reject(new Error(`Could not read the file (${xhr.status})`));
+        }
+      }
+    };
+    xhr.onerror = () => reject(new Error("Could not upload the file (network error)"));
+    xhr.send(form);
+  });
+}
+
+/** What the search would use from an uploaded file (for drawing on the map): the centreline, the right of way, or the area. */
+export async function previewInput(params: { token: string; role: InputRole; crs: string }): Promise<{ features: FeatureCollection; info: InputInfo }> {
+  const form = new FormData();
+  form.append("token", params.token);
+  form.append("role", params.role);
+  form.append("crs", params.crs);
+  const res = await fetch(`${BASE}/api/input/preview`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(await errorMessage(res, "Could not read the file"));
+  return res.json();
+}
+/** The chainage marks along an uploaded alignment for a start chainage and step (metres), as points with CH and KM text. */
+export async function fetchMarks(params: { token: string; crs: string; startChainage: string; startEnd: "A" | "B"; step: string }): Promise<FeatureCollection> {
+  const form = new FormData();
+  form.append("token", params.token);
+  form.append("crs", params.crs);
+  form.append("start_chainage", params.startChainage);
+  form.append("start_end", params.startEnd);
+  form.append("step", params.step);
+  const res = await fetch(`${BASE}/api/input/marks`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(await errorMessage(res, "Could not work out the chainage"));
+  return res.json();
+}
+/** One parcel layer (source file) available where the area lies. */
+export interface SourceLayer {
+  source: string;
+  states: string[];
+  /** Parcels of this layer in the area; null when the state's parcels are not loaded yet. */
+  parcels: number | null;
+}
+
+/** The layers available in the area (or the right of way), so they can be put in order of priority before searching. */
+export async function fetchSources(fields: Record<string, string>): Promise<{ sources: SourceLayer[] }> {
+  const form = new FormData();
+  Object.entries(fields).forEach(([k, v]) => form.append(k, v));
+  const res = await fetch(`${BASE}/api/input/sources`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(await errorMessage(res, "Could not list the layers"));
+  return res.json();
 }

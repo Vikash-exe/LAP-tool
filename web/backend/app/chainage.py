@@ -20,7 +20,7 @@ from pathlib import Path
 import psycopg
 from fastapi import HTTPException
 
-from . import dxf, query
+from . import dxf, enrich, query
 
 MAX_OFFSET_M = 500  # a label farther than this from the alignment does not belong to it
 BATCH = 300
@@ -228,4 +228,175 @@ def build(result_dir: Path, labels: list[dict], strip_used: bool) -> dict:
         "alignment_length_m": round(ref_len, 1),
         "parcels_with_chainage": len(spans),
         "parcels_with_labels_inside": len(inside),
+    }
+
+
+# ------------------------------------------------------------------------------------------------ linear search
+# An alignment search knows the chainage of the start of the centreline, so no labels are needed: the chainage of a
+# point is the start chainage plus its distance along the centreline, measured in a metric CRS (UTM).
+
+_LINEAR_REFERENCE_SQL = """
+SELECT ST_AsText(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(%(line)s), 4326), %(srid)s)),
+       ST_Length(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(%(line)s), 4326), %(srid)s)),
+       ST_AsText(ST_MakeValid(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(%(row)s), 4326), %(srid)s)))
+"""
+
+_LINEAR_SPANS_SQL = """
+WITH r AS (SELECT ST_GeomFromText(%(ref)s, %(srid)s) AS g, %(len)s::float8 AS len),
+     s AS (SELECT ST_GeomFromText(%(row)s, %(srid)s) AS g),
+     p AS (SELECT t.id, t.gj FROM unnest(%(ids)s::bigint[], %(full)s::text[]) AS t(id, gj))
+SELECT p.id, min(q.m), max(q.m)
+FROM p CROSS JOIN r CROSS JOIN s
+CROSS JOIN LATERAL (
+  SELECT ST_LineLocatePoint(r.g, d.geom) * r.len AS m
+  FROM ST_DumpPoints(ST_Intersection(ST_MakeValid(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(p.gj), 4326), %(srid)s)), s.g)) AS d
+) q
+GROUP BY p.id
+"""
+
+_TICKS_SQL = """
+WITH r AS (SELECT ST_GeomFromText(%(ref)s, %(srid)s) AS g)
+SELECT ST_AsGeoJSON(ST_Transform(ST_LineInterpolatePoint(r.g, f), 4326), 7)
+FROM r, unnest(%(fractions)s::float8[]) AS t(f)
+"""
+
+TICK_FORMAT_DECIMALS = 3
+
+
+MAX_MARKS = 20000
+DEFAULT_STEP_M = 1000.0
+
+
+def _utm_srid(coords: list) -> int:
+    srid = 32600 + int((sum(c[0] for c in coords) / len(coords) + 180) // 6) + 1
+    if sum(c[1] for c in coords) < 0:
+        srid += 100  # southern hemisphere zones are 327xx
+    return srid
+
+
+def _fmt_chainage(v: float) -> str:
+    """Whole metres plain ("CH 12+500"), otherwise with 3 decimals ("CH 12+500.250")."""
+    return dxf.format_chainage(v, 0 if abs(v - round(v)) < 1e-9 else TICK_FORMAT_DECIMALS)
+
+
+def _mark_values(start_m: float, length: float, step: float) -> list[float]:
+    """Chainages of the marks: the start, every multiple of the step after it, and the end. Chainage grows from the start."""
+    if not step or step <= 0:
+        raise HTTPException(400, "The chainage step must be more than 0 metres.")
+    if length / step > MAX_MARKS:
+        raise HTTPException(
+            400,
+            f"A step of {step:g} m gives about {int(length / step):,} marks on this {length / 1000:.1f} km alignment. Use a larger step.",
+        )
+    lo, hi = start_m, start_m + length
+    return [lo] + [k * step for k in range(int(lo // step) + 1, int(hi // step) + 1) if lo < k * step < hi] + [hi]
+
+
+def _mark_points(conn, ref_wkt: str, srid: int, length: float, start_m: float, start_end: str, values: list[float]) -> list[dict]:
+    """The marks as point features on the alignment, labelled "CH: 12+100"; the start, the end and every whole kilometre are labelled "KM: 13+000"."""
+    fractions = [(t - start_m) / length if start_end == "A" else 1 - (t - start_m) / length for t in values]
+    rows = conn.execute(_TICKS_SQL, {"ref": ref_wkt, "srid": srid, "fractions": [min(1.0, max(0.0, f)) for f in fractions]}).fetchall()
+    out = []
+    last = len(values) - 1
+    for i, (t, (g,)) in enumerate(zip(values, rows)):
+        ch = _fmt_chainage(t)
+        whole_km = abs(t / 1000 - round(t / 1000)) < 1e-9
+        prefix = "KM" if i in (0, last) or whole_km else "CH"
+        out.append({"type": "Feature", "geometry": json.loads(g), "properties": {"text": f"{prefix}:{ch[2:]}", "chainage_m": t}})
+    return out
+
+
+def marks(centreline: dict, start_m: float, start_end: str, step: float) -> dict:
+    """The chainage marks along an alignment as a FeatureCollection (EPSG:4326): no search needed, the start chainage and
+    the step are enough."""
+    if start_end not in ("A", "B"):
+        raise HTTPException(400, "The start of the alignment must be end A or end B.")
+    srid = _utm_srid(centreline["coordinates"])
+    try:
+        with query.connect() as conn:
+            ref_wkt, length, _row = conn.execute(
+                _LINEAR_REFERENCE_SQL, {"line": json.dumps(centreline), "row": json.dumps(centreline), "srid": srid}
+            ).fetchone()
+            features = _mark_points(conn, ref_wkt, srid, length, start_m, start_end, _mark_values(start_m, length, step))
+    except psycopg.Error as e:
+        raise HTTPException(500, f"Database error while working out the chainage: {str(e).splitlines()[0]}")
+    return {"type": "FeatureCollection", "features": features}
+
+
+def build_linear(result_dir: Path, centreline: dict, search_geometry: str, start_m: float, start_end: str, step: float = DEFAULT_STEP_M) -> dict:
+    """Chainage from / to of every parcel of a finished alignment search, and a mark every step metres.
+
+    centreline: the LineString; search_geometry: the right of way as GeoJSON text; start_m: the chainage in metres at the
+    end named by start_end ("A" = first point of the centreline, "B" = last)."""
+    if start_end not in ("A", "B"):
+        raise HTTPException(400, "The start of the alignment must be end A or end B.")
+    coords = centreline["coordinates"]
+    srid = _utm_srid(coords)
+
+    def chainage_at(m: float, length: float) -> float:
+        return start_m + (m if start_end == "A" else length - m)
+
+    try:
+        with query.connect() as conn:
+            ref_wkt, length, row_wkt = conn.execute(
+                _LINEAR_REFERENCE_SQL, {"line": json.dumps(centreline), "row": search_geometry, "srid": srid}
+            ).fetchone()
+            result = json.loads((result_dir / "result.geojson").read_text(encoding="utf-8"))["features"]
+            spans: dict[int, tuple[float, float]] = {}
+            for start in range(0, len(result), BATCH):
+                chunk = result[start : start + BATCH]
+                for pid, mn, mx in conn.execute(
+                    _LINEAR_SPANS_SQL,
+                    {"ref": ref_wkt, "row": row_wkt, "srid": srid, "len": length,
+                     "ids": [f["id"] for f in chunk], "full": [json.dumps(f["geometry"]) for f in chunk]},
+                ):
+                    a, b = chainage_at(mn, length), chainage_at(mx, length)
+                    spans[pid] = (min(a, b), max(a, b))
+
+            # Each piece of a parcel inside the area has its own chainage (the position in the list is its key).
+            clip_path = result_dir / "clipped.geojson"
+            clip_fc = json.loads(clip_path.read_text(encoding="utf-8")) if clip_path.exists() else None
+            piece_spans: dict[int, tuple[float, float]] = {}
+            pieces_list = clip_fc["features"] if clip_fc else []
+            for start in range(0, len(pieces_list), BATCH):
+                chunk = pieces_list[start : start + BATCH]
+                for idx, mn, mx in conn.execute(
+                    _LINEAR_SPANS_SQL,
+                    {"ref": ref_wkt, "row": row_wkt, "srid": srid, "len": length,
+                     "ids": list(range(start, start + len(chunk))), "full": [json.dumps(f["geometry"]) for f in chunk]},
+                ):
+                    a, b = chainage_at(mn, length), chainage_at(mx, length)
+                    piece_spans[idx] = (min(a, b), max(a, b))
+
+            # The chainage marks along the alignment: the start, every multiple of the step, the end.
+            lo, hi = start_m, start_m + length
+            tick_features = _mark_points(conn, ref_wkt, srid, length, start_m, start_end, _mark_values(start_m, length, step))
+    except psycopg.errors.QueryCanceled:
+        raise HTTPException(504, "Working out the chainage of the parcels took too long.")
+    except psycopg.Error as e:
+        raise HTTPException(500, f"Database error while working out the chainage: {str(e).splitlines()[0]}")
+
+    fmt = lambda v: dxf.format_chainage(v, TICK_FORMAT_DECIMALS)  # noqa: E731
+    per_parcel = {
+        str(f["id"]): [fmt(spans[f["id"]][0]), fmt(spans[f["id"]][1])] if f["id"] in spans else ["", ""]
+        for f in result
+    }
+    (result_dir / "chainage_parcels.json").write_text(json.dumps(per_parcel), encoding="utf-8")
+    enrich.add_chainage(result_dir, per_parcel)  # chainage from / to also on each parcel, for the map pop-up and the CSVs
+    if clip_fc:
+        for idx, f in enumerate(clip_fc["features"]):
+            if idx in piece_spans:
+                f["properties"]["chainage_from"], f["properties"]["chainage_to"] = fmt(piece_spans[idx][0]), fmt(piece_spans[idx][1])
+        clip_path.write_text(json.dumps(clip_fc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (result_dir / "chainage.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": tick_features}), encoding="utf-8")
+    return {
+        "kind": "linear",
+        "start_m": start_m,
+        "start_end": start_end,
+        "first": fmt(lo),  # the chainage range, low to high, whichever end the start is at
+        "last": fmt(hi),
+        "alignment_length_m": round(length, 3),
+        "step_m": step,
+        "labels_on_alignment": len(tick_features),
+        "parcels_with_chainage": len(spans),
     }

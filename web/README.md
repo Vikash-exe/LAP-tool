@@ -491,3 +491,27 @@ The sweeper only runs while the backend does. To also drop expired tables when t
 lapenv/bin/python src/load_cadastral.py --sweep >> sweep.log 2>&1` (not installed; add it with `crontab -e`).
 
 `cadastral.load_log` (the single-table loader's log) is no longer used and can be dropped.
+
+## Alignment and Area inputs
+
+The "1. Area of interest" section has two choices.
+
+**Alignment** (a route with chainage) takes three things:
+
+* the **alignment file**: one centreline. Pieces whose ends meet are joined; if the file holds other lines, the longest is used;
+* the **right of way (RoW) file**: two lines (the strip between them is searched) or one closed polygon;
+* the **start chainage** in metres (up to 3 decimals) and which end of the centreline it belongs to. The ends are marked **A** (first point of
+  the line in the file) and **B** (last point) on the map once the alignment is read.
+
+The parcel tables get `chainage from` and `chainage to` (start chainage + distance along the centreline, measured in UTM, 3 decimals) for the part
+of each parcel inside the right of way, sorted by increasing chainage. The map shows a chainage mark at the start, the end and every kilometre.
+
+**Area** takes one closed polygon.
+
+Every file can be KML, KMZ, GeoJSON, GeoPackage, GML, a shapefile (zip or loose parts) or DXF. A DXF has no coordinate system, so one is chosen after
+the upload (the ones that put the drawing on land in India are listed first). In a DXF the largest closed outline (or filled shape) is the polygon;
+a right of way without one is the two longest lines. Elevation is ignored and arcs are kept as drawn.
+
+Code: `backend/app/linear.py` (reading the files), `alignment.centreline()`, `dxf.load_row()`, `chainage.build_linear()`; endpoints
+`/api/input/upload`, `/api/input/preview`, and `kind=linear|area` on `/api/query`. The earlier flows (automatic parallel-line finding in an area file,
+DXF chainage labels) are no longer reachable from the page; their code is still in the repository.

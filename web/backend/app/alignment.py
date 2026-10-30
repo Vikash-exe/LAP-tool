@@ -553,3 +553,45 @@ def pick(area: dict) -> tuple[dict, dict | None]:
     )
     features = [{"type": "Feature", "geometry": json.loads(r[0]), "properties": {"role": "alignment"}} for r in back]
     return {"type": "FeatureCollection", "features": features}, info
+
+
+def centreline(area: dict, min_piece_m: float = MIN_PIECE_M) -> tuple[dict, dict]:
+    """The one centreline in a file of lines: elevation is ignored, pieces whose ends meet are joined, and the
+    longest joined line is the alignment. Returns (FeatureCollection with that one LineString in EPSG:4326, summary)."""
+    lines: list[dict] = []
+    kinds: set[str] = set()
+    for feature in area.get("features", []):
+        _scan(feature.get("geometry"), lines, kinds)
+    if not lines:
+        raise HTTPException(400, "The file holds no line. The alignment must be a line (the centreline).")
+
+    srid = _utm_srid(lines)
+    try:
+        with query.connect() as conn:
+            rows = conn.execute(_FLATTEN_SQL, {"geoms": [json.dumps(g) for g in lines], "srid": srid, "simp": SIMPLIFY_M, "minlen": min_piece_m}).fetchall()
+            pieces = [[(float(x), float(y)) for x, y in json.loads(r[0])["coordinates"]] for r in rows]
+            if not pieces:
+                raise HTTPException(400, "The lines in the file are too short to be an alignment.")
+            chains, _gaps = _join(pieces, GAP_M, OVERLAP_M, LATERAL_BASE_M, LATERAL_SLOPE, _COS_JOIN)
+            chains.sort(key=_length, reverse=True)
+            back = conn.execute(
+                _BACK_SQL, {"geoms": [json.dumps({"type": "LineString", "coordinates": chains[0]})], "srid": srid}
+            ).fetchall()
+    except psycopg.Error as e:
+        raise HTTPException(500, f"Database error while reading the alignment: {str(e).splitlines()[0]}")
+
+    lengths = [_length(c) for c in chains]
+    info = {
+        "pieces": len(pieces),
+        "lines_found": len(chains),
+        "lengths_m": [round(float(back[0][1]), 1)],
+        "ignored": len(chains) - 1,
+        "warning": None,
+    }
+    if len(chains) > 1 and lengths[1] >= 0.5 * lengths[0]:
+        info["warning"] = (
+            f"The file holds another line ({lengths[1]:,.0f} m) almost as long as the one used ({lengths[0]:,.0f} m). "
+            "The alignment must be a single centreline: remove the other lines if this is not the one you mean."
+        )
+    feature = {"type": "Feature", "geometry": json.loads(back[0][0]), "properties": {"role": "alignment"}}
+    return {"type": "FeatureCollection", "features": [feature]}, info

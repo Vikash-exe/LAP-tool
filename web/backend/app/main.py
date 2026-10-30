@@ -1,4 +1,5 @@
 import json
+import math
 import re
 import shutil
 import tempfile
@@ -15,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 from pydantic import BaseModel
 
-from . import alignment, aoi, auth, chainage, config, dxf, exports, search, statedata
+from . import alignment, aoi, auth, chainage, config, dxf, exports, linear, priority, query, search, statedata
 
 
 @asynccontextmanager
@@ -180,6 +181,18 @@ def start_query(
     chainage_token: str = Form(""),
     chainage_crs: str = Form(""),
     chainage_field: str = Form("Text"),
+    kind: str = Form(""),
+    area_token: str = Form(""),
+    area_crs: str = Form(""),
+    align_token: str = Form(""),
+    align_crs: str = Form(""),
+    row_token: str = Form(""),
+    row_crs: str = Form(""),
+    start_chainage: str = Form(""),
+    start_end: str = Form("A"),
+    chainage_step: str = Form(""),
+    priority: str = Form(""),
+    match_with: str = Form(""),
 ):
     """Starts a search and returns a job id; the dashboard polls /api/jobs/{id}. The upload is read here, so a
     wrong file type is reported immediately; everything else (finding the states, loading their parcel data
@@ -193,7 +206,53 @@ def start_query(
     upload_dir = result_dir / "upload"
     upload_dir.mkdir(parents=True)
     try:
-        if alignment_token:
+        if kind in ("area", "linear"):
+            options: dict = {"kind": kind}
+            if kind == "area":
+                if not area_token:
+                    raise HTTPException(400, "Choose the area of interest file first.")
+                options["area"] = {"token": area_token, "crs": area_crs}
+            else:
+                if not align_token and not row_token:
+                    raise HTTPException(400, "Choose the alignment file or the right of way file first.")
+                start = 0.0
+                if align_token:  # the start chainage is only needed to work out chainage along an alignment
+                    try:
+                        start = float(start_chainage)
+                    except ValueError:
+                        raise HTTPException(400, "Enter the start chainage in metres, for example 12500.000.")
+                    if not math.isfinite(start) or abs(start) > 1e9:
+                        raise HTTPException(400, "The start chainage is out of range.")
+                    if start_end not in ("A", "B"):
+                        raise HTTPException(400, "Choose which end of the alignment is the start.")
+                options["alignment"] = {"token": align_token, "crs": align_crs} if align_token else None
+                # the right of way is optional: without it the parcels the alignment crosses are listed
+                options["row"] = {"token": row_token, "crs": row_crs} if row_token else None
+                if match_with.strip():
+                    use = [s for s in match_with.split(",") if s in ("row", "line")]
+                    if not use:
+                        raise HTTPException(400, "Choose what to match the parcels against: the alignment line, the right of way or both.")
+                    options["match_with"] = use
+                options["start_chainage"] = round(start, 3)
+                options["start_end"] = start_end
+                if chainage_step.strip():
+                    try:
+                        step = float(chainage_step)
+                    except ValueError:
+                        raise HTTPException(400, "Enter the chainage step in metres, for example 100.")
+                    if not math.isfinite(step) or step <= 0:
+                        raise HTTPException(400, "The chainage step must be more than 0 metres.")
+                    options["step"] = round(step, 3)
+            if priority.strip():
+                try:
+                    order = json.loads(priority)
+                except ValueError:
+                    raise HTTPException(400, "The layer priority is not readable.")
+                if not isinstance(order, list) or len(order) > 200 or not all(isinstance(s, str) for s in order):
+                    raise HTTPException(400, "The layer priority must be a list of layer names.")
+                options["priority"] = order
+            (upload_dir / "input_options.json").write_text(json.dumps(options), encoding="utf-8")
+        elif alignment_token:
             # A DXF alignment (uploaded earlier, see /api/dxf/upload), with an optional DXF of chainage labels.
             options = {"alignment": str(dxf.path_for(alignment_token)), "crs": dxf._check_crs(crs), "mode": align_mode, "chainage": None}
             if chainage_token:
@@ -216,6 +275,65 @@ def start_query(
     job = search.create_job()
     search.start(job, upload_dir, result_dir, mode, restrict, strip)
     return {"job_id": job["id"]}
+
+
+@app.post("/api/input/upload")
+def input_upload(files: list[UploadFile] = File(...)):
+    """Stores the file(s) of an alignment, right of way or area of interest for the preview and the search."""
+    return linear.save([(f.filename, f.file) for f in files])
+
+
+@app.post("/api/input/preview")
+def input_preview(token: str = Form(...), role: str = Form(...), crs: str = Form("")):
+    """What the search would use from an uploaded file, in EPSG:4326: for the alignment its one centreline (with its ends
+    A and B), for the right of way two lines or a polygon, for the area its polygon(s)."""
+    fc, info = linear.read(token, role, crs)
+    return {"features": fc, "info": info}
+
+
+@app.post("/api/input/sources")
+def input_sources(
+    kind: str = Form(...),
+    area_token: str = Form(""),
+    area_crs: str = Form(""),
+    row_token: str = Form(""),
+    row_crs: str = Form(""),
+    align_token: str = Form(""),
+    align_crs: str = Form(""),
+):
+    """The layers (parcel source files) available where the uploaded area, or the right of way of an alignment, lies, so
+    the user can put them in order of priority before searching."""
+    if kind == "area":
+        area, _info = linear.read(area_token, "area", area_crs)
+        lines = None
+    elif kind == "linear" and row_token:
+        area, info = linear.read(row_token, "row", row_crs)
+        area, lines = linear.to_search_area(area, info)
+    elif kind == "linear" and align_token:
+        area, _info = linear.read(align_token, "alignment", align_crs)  # no right of way: the alignment line itself
+        lines = None
+    else:
+        raise HTTPException(400, "Choose the alignment or the right of way file first." if kind == "linear" else "kind must be area or linear")
+    return priority.available_sources(query.prepare_aoi(area, lines)["geometry"])
+
+
+@app.post("/api/input/marks")
+def input_marks(
+    token: str = Form(...),
+    crs: str = Form(""),
+    start_chainage: str = Form(...),
+    start_end: str = Form("A"),
+    step: str = Form(...),
+):
+    """The chainage marks along an uploaded alignment (start chainage + step), to draw on the map before any search."""
+    try:
+        start, size = float(start_chainage), float(step)
+    except ValueError:
+        raise HTTPException(400, "The start chainage and the step must be numbers (metres).")
+    if not (math.isfinite(start) and math.isfinite(size)) or abs(start) > 1e9:
+        raise HTTPException(400, "The start chainage or the step is out of range.")
+    fc, _info = linear.read(token, "alignment", crs)
+    return chainage.marks(fc["features"][0]["geometry"], start, start_end, size)
 
 
 @app.post("/api/dxf/upload")
@@ -307,6 +425,8 @@ def download_result(
     split: bool = False,
     clipped: bool = False,
     layer: str = "parcels",
+    data: str = "",
+    combined: bool = False,
 ):
     result_dir = _result_dir(result_id)
     meta = json.loads((result_dir / "meta.json").read_text(encoding="utf-8"))
@@ -323,7 +443,7 @@ def download_result(
             raise HTTPException(400, "Village boundaries are one layer: choose a format, optionally clipped.")
         if not (meta.get("villages") or {}).get("count"):
             raise HTTPException(404, "This search found no village boundaries.")
-        path, media_type, stem = exports.export(result_dir, format, [], None, False, clipped, dataset="villages")
+        path, media_type, stem = exports.export(result_dir, format, [], None, False, clipped, dataset="villages", data=data or None)
     elif format == "table":
         # The parcel table CSVs (total area, area affected, parcel number, village name, taluka, district).
         has_chainage = bool((meta.get("chainage") or {}).get("labels_on_alignment"))
@@ -333,11 +453,12 @@ def download_result(
         # area (those get a header-only file), so the set is always complete.
         loaded = [name for folder in meta.get("state_folders", []) for name in statedata.source_files(folder)]
         path, media_type, stem = exports.export_table(
-            result_dir, sorted(set(loaded) | set(meta["per_source"])), source or None, all_parcels=not meta.get("aoi_area_m2")
+            result_dir, sorted(set(loaded) | set(meta["per_source"])), source or None, all_parcels=not meta.get("aoi_area_m2"),
+            data=data or "lap", combined=combined,
         )
     else:
         path, media_type, stem = exports.export(
-            result_dir, format, list(meta["per_source"]), source or None, split, clipped
+            result_dir, format, list(meta["per_source"]), source or None, split, clipped, data=data or None
         )
     return FileResponse(path, media_type=media_type, filename=f"cadastral_{stem}_{result_id[:8]}{path.suffix}")
 

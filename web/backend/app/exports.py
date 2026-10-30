@@ -52,22 +52,65 @@ def _parcel_number(props: dict) -> str:
     return ""
 
 
-TABLE_HEADER = ["total area", "area affected", "parcel number", "village name", "taluka", "district"]
+# The processed (LAP) columns of the parcel table, in this order: (property, column title). Chainage columns only when the
+# search had a chainage.
+LAP_COLUMNS = [
+    ("parcel_number", "Parcel ID"),
+    ("area_m2", "Total Area"),
+    ("inside_m2", "Affected Area"),
+    ("chainage_from", "Chainage From"),
+    ("chainage_to", "Chainage To"),
+    ("village_name", "Village Name"),
+    ("taluka_name", "Taluka Name"),
+    ("district_name", "District Name"),
+    ("state_name", "State Name"),
+]
+VILLAGE_LAP_COLUMNS = [
+    ("village_name", "Village Name"),
+    ("taluka_name", "Taluka Name"),
+    ("district_name", "District Name"),
+    ("state_name", "State Name"),
+]
+CHAINAGE_KEYS = ("chainage_from", "chainage_to")
 
 
-CHAINAGE_HEADER = ["chainage from", "chainage to", "chainage labels inside"]
+def _lap_columns(has_chainage: bool, columns: list[tuple[str, str]] = LAP_COLUMNS, has_parts: bool = False) -> list[tuple[str, str]]:
+    cols = [c for c in columns if has_chainage or c[0] not in CHAINAGE_KEYS]
+    if has_parts and columns is LAP_COLUMNS:  # "Part" (1 of 2) right after the parcel id, only when a parcel was cut into pieces
+        cols.insert(1, ("part", "Part"))
+    return cols
 
 
-def _chain_order(row: list):
-    """Sort key for the parcel table: increasing chainage from, then chainage to; parcels without a chainage last."""
-    start = dxf.parse_chainage(str(row[-3] or ""))
+def _has_parts(features: list[dict]) -> bool:
+    return any((f["properties"].get("part_count") or 1) > 1 for f in features)
+
+
+def _has_chainage(features: list[dict]) -> bool:
+    return any(f["properties"].get("chainage_from") for f in features)
+
+
+def _source_props(props: dict) -> dict:
+    """The columns of the source file: everything that is not one of the processed (LAP) properties. A source column
+    whose name clashed with a LAP property is stored as attr_<name>; it gets its own name back."""
+    out = {}
+    for key, value in props.items():
+        if key in query.INTERNAL_KEYS:
+            continue
+        if key.startswith("attr_") and key[5:] in query.INTERNAL_KEYS:
+            key = key[5:]
+        out[key] = value
+    return out
+
+
+def _chain_key(props: dict):
+    """Sort key: increasing chainage from, then chainage to; parcels without a chainage last."""
+    start = dxf.parse_chainage(str(props.get("chainage_from") or ""))
     if start is None:
         return (1, 0.0, 0.0)
-    end = dxf.parse_chainage(str(row[-2] or ""))
+    end = dxf.parse_chainage(str(props.get("chainage_to") or ""))
     return (0, start, start if end is None else end)
 
-
-def _write_table(path: Path, rows: list[list], header: list[str] = TABLE_HEADER) -> None:
+def _write_table(path: Path, rows: list[list], header: list[str]) -> None:
     # utf-8-sig so Excel opens non-ASCII text correctly.
     with open(path, "w", newline="", encoding="utf-8-sig") as fh:
         writer = csv.writer(fh)
@@ -91,91 +134,91 @@ def _parcel_village(props: dict) -> str:
     return ""
 
 
-def export_table(result_dir: Path, sources: list[str], source: str | None = None, all_parcels: bool = False) -> tuple[Path, str, str]:
-    """The parcel table: CSV(s) with the columns total area, area affected,
-    parcel number, village name, taluka, district.
+def export_table(result_dir: Path, sources: list[str], source: str | None = None, all_parcels: bool = False, data: str = "lap", combined: bool = False) -> tuple[Path, str, str]:
+    """The parcel table: one CSV per source file (or, with `source`, just that one).
 
-    One CSV per source file. With `source` given, that one CSV; otherwise a zip
-    holding one CSV for every source in the result (a source with no parcel
-    inside the area still gets its header-only file, so the set is always
-    complete). Areas are square metres on the ellipsoid. One row per parcel with
-    some area inside the searched area; parcels that only touch its edge are left out.
-    Village name, taluka (the village's sub-district) and district come from the
-    village boundary under a point inside each parcel; an empty cell means none was found.
-    """
+    data="lap": the processed columns Parcel ID, Total Area, Affected Area, [Chainage From, Chainage To,] Village Name,
+    Taluka Name, District Name, State Name (areas in square metres on the ellipsoid; the state from the state boundary
+    file; the village, taluka and district from the village boundary under the parcel). data="source": the columns of
+    the source file itself. One row per parcel with some area inside the searched area (parcels that only touch the edge
+    are left out); a search along a line lists every parcel it crosses. Rows are in order of increasing chainage when
+    there is one, else in layer-priority order."""
     if source is not None and source not in sources:
         raise HTTPException(400, "That source is not part of this result.")
+    if data not in ("lap", "source"):
+        raise HTTPException(400, "data must be 'lap' or 'source'")
     src = result_dir / "result.geojson"
     if not src.exists():
         raise HTTPException(404, "No such result (it may have expired).")
+    # The affected parcels are listed from the parts inside the area: a parcel cut into separate pieces has a row per piece.
+    if not all_parcels and (result_dir / "clipped.geojson").exists():
+        src = result_dir / "clipped.geojson"
 
     target = (
-        result_dir / f"table_{hashlib.sha1(source.encode()).hexdigest()[:10]}.csv"
+        result_dir / f"table_all_{data}.csv"
+        if combined
+        else result_dir / f"table_{hashlib.sha1(source.encode()).hexdigest()[:10]}_{data}.csv"
         if source
-        else result_dir / "tables_by_source.zip"
+        else result_dir / f"tables_by_source_{data}.zip"
     )
-    # Chainage per parcel (from / to, labels inside) when the search was given chainage labels.
-    chain_path = result_dir / "chainage_parcels.json"
-    chain = json.loads(chain_path.read_text(encoding="utf-8")) if chain_path.exists() else None
-    header = TABLE_HEADER + CHAINAGE_HEADER if chain is not None else TABLE_HEADER
+    if combined and not target.exists():
+        # One CSV of every parcel of the search. The layer priority was applied while matching (a lower layer only added the
+        # parcels no higher layer covers), so this holds one parcel per place, in the order of the layers' priority.
+        features = json.loads(src.read_text(encoding="utf-8"))["features"]
+        props = [f["properties"] for f in features if f["properties"].get("source") in sources and (all_parcels or f["properties"].get("inside_m2", 0) > 0)]
+        if _has_chainage(features):
+            props = sorted(props, key=_chain_key)
+        if data == "lap":
+            columns = _lap_columns(_has_chainage(features), has_parts=_has_parts(features))
+            header = [title for _, title in columns]
+            rows = [["" if (v := p.get(key)) is None or (key == "inside_m2" and all_parcels) else v for key, _ in columns] for p in props]
+        else:
+            srcs = [{"source file": p.get("source", "").split("/", 1)[-1], **_source_props(p)} for p in props]
+            header = list(dict.fromkeys(k for s in srcs for k in s))
+            rows = [["" if s.get(k) is None else s[k] for k in header] for s in srcs]
+        _write_table(target, rows, header)
     if not target.exists():
-        # Rows first (each with the interior point recorded at search time), then one batched
-        # village lookup for them all. The points come from the result file, so this works even
-        # after the state's parcel table has been dropped.
-        # Each item: (interior point, [area, inside, parcel number], the parcel's own village name as a fallback).
-        pending: dict[str, list[tuple[tuple[float, float] | None, list, str]]] = {name: [] for name in sources}
-        for feature in json.loads(src.read_text(encoding="utf-8"))["features"]:
-            props = feature["properties"]
-            # A search along a line (no area) lists every parcel the line crosses; "area affected" stays empty.
-            if props.get("source") in pending and (all_parcels or props.get("inside_m2", 0) > 0):
-                pt = feature.get("pt")
-                pending[props["source"]].append(
-                    (
-                        tuple(pt) if pt else None,
-                        [props["area_m2"], "" if all_parcels else props["inside_m2"], _parcel_number(props)],
-                        _parcel_village(props),
-                        feature.get("id"),
-                    )
-                )
-        # A single-source CSV only needs that source's parcels looked up.
-        needed = [(name, i) for name, rows in pending.items() if not source or name == source for i in range(len(rows))]
-        found = query.village_lookup([pending[name][i][0] for name, i in needed])
-        places = dict(zip(needed, found))
+        features = json.loads(src.read_text(encoding="utf-8"))["features"]
+        has_chainage = _has_chainage(features)
+        columns = _lap_columns(has_chainage, has_parts=_has_parts(features))
+        by_source: dict[str, list[dict]] = {name: [] for name in sources}
+        for f in features:
+            p = f["properties"]
+            if p.get("source") in by_source and (all_parcels or p.get("inside_m2", 0) > 0):
+                by_source[p["source"]].append(p)
 
-        def with_place(name: str, i: int, row: list, own_village: str, pid) -> list:
-            village, taluka, district = places.get((name, i), (None, None, None))
-            # The village boundary is authoritative; the parcel's own village name only fills a gap.
-            out = row + [village or own_village or None, taluka, district]
-            if chain is not None:
-                out += chain.get(str(pid), ["", "", ""])
-            return out
-
-        rows_by_source: dict[str, list[list]] = {
-            name: [with_place(name, i, row, own, pid) for i, (_pt, row, own, pid) in enumerate(rows)]
-            for name, rows in pending.items()
-        }
-        if chain is not None:
-            # in order of increasing chainage (the sort is stable: parcels without one keep their order, at the end)
-            for rows in rows_by_source.values():
-                rows.sort(key=_chain_order)
+        def table(name: str) -> tuple[list[str], list[list]]:
+            props = by_source[name]
+            if has_chainage:
+                props = sorted(props, key=_chain_key)  # stable: parcels without a chainage keep their order, at the end
+            if data == "lap":
+                rows = [["" if (v := p.get(key)) is None or (key == "inside_m2" and all_parcels) else v for key, _ in columns] for p in props]
+                return [title for _, title in columns], rows
+            srcs = [_source_props(p) for p in props]
+            header = list(dict.fromkeys(k for s in srcs for k in s))
+            return header, [["" if s.get(k) is None else s[k] for k in header] for s in srcs]
 
         if source:
-            _write_table(target, rows_by_source[source], header)
+            header, rows = table(source)
+            _write_table(target, rows, header)
         else:
             tmp = result_dir / "tables_tmp"
             shutil.rmtree(tmp, ignore_errors=True)
             tmp.mkdir()
             with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as zf:
-                for name, rows in rows_by_source.items():
+                for name in sources:
+                    header, rows = table(name)
                     csv_path = tmp / f"{_table_stem(name)}.csv"
                     _write_table(csv_path, rows, header)
                     zf.write(csv_path, arcname=csv_path.name)
             shutil.rmtree(tmp, ignore_errors=True)
 
+    suffix = "lap" if data == "lap" else "source"
+    if combined:
+        return target, "text/csv", f"parcels_{suffix}"
     if source:
-        return target, "text/csv", f"{_table_stem(source)}_parcel_table"
-    return target, "application/zip", "parcel_tables_by_source"
-
+        return target, "text/csv", f"{_table_stem(source)}_parcel_table_{suffix}"
+    return target, "application/zip", f"parcel_tables_by_source_{suffix}"
 
 NO_PARCEL_COLUMNS = [
     ("state", "state"),
@@ -239,6 +282,24 @@ def _by_source_geojson(src: Path, source: str, result_dir: Path, tag: str) -> Pa
     return target
 
 
+def _projected_geojson(src: Path, data: str, dataset: str, source: str | None, result_dir: Path, tag: str) -> Path:
+    """A GeoJSON file with only the LAP columns (data="lap", titled as in the parcel table) or only the source file columns
+    (data="source") of each feature, optionally only one source file's, for the CSV export."""
+    key = hashlib.sha1((source or "").encode()).hexdigest()[:10]
+    target = result_dir / f"csvdata_{dataset}_{data}_{key}{tag}.geojson"
+    if not target.exists():
+        feats = json.loads(src.read_text(encoding="utf-8"))["features"]
+        if source:
+            feats = [f for f in feats if f["properties"].get("source") == source]
+        if data == "lap":
+            cols = _lap_columns(_has_chainage(feats), VILLAGE_LAP_COLUMNS if dataset == "villages" else LAP_COLUMNS, _has_parts(feats))
+            out = [{"type": "Feature", "geometry": f["geometry"], "properties": {title: f["properties"].get(k) for k, title in cols}} for f in feats]
+        else:
+            out = [{"type": "Feature", "geometry": f["geometry"], "properties": _source_props(f["properties"])} for f in feats]
+        target.write_text(json.dumps({"type": "FeatureCollection", "features": out}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return target
+
+
 def _where(source: str) -> list[str]:
     # `source` has already been checked against the result's own source list,
     # so it can only be one of the known file names; quotes are escaped anyway.
@@ -277,6 +338,7 @@ def export(
     split: bool = False,
     clipped: bool = False,
     dataset: str = "parcels",
+    data: str | None = None,
 ) -> tuple[Path, str, str]:
     """Returns (file path, media type, suggested file stem). Builds the file on
     first request and reuses it after. `sources` is the result's own list of
@@ -317,17 +379,24 @@ def export(
                 first = False
         return target, media_type, f"parcels_by_source{tag}"
 
+    # CSV can hold either the processed LAP columns or the source file columns.
+    if data not in (None, "lap", "source", "all"):
+        raise HTTPException(400, "data must be lap or source")
+    pick = data if fmt == "csv" and data in ("lap", "source") else None
+    dtag = f"_{pick}" if pick else ""
+
     if source is None:
         if fmt == "geojson":
             return src, media_type, f"{base}{tag}"
-        target = result_dir / f"{base}{tag}{suffix}"
+        target = result_dir / f"{base}{tag}{dtag}{suffix}"
         if not target.exists():
-            _convert(fmt, src, target, base, [], result_dir)
-        return target, media_type, f"{base}{tag}"
+            _convert(fmt, _projected_geojson(src, pick, dataset, None, result_dir, tag) if pick else src, target, base, [], result_dir)
+        return target, media_type, f"{base}{tag}{dtag}"
 
     key = hashlib.sha1(source.encode()).hexdigest()[:10]
     name = layer_name(source)
-    target = result_dir / f"src_{key}{tag}{suffix}"
+    target = result_dir / f"src_{key}{tag}{dtag}{suffix}"
     if not target.exists():
-        _convert(fmt, _by_source_geojson(src, source, result_dir, tag), target, name, [], result_dir)
-    return target, media_type, f"{name}{tag}"
+        part = _projected_geojson(src, pick, dataset, source, result_dir, tag) if pick else _by_source_geojson(src, source, result_dir, tag)
+        _convert(fmt, part, target, name, [], result_dir)
+    return target, media_type, f"{name}{tag}{dtag}"

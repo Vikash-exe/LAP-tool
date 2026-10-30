@@ -58,7 +58,8 @@ ARCHIVE_SUFFIXES = (".zip", ".kmz")
 # Sidecar files that travel with a loose shapefile upload.
 SIDECAR_SUFFIXES = (".dbf", ".shx", ".prj", ".cpg", ".qpj", ".sbn", ".sbx")
 
-QUERY_MODES = ("intersects", "within", "crossing")
+# "both": the parcels that intersect the area, each tagged fully_inside (or not), so the page can show the two sets as separate layers
+QUERY_MODES = ("intersects", "within", "crossing", "both")
 
 # Which attribute column holds the parcel number, per source file (file name
 # only, without the state folder; the names are case-sensitive and exactly as

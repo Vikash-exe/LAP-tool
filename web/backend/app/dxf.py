@@ -277,6 +277,28 @@ def _transform(features: dict, crs: int) -> dict:
 
 # ---------------------------------------------------------------- alignment
 
+SHORT_PIECE_M = 10.0  # shorter lines of a DXF alignment are chainage ticks and labels, not part of the line
+
+
+def _joined_alignment(path: Path, crs, total: int) -> tuple[dict, dict]:
+    """A centreline drawn as many pieces (tangents, curves, spirals): the pieces whose ends meet are joined, and the
+    longest joined line is the alignment. Short lines (chainage ticks) are left out."""
+    from . import alignment  # here: alignment is not needed by the other DXF readers
+
+    everything = json.loads(
+        _ogr2ogr(path, f"SELECT geometry, Layer AS layer FROM {LAYER} WHERE GeometryType(geometry) LIKE 'LINESTRING%'", "GeoJSON", ["-dim", "XY"])
+    )["features"]
+    fc = _transform({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {}, "geometry": f["geometry"]} for f in everything]}, crs)
+    _check_lonlat([c for f in fc["features"][:2000] for c in f["geometry"]["coordinates"]], crs, "alignment")
+    joined, info = alignment.centreline(fc, min_piece_m=SHORT_PIECE_M)
+    info["lines_found"] = total
+    info["lines_used"] = 1
+    info["mode_used"] = "single"
+    info["ignored_longest_m"] = None
+    joined["features"][0]["properties"] = {"role": "alignment"}
+    return joined, info
+
+
 def load_alignment(path: Path, crs, mode: str = "auto") -> tuple[dict, dict]:
     """The alignment from a DXF: its longest line(s); every shorter line is treated as a marking and ignored.
 
@@ -289,6 +311,8 @@ def load_alignment(path: Path, crs, mode: str = "auto") -> tuple[dict, dict]:
     total = int(_rows(path, f"SELECT COUNT(*) AS n FROM {LAYER} WHERE GeometryType(geometry) LIKE 'LINESTRING%'")[0]["n"])
     if total == 0:
         raise HTTPException(400, "The DXF holds no lines or polylines, so there is no alignment in it.")
+    if mode == "single":
+        return _joined_alignment(path, crs, total)
     top = json.loads(
         _ogr2ogr(
             path,
@@ -330,8 +354,67 @@ def load_alignment(path: Path, crs, mode: str = "auto") -> tuple[dict, dict]:
     return fc, info
 
 
-# ---------------------------------------------------------------- chainage
+def _closed(coords: list) -> bool:
+    if len(coords) < 4:
+        return False
+    (x0, y0), (x1, y1) = coords[0][:2], coords[-1][:2]
+    length = sum(math.hypot(coords[i + 1][0] - coords[i][0], coords[i + 1][1] - coords[i][1]) for i in range(len(coords) - 1))
+    return math.hypot(x1 - x0, y1 - y0) <= max(1e-6, 1e-6 * length)
 
+
+def load_row(path: Path, crs, role: str) -> tuple[dict, dict]:
+    """A right of way (role "row") or area of interest (role "area") from a DXF.
+
+    A closed outline is a polygon: the largest filled shape, else the longest line when it is closed. A right of way
+    that is not closed is its two longest lines. An area must be closed.
+    Returns (FeatureCollection in EPSG:4326, {"kind": "polygon" | "two_lines", ...})."""
+    crs = _check_crs(crs)
+    polys = json.loads(
+        _ogr2ogr(
+            path,
+            f"SELECT geometry FROM {LAYER} WHERE GeometryType(geometry) LIKE 'POLYGON%' ORDER BY ST_Area(geometry) DESC LIMIT 1",
+            "GeoJSON", ["-dim", "XY"],
+        )
+    )["features"]
+    kept: list[dict]
+    kind: str
+    lens: list[float] = []
+    if polys:
+        kept, kind = [polys[0]], "polygon"
+    else:
+        top = json.loads(
+            _ogr2ogr(
+                path,
+                f"SELECT geometry, ST_Length(geometry) AS len FROM {LAYER} WHERE GeometryType(geometry) LIKE 'LINESTRING%' ORDER BY len DESC LIMIT 6",
+                "GeoJSON", ["-dim", "XY"],
+            )
+        )["features"]
+        if not top:
+            raise HTTPException(400, "The DXF holds no closed outline or lines.")
+        lens = [float(f["properties"]["len"]) for f in top]
+        if _closed(top[0]["geometry"]["coordinates"]):
+            ring = top[0]["geometry"]["coordinates"]
+            kept, kind = [{"type": "Feature", "properties": {}, "geometry": {"type": "Polygon", "coordinates": [ring]}}], "polygon"
+        elif role == "row" and len(top) >= 2:
+            kept, kind = top[:2], "two_lines"
+        elif role == "row":
+            raise HTTPException(400, "The right of way needs a closed outline or two lines, and this DXF holds only one line that is not closed.")
+        else:
+            raise HTTPException(400, "The area of interest needs a closed polygon, and the longest line of this DXF is not closed.")
+    fc = _transform({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {}, "geometry": f["geometry"]} for f in kept]}, crs)
+    pts = [c for f in fc["features"] for c in (f["geometry"]["coordinates"][0] if f["geometry"]["type"] == "Polygon" else f["geometry"]["coordinates"])]
+    _check_lonlat(pts, crs, "outline" if kind == "polygon" else "right of way")
+    for f in fc["features"]:
+        f["properties"] = {"role": role}
+    info: dict = {"kind": kind, "warning": None}
+    if kind == "two_lines":
+        info["lengths_m"] = [round(_line_length_m(f["geometry"]["coordinates"]), 1) for f in fc["features"]]
+        if len(lens) > 2 and lens[2] >= 0.5 * lens[1]:
+            info["warning"] = "A third line is almost as long as the two used. If the right of way is not what you expect, remove the extra long lines from the DXF."
+    return fc, info
+
+
+# ---------------------------------------------------------------- chainage
 _PREFIX = re.compile(r"^\s*(CH|KM)", re.IGNORECASE)
 _PLUS = re.compile(r"([+-]?)\s*(\d+)\s*\+\s*(\d+(?:\.\d+)?)")
 _PLAIN = re.compile(r"([+-]?\d+(?:\.\d+)?)\s*(km|m)?\b", re.IGNORECASE)
@@ -366,12 +449,15 @@ def parse_chainage(text: str) -> float | None:
     return None
 
 
-def format_chainage(value: float) -> str:
-    """-2400 -> "CH -2+400", 12345.4 -> "CH 12+345". (The CH prefix also stops a spreadsheet from reading it as a formula.)"""
-    rounded = int(round(abs(value)))
-    km, m = divmod(rounded, 1000)
-    sign = "-" if value < 0 and rounded else ""
-    return f"CH {sign}{km}+{m:03d}"
+def format_chainage(value: float, decimals: int = 0) -> str:
+    """-2400 -> "CH -2+400", 12345.4 -> "CH 12+345"; with decimals=3, 12345.4 -> "CH 12+345.400".
+    (The CH prefix also stops a spreadsheet from reading it as a formula.)"""
+    total = round(abs(value), decimals)
+    km, m = divmod(total, 1000)
+    km = int(km)
+    width = 3 if decimals == 0 else 4 + decimals
+    sign = "-" if value < 0 and total else ""
+    return f"CH {sign}{km}+{m:0{width}.{decimals}f}"
 
 
 def read_chainage(path: Path, crs, field: str) -> tuple[list[dict], dict]:

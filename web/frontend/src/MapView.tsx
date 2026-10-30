@@ -27,7 +27,6 @@ const CHAINAGE_COLOR = "#1565c0";
 const PARCEL_ANCHOR = "clip-fill";
 
 // Attribute columns worth hiding in the popup: the fixed ones are shown in the header.
-const HEADER_KEYS = new Set(["parcel_id", "state", "source"]);
 const MAX_POPUP_FEATURES = 6;
 const HOVER_INTERVAL_MS = 60;
 const MAX_VALUE_LENGTH = 140;
@@ -86,13 +85,62 @@ const sourceId = (id: string) => `parcels-${id}`;
 const fillId = (id: string) => `parcels-${id}-fill`;
 const lineId = (id: string) => `parcels-${id}-line`;
 
-// Built with DOM nodes (textContent), never innerHTML: attribute values come
-// from the database and must not be interpreted as markup.
+// Pop-up of a parcel or a village: only the processed (LAP) fields, and a "More" button for the columns of the source file.
+// Built with DOM nodes (textContent), never innerHTML: attribute values come from the database and must not be interpreted as markup.
+const PARCEL_FIELDS: [string, string][] = [
+  ["parcel_number", "Parcel ID"],
+  ["part", "Part"],
+  ["area_m2", "Total Area"],
+  ["inside_m2", "Affected Area"],
+  ["chainage_from", "Chainage From"],
+  ["chainage_to", "Chainage To"],
+  ["village_name", "Village Name"],
+  ["taluka_name", "Taluka Name"],
+  ["district_name", "District Name"],
+  ["state_name", "State Name"],
+];
+const VILLAGE_FIELDS: [string, string][] = [
+  ["village_name", "Village Name"],
+  ["taluka_name", "Taluka Name"],
+  ["district_name", "District Name"],
+  ["state_name", "State Name"],
+];
+// the processed properties the search adds to every parcel / village; everything else is a column of the source file
+const INTERNAL_KEYS = new Set([
+  "parcel_id", "village_id", "state", "source", "area_m2", "inside_m2", "inside_pct", "fully_inside", "priority_rank",
+  "parcel_number", "village_name", "taluka_name", "district_name", "state_name", "chainage_from", "chainage_to", "part", "part_count",
+]);
+const AREA_KEYS = new Set(["area_m2", "inside_m2"]);
+
+function cell(text: string, style: Partial<CSSStyleDeclaration> = {}): HTMLTableCellElement {
+  const td = document.createElement("td");
+  td.textContent = text;
+  Object.assign(td.style, style);
+  return td;
+}
+
+function fieldTable(rows: [string, string][]): HTMLTableElement {
+  const table = document.createElement("table");
+  table.style.borderCollapse = "collapse";
+  table.style.marginTop = "4px";
+  rows.forEach(([k, v]) => {
+    const row = document.createElement("tr");
+    row.append(cell(k, { color: "#666", paddingRight: "10px", verticalAlign: "top", whiteSpace: "nowrap" }), cell(v, { wordBreak: "break-word" }));
+    table.appendChild(row);
+  });
+  return table;
+}
+
+const clip = (v: unknown) => {
+  const text = String(v);
+  return text.length > MAX_VALUE_LENGTH ? `${text.slice(0, MAX_VALUE_LENGTH)}…` : text;
+};
+
 function buildPopupContent(features: MapGeoJSONFeature[]): HTMLElement {
   const root = document.createElement("div");
-  root.style.maxHeight = "280px";
+  root.style.maxHeight = "300px";
   root.style.overflowY = "auto";
-  root.style.minWidth = "220px";
+  root.style.minWidth = "230px";
 
   features.slice(0, MAX_POPUP_FEATURES).forEach((feature, index) => {
     const props = feature.properties ?? {};
@@ -104,36 +152,54 @@ function buildPopupContent(features: MapGeoJSONFeature[]): HTMLElement {
     }
     const title = document.createElement("div");
     title.style.fontWeight = "bold";
+    const layer = feature.layer?.id;
+    if (layer === "chainage-circle") {
+      title.textContent = `Chainage mark · ${props.text ?? ""}`;
+      block.appendChild(title);
+      root.appendChild(block);
+      return;
+    }
+    const isVillage = layer === "noparcel-fill" || layer === "village-fill";
     title.textContent =
-      feature.layer?.id === "chainage-circle"
-        ? `Chainage label · ${props.text ?? ""}`
-        : feature.layer?.id === "noparcel-fill"
-        ? `Village without parcels · ${props.village ?? "unnamed"} (${props.state ?? ""})`
-        : feature.layer?.id === "village-fill"
-        ? `Village boundary · ${props.village ?? "unnamed"} (${props.state ?? ""})`
-        : `${props.state ?? ""} · ${props.source ?? ""}`;
+      layer === "noparcel-fill" ? "Village without parcels" : isVillage ? "Village" : layer === PARCEL_ANCHOR ? "Parcel, part inside the area" : "Parcel";
     block.appendChild(title);
 
-    const table = document.createElement("table");
-    table.style.borderCollapse = "collapse";
-    table.style.marginTop = "4px";
-    Object.entries(props)
-      .filter(([key, value]) => !HEADER_KEYS.has(key) && value !== null && value !== "")
-      .forEach(([key, value]) => {
-        const row = document.createElement("tr");
-        const k = document.createElement("td");
-        k.textContent = key;
-        k.style.color = "#666";
-        k.style.paddingRight = "8px";
-        k.style.verticalAlign = "top";
-        const v = document.createElement("td");
-        const text = String(value);
-        v.textContent = text.length > MAX_VALUE_LENGTH ? `${text.slice(0, MAX_VALUE_LENGTH)}…` : text;
-        v.style.wordBreak = "break-all";
-        row.append(k, v);
-        table.appendChild(row);
+    const present = (v: unknown) => v !== null && v !== undefined && v !== "";
+    const rows: [string, string][] = (isVillage ? VILLAGE_FIELDS : PARCEL_FIELDS)
+      .filter(([key]) => {
+        if (key === "chainage_from" || key === "chainage_to" || key === "part") return present(props[key]);
+        if (key === "inside_m2") return Number(props[key]) > 0; // a search along a line has no affected area
+        return true;
+      })
+      .map(([key, label]) => {
+        const v = props[key];
+        if (!present(v)) return [label, "–"];
+        return [label, AREA_KEYS.has(key) ? `${Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 })} m²` : clip(v)];
       });
-    block.appendChild(table);
+    block.appendChild(fieldTable(rows));
+
+    // The columns of the source file, behind a button.
+    const source: [string, string][] = Object.entries(props)
+      .filter(([key, value]) => !INTERNAL_KEYS.has(key) && present(value))
+      .map(([key, value]) => [key.startsWith("attr_") && INTERNAL_KEYS.has(key.slice(5)) ? key.slice(5) : key, clip(value)]);
+    const more = document.createElement("button");
+    more.type = "button";
+    more.textContent = "More";
+    more.className = "mini";
+    more.style.marginTop = "6px";
+    const extra = document.createElement("div");
+    extra.style.display = "none";
+    extra.style.marginTop = "6px";
+    const head = document.createElement("div");
+    head.style.cssText = "font-size:11px;color:#666";
+    head.textContent = `Source file: ${props.source ?? ""}`;
+    extra.append(head, source.length > 0 ? fieldTable(source) : Object.assign(document.createElement("div"), { textContent: "No other attributes." }));
+    more.addEventListener("click", () => {
+      const open = extra.style.display === "none";
+      extra.style.display = open ? "block" : "none";
+      more.textContent = open ? "Less" : "More";
+    });
+    block.append(more, extra);
     root.appendChild(block);
   });
 
@@ -146,7 +212,6 @@ function buildPopupContent(features: MapGeoJSONFeature[]): HTMLElement {
   }
   return root;
 }
-
 const MapView = forwardRef<MapViewHandle, Props>(function MapView(
   {
     basemapId,
@@ -263,11 +328,18 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
         source: "clip",
         paint: { "fill-color": CLIP_COLOR, "fill-opacity": 0.5 },
       });
+      // each parcel's part inside the area has its own outline: a pale casing under a darker line keeps neighbouring parts apart
+      map.addLayer({
+        id: "clip-casing",
+        type: "line",
+        source: "clip",
+        paint: { "line-color": "#ffffff", "line-width": 3.5, "line-opacity": 0.9 },
+      });
       map.addLayer({
         id: "clip-line",
         type: "line",
         source: "clip",
-        paint: { "line-color": CLIP_COLOR, "line-width": 1 },
+        paint: { "line-color": CLIP_COLOR, "line-width": 1.5 },
       });
 
       map.addSource("chainage", { type: "geojson", data: EMPTY });
@@ -275,6 +347,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
         id: "chainage-circle",
         type: "circle",
         source: "chainage",
+        filter: ["!", ["has", "end"]],
         paint: { "circle-color": CHAINAGE_COLOR, "circle-radius": 4, "circle-stroke-color": "#fff", "circle-stroke-width": 1.5 },
       });
       map.addLayer({
@@ -282,8 +355,33 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
         type: "symbol",
         source: "chainage",
         minzoom: 12,
+        filter: ["!", ["has", "end"]],
         layout: { "text-field": ["get", "text"], "text-font": ["Open Sans Regular"], "text-size": 11, "text-offset": [0, 0.9], "text-anchor": "top" },
         paint: { "text-color": CHAINAGE_COLOR, "text-halo-color": "#ffffff", "text-halo-width": 1.5 },
+      });
+      // The two ends of the alignment (A and B): big, white text on a dark outline and an orange dot, readable on any basemap, at every zoom.
+      map.addLayer({
+        id: "chainage-end-circle",
+        type: "circle",
+        source: "chainage",
+        filter: ["has", "end"],
+        paint: { "circle-color": "#ff6d00", "circle-radius": 9, "circle-stroke-color": "#0b1f4d", "circle-stroke-width": 3 },
+      });
+      map.addLayer({
+        id: "chainage-end-label",
+        type: "symbol",
+        source: "chainage",
+        filter: ["has", "end"],
+        layout: {
+          "text-field": ["get", "text"],
+          "text-font": ["Open Sans Regular"],
+          "text-size": 20,
+          "text-offset": [0, -1.0],
+          "text-anchor": "bottom", // above the dot, so it does not sit on the chainage text of the start / end mark
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
+        },
+        paint: { "text-color": "#ffffff", "text-halo-color": "#0b1f4d", "text-halo-width": 3 },
       });
 
       map.addSource("aoi", { type: "geojson", data: EMPTY });
@@ -353,14 +451,19 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
       const villageVisible = map.getLayer("village-fill") && map.getLayoutProperty("village-fill", "visibility") !== "none";
       const noParcelVisible = map.getLayer("noparcel-fill") && map.getLayoutProperty("noparcel-fill", "visibility") !== "none";
       const chainageVisible = map.getLayer("chainage-circle") && map.getLayoutProperty("chainage-circle", "visibility") !== "none";
+      const clipVisible = map.getLayer(PARCEL_ANCHOR) && map.getLayoutProperty(PARCEL_ANCHOR, "visibility") !== "none";
       const layers = [
         ...(chainageVisible ? ["chainage-circle"] : []),
+        ...(clipVisible ? [PARCEL_ANCHOR] : []),
         ...parcelFillLayers(),
         ...(noParcelVisible ? ["noparcel-fill"] : []),
         ...(villageVisible ? ["village-fill"] : []),
       ];
       if (layers.length === 0) return;
-      const hits = map.queryRenderedFeatures(e.point, { layers });
+      const all = map.queryRenderedFeatures(e.point, { layers });
+      // a parcel with a part inside the area is shown as that part (it carries the parcel's total area too), not twice
+      const partOf = new Set(all.filter((h) => h.layer?.id === PARCEL_ANCHOR).map((h) => `${h.properties?.source}|${h.properties?.parcel_id}`));
+      const hits = all.filter((h) => !h.layer?.id.startsWith("parcels-") || !partOf.has(`${h.properties?.source}|${h.properties?.parcel_id}`));
       if (hits.length === 0) return;
       new Popup({ maxWidth: "380px" }).setLngLat(e.lngLat).setDOMContent(buildPopupContent(hits)).addTo(map);
     });
@@ -519,10 +622,13 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    ["chainage-circle", "chainage-label"].forEach((id) => map.setLayoutProperty(id, "visibility", showChainage ? "visible" : "none"));
+    ["chainage-circle", "chainage-label", "chainage-end-circle", "chainage-end-label"].forEach((id) => map.setLayoutProperty(id, "visibility", showChainage ? "visible" : "none"));
     map.setPaintProperty("chainage-circle", "circle-opacity", chainageOpacity);
     map.setPaintProperty("chainage-circle", "circle-stroke-opacity", chainageOpacity);
     map.setPaintProperty("chainage-label", "text-opacity", chainageOpacity);
+    map.setPaintProperty("chainage-end-circle", "circle-opacity", chainageOpacity);
+    map.setPaintProperty("chainage-end-circle", "circle-stroke-opacity", chainageOpacity);
+    map.setPaintProperty("chainage-end-label", "text-opacity", chainageOpacity);
     map.setPaintProperty("chainage-circle", "circle-color", chainageColor);
     map.setPaintProperty("chainage-label", "text-color", chainageColor);
   }, [showChainage, chainageOpacity, chainageColor, ready]);
@@ -538,7 +644,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    [PARCEL_ANCHOR, "clip-line"].forEach((id) => map.setLayoutProperty(id, "visibility", showClip ? "visible" : "none"));
+    [PARCEL_ANCHOR, "clip-casing", "clip-line"].forEach((id) => map.setLayoutProperty(id, "visibility", showClip ? "visible" : "none"));
     map.setPaintProperty(PARCEL_ANCHOR, "fill-opacity", clipOpacity);
     map.setPaintProperty("clip-line", "line-opacity", Math.min(1, clipOpacity + 0.3));
   }, [showClip, clipOpacity, ready]);

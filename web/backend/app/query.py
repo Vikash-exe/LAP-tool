@@ -23,7 +23,10 @@ from . import config, typecast
 
 # Property names added to every parcel; an original attribute with the same
 # name is kept under an "attr_" prefix instead of being overwritten.
-FIXED_KEYS = ("parcel_id", "village_id", "state", "source", "area_m2", "inside_m2", "inside_pct")
+FIXED_KEYS = ("parcel_id", "village_id", "state", "source", "area_m2", "inside_m2", "inside_pct", "fully_inside", "priority_rank",
+              "parcel_number", "village_name", "taluka_name", "district_name", "state_name", "chainage_from", "chainage_to", "part", "part_count")
+# Everything else on a feature is a column of the source file; these are the processed (LAP) ones.
+INTERNAL_KEYS = FIXED_KEYS
 
 TOO_MANY = (
     "More than {limit:,} {noun} match. Use a smaller area, or restrict the "
@@ -107,6 +110,18 @@ def prepare_aoi(aoi: dict, lines: list[dict] | None) -> dict:
         raise HTTPException(500, f"Database error: {str(e).splitlines()[0]}")
 
 
+def add_line(geometry: str, line: dict) -> str:
+    """The search geometry (GeoJSON text) together with a line (the alignment): their union as GeoJSON text."""
+    try:
+        with connect() as conn:
+            return conn.execute(
+                "SELECT ST_AsGeoJSON(ST_Union(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)), ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)), 9)",
+                (geometry, json.dumps(line)),
+            ).fetchone()[0]
+    except psycopg.Error as e:
+        raise HTTPException(500, f"Database error: {str(e).splitlines()[0]}")
+
+
 def _where(mode: str, has_states: bool) -> sql.Composable:
     # The validity repair (v.g) is applied only to rows that already passed the
     # bbox/index filter: a few percent of source parcels have self-intersections,
@@ -123,7 +138,7 @@ def _where(mode: str, has_states: bool) -> sql.Composable:
     return sql.SQL(" AND ").join(parts)
 
 
-def _properties(row_id: int, id_key: str, state: str, source: str, attrs: dict, area: float, inside: float) -> dict:
+def _properties(row_id: int, id_key: str, state: str, source: str, attrs: dict, area: float, inside: float, covered: bool = False, rank: int | None = None) -> dict:
     props = {
         id_key: row_id,
         "state": state,
@@ -131,7 +146,10 @@ def _properties(row_id: int, id_key: str, state: str, source: str, attrs: dict, 
         "area_m2": round(area, 2),
         "inside_m2": round(inside, 2),
         "inside_pct": round(100 * inside / area, 1) if area > 0 else 0.0,
+        "fully_inside": bool(covered),  # the area covers the whole parcel
     }
+    if rank is not None:
+        props["priority_rank"] = rank  # 1 = the layer with the highest priority
     # Type correction happens here, before anything is written: the numeric columns the
     # audit found (strings in the source files) go out as numbers.
     for key, value in (typecast.apply(source, attrs) or {}).items():
@@ -182,6 +200,38 @@ def village_lookup(points: list[tuple[float, float] | None]) -> list[tuple[str |
                     out[chunk[ordinal - 1][0]] = (village, taluka, district)
     except psycopg.Error as e:
         raise HTTPException(500, f"Database error while looking up villages: {str(e).splitlines()[0]}")
+    return out
+
+
+_STATE_LOOKUP_SQL = sql.SQL(
+    """
+SELECT t.i, s.name
+FROM unnest(%(xs)s::float8[], %(ys)s::float8[]) WITH ORDINALITY AS t(x, y, i)
+LEFT JOIN LATERAL (
+  SELECT ss.name FROM {}.{} ss
+  WHERE ST_Intersects(ss.geometry, ST_SetSRID(ST_MakePoint(t.x, t.y), 4326))
+  LIMIT 1
+) s ON true
+"""
+)
+
+
+def state_lookup(points: list[tuple[float, float] | None]) -> list[str | None]:
+    """For each point (lon, lat): the name of the state in the state boundary file that contains it, or None."""
+    out: list[str | None] = [None] * len(points)
+    usable = [(i, p) for i, p in enumerate(points) if p is not None]
+    if not usable:
+        return out
+    statement = _STATE_LOOKUP_SQL.format(sql.Identifier(config.SCHEMA), sql.Identifier(config.STATE_BOUNDARIES))
+    try:
+        with connect() as conn:
+            for start in range(0, len(usable), 10_000):
+                chunk = usable[start : start + 10_000]
+                params = {"xs": [p[0] for _, p in chunk], "ys": [p[1] for _, p in chunk]}
+                for ordinal, name in conn.execute(statement, params):
+                    out[chunk[ordinal - 1][0]] = name
+    except psycopg.Error as e:
+        raise HTTPException(500, f"Database error while looking up states: {str(e).splitlines()[0]}")
     return out
 
 
@@ -247,7 +297,7 @@ def _check_not_too_many(
             raise HTTPException(413, TOO_MANY.format(limit=limit, noun=noun))
 
 
-def _statement(table: str, mode: str, has_states: bool, decimals: int, with_point: bool) -> sql.Composable:
+def _statement(table: str, mode: str, has_states: bool, decimals: int, with_point: bool, ordered: bool = False) -> sql.Composable:
     # Each OFFSET 0 stops PostgreSQL from folding the helper subquery into its
     # callers, which would recompute ST_MakeValid / ST_Intersection once per
     # column that mentions them (it made this query 4-5x slower). Parcels that the
@@ -291,6 +341,8 @@ WHERE """
             point_join=sql.SQL(point_join),
         )
         + _where(mode, has_states)
+        # layers in order of priority (a layer the order does not mention goes last)
+        + (sql.SQL(" ORDER BY array_position(%(order)s::text[], regexp_replace(p.source, '^[^/]*/', '')), p.id") if ordered else sql.SQL(""))
     )
 
 
@@ -306,6 +358,8 @@ def run_query(
     noun: str = "parcels",
     id_key: str = "parcel_id",
     with_point: bool = False,
+    order: list[str] | None = None,
+    excluded: dict[str, set[int]] | None = None,
 ) -> dict:
     """Matches the given tables (the loaded state tables, or the village table) against the area
     and writes the matches, and their inside-the-area parts, to two GeoJSON files.
@@ -313,6 +367,9 @@ def run_query(
     `limit` caps the total number of rows; `decimals` is the coordinate precision written
     (villages are heavy, so fewer); `states` optionally restricts the rows by their state column."""
     params = {"aoi": aoi_geometry}
+    if order:
+        params["order"] = order
+    ranks = {s: i + 1 for i, s in enumerate(order)} if order else {}
     if states:
         params["states"] = states
 
@@ -323,26 +380,29 @@ def run_query(
     total = [0, 0.0, 0.0]
     minx = miny = float("inf")
     maxx = maxy = float("-inf")
-    count = clipped_count = 0
+    count = clipped_count = fully_inside = 0
 
     try:
         with connect() as conn, open(out_path, "w", encoding="utf-8") as out, open(clipped_path, "w", encoding="utf-8") as clip_out:
-            if mode == "intersects" and tables:
+            if mode in ("intersects", "both") and tables:
                 _check_not_too_many(conn, aoi_geometry, states, tables, limit, noun)
             head = '{"type":"FeatureCollection","features":['
             out.write(head)
             clip_out.write(head)
             for number, table in enumerate(tables):
+                skip = (excluded or {}).get(table, ())
                 with conn.cursor(name=f"stream_{number}") as cur:
                     cur.itersize = 2000
-                    cur.execute(_statement(table, mode, bool(states), decimals, with_point), params)
+                    cur.execute(_statement(table, mode, bool(states), decimals, with_point, bool(order)), params)
                     for row in cur:
                         if count >= limit:
                             raise HTTPException(413, TOO_MANY.format(limit=limit, noun=noun))
                         pid, state, source, attrs, geom_json, area, inside, clip_json, covered, x0, y0, x1, y1, px, py = row
+                        if pid in skip:
+                            continue  # left out by the layer priority
                         area = area or 0.0
                         inside = inside or 0.0
-                        props_json = json.dumps(_properties(pid, id_key, state, source, attrs, area, inside), ensure_ascii=False)
+                        props_json = json.dumps(_properties(pid, id_key, state, source, attrs, area, inside, covered, ranks.get(source.split("/", 1)[-1])), ensure_ascii=False)
                         # "pt" is a foreign member (ignored by GIS readers): the interior point used for the village lookup.
                         point = ',"pt":[%.7f,%.7f]' % (px, py) if px is not None and py is not None else ""
                         out.write(("," if count else "") + '{"type":"Feature","id":%d,"geometry":%s,"properties":%s%s}' % (pid, geom_json, props_json, point))
@@ -352,6 +412,7 @@ def run_query(
                             clip_out.write(("," if clipped_count else "") + '{"type":"Feature","id":%d,"geometry":%s,"properties":%s}' % (pid, clip_geom, props_json))
                             clipped_count += 1
                         count += 1
+                        fully_inside += 1 if covered else 0
                         short = source.split("/", 1)[-1]
                         for bucket in (per_state[state], per_source[short], total):
                             bucket[0] += 1
@@ -387,6 +448,7 @@ def run_query(
             "per_source": {k: pack(v) for k, v in per_source.items()},
         },
         "clipped_count": clipped_count,
+        "fully_inside": fully_inside,
         "bbox": [minx, miny, maxx, maxy] if count else None,
         "seconds": round(time.time() - t0, 2),
     }

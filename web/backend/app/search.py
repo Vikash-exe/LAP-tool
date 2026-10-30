@@ -21,7 +21,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 
-from . import alignment, aoi, chainage, config, dxf, loader, query, statedata
+from . import alignment, aoi, chainage, config, dxf, enrich, linear, loader, pieces, priority, query, statedata
 
 JOBS: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
@@ -80,7 +80,7 @@ def _empty_result(result_dir: Path) -> dict:
     return {
         "count": 0, "per_state": {}, "per_source": {},
         "stats": {"total": zero, "per_state": {}, "per_source": {}},
-        "clipped_count": 0, "bbox": None, "seconds": 0.0,
+        "clipped_count": 0, "fully_inside": 0, "bbox": None, "seconds": 0.0,
     }
 
 
@@ -96,7 +96,7 @@ def _query_villages(aoi_geometry: str, mode: str, restrict: list[str] | None, re
         stats = query.run_query(
             aoi_geometry, mode, result_dir / "villages.geojson", result_dir / "villages_clipped.geojson",
             tables=[config.VILLAGES_TABLE], states=restrict or None,
-            limit=config.MAX_VILLAGES, decimals=6, noun="villages", id_key="village_id",
+            limit=config.MAX_VILLAGES, decimals=6, noun="villages", id_key="village_id", with_point=True,
         )
     except HTTPException as e:
         return {"count": 0, "error": e.detail}
@@ -174,7 +174,35 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
         alignment_info = None
         labels = None
         chainage_read = None
-        if dxf_options:
+        inputs = None
+        if (upload_dir / "input_options.json").exists():
+            inputs = json.loads((upload_dir / "input_options.json").read_text(encoding="utf-8"))
+        # the layers in order of priority (highest first); fewer than two means no priority is applied
+        order = [str(s) for s in (inputs or {}).get("priority") or []]
+        has_row = True
+        add_centreline = False
+        centreline = None  # alignment search: the centreline the chainage runs along
+        lines = None
+        if inputs:
+            if inputs["kind"] == "linear":
+                a, r = inputs.get("alignment"), inputs.get("row")
+                centre_fc = None
+                if a:  # without an alignment file there is no centreline, so no chainage
+                    centre_fc, _ = linear.read(a["token"], "alignment", a["crs"])
+                    centreline = centre_fc["features"][0]["geometry"]
+                # what the parcels are matched against: the right of way, the alignment line, or both
+                allowed = ({"row"} if r else set()) | ({"line"} if a else set())
+                use = set(inputs.get("match_with") or ["row", "line"]) & allowed or allowed
+                add_centreline = use == {"row", "line"}
+                if "row" in use and r:
+                    area, row_info = linear.read(r["token"], "row", r["crs"])
+                    area, lines = linear.to_search_area(area, row_info)
+                else:
+                    area, has_row = centre_fc, False  # the parcels the centreline itself crosses
+            else:
+                a = inputs["area"]
+                area, _ = linear.read(a["token"], "area", a["crs"])
+        elif dxf_options:
             # DXF alignment: its longest line(s) only; optionally the chainage labels of a second DXF.
             area, alignment_info = dxf.load_alignment(Path(dxf_options["alignment"]), dxf_options["crs"], dxf_options["mode"])
             c = dxf_options.get("chainage")
@@ -186,9 +214,16 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
             # A file of lines is an alignment: line pieces are joined (1 m), the longest one or two are kept.
             area, alignment_info = alignment.pick(area)
         (result_dir / "aoi.geojson").write_text(json.dumps(area), encoding="utf-8")
-        # Exactly two lines are read as the two edges of a strip.
-        lines = query.extract_two_lines(area) if strip else None
+        if not inputs:
+            # Exactly two lines are read as the two edges of a strip.
+            lines = query.extract_two_lines(area) if strip else None
         prepared = query.prepare_aoi(area, lines)
+        if prepared["strip"]:
+            # two lines become one closed polygon, which is what is searched, saved and drawn from here on
+            area = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": json.loads(prepared["geometry"]), "properties": {"role": "row"}}]}
+            (result_dir / "aoi.geojson").write_text(json.dumps(area), encoding="utf-8")
+        if add_centreline and centreline:
+            prepared["geometry"] = query.add_line(prepared["geometry"], centreline)  # the line may run outside the right of way
 
         _set(job, phase="locating", message="Finding the state(s) the area falls in")
         detected = statedata.detect_states(prepared["geometry"])
@@ -232,17 +267,45 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
                 _set(job, phase="loading", message=f"Loading parcel data for {folder}")
                 tables.append(loader.ensure_loaded(folder, on_progress))
 
+            excluded: dict[str, set[int]] = {}
+            dropped: dict[str, int] = {}
+            if len(order) >= 2 and tables:
+                _set(job, phase="searching", message="Applying the layer priority")
+                for table in tables:
+                    excluded[table], gone = priority.excluded_ids(table, prepared["geometry"], order)
+                    for src, n in gone.items():
+                        dropped[src] = dropped.get(src, 0) + n
+
             _set(job, phase="searching", message="Searching the parcels and villages")
             if tables:
                 stats = query.run_query(
                     prepared["geometry"], mode, result_dir / "result.geojson", result_dir / "clipped.geojson",
                     tables=tables, with_point=True,
+                    order=order if len(order) >= 2 else None, excluded=excluded or None,
                 )
             else:
                 stats = _empty_result(result_dir)
             villages = _query_villages(prepared["geometry"], mode, restrict, result_dir)
+            # village / taluka / district / state of every parcel and village, stored in the result files
+            _set(job, message="Adding village, taluka, district and state names")
+            enrich.enrich_parcels(result_dir)
+            # a parcel the area cuts into separate pieces: one feature, and so one row, per piece
+            pieces_count = pieces.split(result_dir)
+            if pieces_count is not None:
+                stats["clipped_count"] = pieces_count
+            if villages and villages.get("count"):
+                enrich.enrich_villages(result_dir)
             chainage_meta = None
-            if labels:
+            if centreline:
+                _set(job, message="Working out the chainage of the parcels")
+                try:
+                    chainage_meta = chainage.build_linear(
+                        result_dir, centreline, prepared["geometry"], float(inputs["start_chainage"]), inputs["start_end"],
+                        float(inputs.get("step") or chainage.DEFAULT_STEP_M),
+                    )
+                except HTTPException as e:
+                    chainage_meta = {"error": e.detail}
+            elif labels:
                 # Not allowed to lose the search: a chainage problem is reported in the result instead.
                 _set(job, message="Working out the chainage of the parcels")
                 try:
@@ -269,6 +332,8 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
             "state_folders": folders,
             "detected_states": entries,
             "strip_used": prepared["strip"],
+            "input_kind": inputs["kind"] if inputs else "legacy",
+            "priority": {"order": order, "dropped": dropped, "drop_fraction": priority.DROP_FRACTION} if len(order) >= 2 else None,
             "aoi_area_m2": round(prepared["area_m2"], 2) if prepared["area_m2"] else None,
             "villages": villages,
             "alignment": alignment_info,
@@ -276,7 +341,10 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
             **stats,
         }
         (result_dir / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
-        _set(job, status="done", phase="done", message="Done", response={**meta, "aoi": area, "strip": strip_fc})
+        shown = area
+        if centreline and has_row:  # the right of way and its centreline are drawn together
+            shown = {"type": "FeatureCollection", "features": area["features"] + [{"type": "Feature", "geometry": centreline, "properties": {"role": "alignment"}}]}
+        _set(job, status="done", phase="done", message="Done", response={**meta, "aoi": shown, "strip": strip_fc})
     except HTTPException as e:
         shutil.rmtree(result_dir, ignore_errors=True)
         _set(job, status="error", phase="error", message="Failed", error=str(e.detail), error_status=e.status_code)
