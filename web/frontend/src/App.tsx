@@ -52,7 +52,7 @@ const MATCH_INSIDE = "Only parcels completely contained in the area.";
 const INSIDE_SUFFIX = " · fully inside";
 const INTERSECT_SUFFIX = " · intersecting";
 
-type DownloadJob = { format: ExportFormat; label: string; clipped?: boolean; data?: "lap" | "source"; combined?: boolean };
+type DownloadJob = { format: ExportFormat; label: string; clipped?: boolean; data?: "lap" | "source"; combined?: boolean; villageParcels?: boolean };
 
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: "geojson", label: "GeoJSON" },
@@ -196,6 +196,16 @@ function groupBySource(fc: FeatureCollection): Record<string, SourceGroup> {
 export default function App() {
   const mapViewRef = useRef<MapViewHandle>(null);
   const [sidebarWidth, setSidebarWidth] = useState(400);
+  // Light or dark theme. index.html applies the saved choice before the first paint; this keeps it in step.
+  const [theme, setTheme] = useState<"light" | "dark">(() => (document.documentElement.dataset.theme === "dark" ? "dark" : "light"));
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      /* private mode: the choice just isn't remembered */
+    }
+  }, [theme]);
 
   // Parcel data is loaded into the database per state, only when a search needs it, and dropped
   // again after a while. `availableStates` is what exists on the mount; `stateTables` is what is in
@@ -261,6 +271,7 @@ export default function App() {
   // The polygons: whole parcels and / or the part inside the area, in the formats ticked; CSV (WKT) with LAP and / or source columns.
   const [polyWhole, setPolyWhole] = useState(true);
   const [polyPart, setPolyPart] = useState(false);
+  const [polyVillage, setPolyVillage] = useState(false);  // every parcel of the villages the search found
   const [polyFormats, setPolyFormats] = useState<ExportFormat[]>([]);
   const [polyCsvLap, setPolyCsvLap] = useState(true);
   const [polyCsvSource, setPolyCsvSource] = useState(false);
@@ -290,7 +301,7 @@ export default function App() {
   const [chainageLayer, setChainageLayer] = useState<FeatureCollection | null>(null);
   const [showChainage, setShowChainage] = useState(true);
   const [chainageOpacity, setChainageOpacity] = useState(1);
-  const [chainageColor, setChainageColor] = useState("#1565c0");
+  const [chainageColor, setChainageColor] = useState("#33658A");
   const [layerColor, setLayerColor] = useState<Record<string, string>>({});
   // Per source-file layer state, keyed by source file name. layerOrder runs
   // bottom (first) to top (last) of the map stack.
@@ -497,8 +508,8 @@ export default function App() {
       for (const job of jobs) {
         const split = !job.combined && splitGpkg && job.format === "gpkg" && !downloadSource;
         const clipped = !!job.clipped && !!result.aoi_area_m2;
-        const what = job.combined ? "all layers" : villagesLayer ? "village boundaries" : split ? "one layer per source" : downloadSource || "all sources";
-        setDownload({ label: `Preparing ${job.label} (${what}${clipped ? ", part inside" : ""})...`, fraction: null });
+        const what = job.combined ? "all layers" : villagesLayer && !job.villageParcels ? "village boundaries" : split ? "one layer per source" : downloadSource && !villagesLayer ? downloadSource : "all sources";
+        setDownload({ label: `Preparing ${job.label} (${what}${clipped ? ", part inside" : ""})${job.villageParcels ? ", this can take a while" : ""}...`, fraction: null });
         await downloadResult(
           result.result_id,
           job.format,
@@ -506,7 +517,8 @@ export default function App() {
             source: job.combined || villagesLayer ? null : downloadSource || null,
             split,
             clipped,
-            villages: !job.combined && villagesLayer,
+            villages: !job.combined && !job.villageParcels && villagesLayer,
+            villageParcels: !!job.villageParcels,
             data: job.data,
             combined: job.combined,
           },
@@ -671,16 +683,26 @@ export default function App() {
             <div className="tagline">Find the parcels and villages along an area or an alignment</div>
           </div>
         </div>
-        {me?.user && (
-          <div className="user-chip">
-            <span>
-              Signed in as <strong>{me.user}</strong>
-            </span>
-            <button className="mini on-dark" onClick={() => void signOut()}>
-              Sign out
-            </button>
-          </div>
-        )}
+        <div className="header-right">
+          <button
+            className="mini on-dark theme-toggle"
+            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            title={theme === "dark" ? "Switch to the light theme" : "Switch to the dark theme"}
+            aria-label="Toggle dark and light theme"
+          >
+            {theme === "dark" ? "☀ Light" : "☾ Dark"}
+          </button>
+          {me?.user && (
+            <div className="user-chip">
+              <span>
+                Signed in as <strong>{me.user}</strong>
+              </span>
+              <button className="mini on-dark" onClick={() => void signOut()}>
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       <div className="app-body">
@@ -702,9 +724,9 @@ export default function App() {
               </>
             }
           />
-          {backendError && <div style={{ color: "#b00020", fontSize: 12 }}>Backend error: {backendError}</div>}
+          {backendError && <div style={{ color: "var(--bad)", fontSize: 12 }}>Backend error: {backendError}</div>}
           {stateTables && stateTables.tables.length === 0 && !backendError && (
-            <div style={{ fontSize: 12, color: "#999" }}>Nothing loaded right now.</div>
+            <div style={{ fontSize: 12, color: "var(--t3)" }}>Nothing loaded right now.</div>
           )}
           {stateTables?.tables.map((t) => (
             <StateTableRow
@@ -717,7 +739,7 @@ export default function App() {
           ))}
           {stateTables && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-              <span style={{ fontSize: 11, color: "#888", flex: 1 }}>
+              <span style={{ fontSize: 11, color: "var(--t3)", flex: 1 }}>
                 {fmtBytes(stateTables.in_use_bytes)} of {fmtBytes(stateTables.budget_bytes)} budget in use
               </span>
               {stateTables.tables.length > 0 && (
@@ -727,17 +749,17 @@ export default function App() {
               )}
             </div>
           )}
-          {notice && <div style={{ marginTop: 6, fontSize: 12, color: "#444", background: "#f3f6f9", padding: 6, borderRadius: 4 }}>{notice}</div>}
+          {notice && <div style={{ marginTop: 6, fontSize: 12, color: "var(--t1)", background: "var(--note-bg)", padding: 6, borderRadius: 4 }}>{notice}</div>}
           {availableStates.length > 0 && (
             <details style={{ marginTop: 6 }}>
-              <summary style={{ fontSize: 12, cursor: "pointer", color: "#666" }}>
+              <summary style={{ fontSize: 12, cursor: "pointer", color: "var(--t2)" }}>
                 {availableStates.length} states have parcel data to load
               </summary>
               {availableStates.map((s) => (
-                <div key={s.state} style={{ display: "flex", fontSize: 11, color: "#555", padding: "1px 0 1px 8px" }}>
+                <div key={s.state} style={{ display: "flex", fontSize: 11, color: "var(--t2)", padding: "1px 0 1px 8px" }}>
                   <span style={{ flex: 1 }}>{s.state}</span>
                   <span title={`${fmtBytes(s.parquet_bytes)} of parquet in ${s.files} file(s)`}>~{fmtBytes(s.est_bytes)}</span>
-                  <span style={{ width: 70, textAlign: "right", color: s.status === "ready" ? "#2e7d32" : "#999" }}>
+                  <span style={{ width: 70, textAlign: "right", color: s.status === "ready" ? "var(--good)" : "var(--t3)" }}>
                     {s.status === "ready" ? "loaded" : s.status === "loading" ? "loading" : ""}
                   </span>
                 </div>
@@ -837,7 +859,7 @@ export default function App() {
             />
 
             {!alignSel && (
-              <div style={{ fontSize: 11, color: "#666", marginTop: 6 }}>
+              <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 6 }}>
                 No alignment file: only the right of way is searched, and the chainage is skipped. Add an alignment file to get chainage.
               </div>
             )}
@@ -852,7 +874,7 @@ export default function App() {
               style={{ width: "100%", fontSize: 13, boxSizing: "border-box" }}
             />}
             {alignSel && startChainage.trim() !== "" && !startChainageOk && (
-              <div style={{ fontSize: 11, color: "#b00020", marginTop: 3 }}>Enter metres with up to 3 decimals, for example 12500.000 (or -250.5).</div>
+              <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>Enter metres with up to 3 decimals, for example 12500.000 (or -250.5).</div>
             )}
             {startChainageOk && alignSel && (
               <>
@@ -867,16 +889,16 @@ export default function App() {
                   style={{ width: "100%", fontSize: 13, boxSizing: "border-box" }}
                 />
                 {chainageStep.trim() !== "" && !stepOk && (
-                  <div style={{ fontSize: 11, color: "#b00020", marginTop: 3 }}>Enter the step in metres, more than 0, for example 100.</div>
+                  <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>Enter the step in metres, more than 0, for example 100.</div>
                 )}
-                {marksError && <div style={{ fontSize: 11, color: "#b00020", marginTop: 3 }}>{marksError}</div>}
+                {marksError && <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>{marksError}</div>}
                 {marks && (
-                  <div style={{ fontSize: 11, color: "#666", marginTop: 3 }}>
+                  <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 3 }}>
                     {fmt(marks.features.length)} chainage marks are drawn on the map (CH: 12+100, and KM: 13+000 at the start, the end and every whole kilometre) (the text shows when you zoom in).
                   </div>
                 )}
                 {!marks && !marksError && !stepOk && (
-                  <div style={{ fontSize: 11, color: "#666", marginTop: 3 }}>
+                  <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 3 }}>
                     Give the step to see the chainage marks (a start, then every multiple of the step, then the end) along the alignment.
                   </div>
                 )}
@@ -887,18 +909,18 @@ export default function App() {
                 <span style={labelStyle}>The start chainage is at</span>
                 <label style={{ display: "block", fontSize: 12, padding: "1px 0" }}>
                   <input type="radio" name="startend" checked={startEnd === "A"} onChange={() => setStartEnd("A")} disabled={busy} /> end <strong>A</strong>{" "}
-                  <span style={{ color: "#666" }}>({fmtLonLat(alignInfo.ends.A)})</span>
+                  <span style={{ color: "var(--t2)" }}>({fmtLonLat(alignInfo.ends.A)})</span>
                 </label>
                 <label style={{ display: "block", fontSize: 12, padding: "1px 0" }}>
                   <input type="radio" name="startend" checked={startEnd === "B"} onChange={() => setStartEnd("B")} disabled={busy} /> end <strong>B</strong>{" "}
-                  <span style={{ color: "#666" }}>({fmtLonLat(alignInfo.ends.B)})</span>
+                  <span style={{ color: "var(--t2)" }}>({fmtLonLat(alignInfo.ends.B)})</span>
                 </label>
-                <div style={{ fontSize: 11, color: "#666", marginTop: 3 }}>
+                <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 3 }}>
                   Chainage increases from the start along the centreline. Both ends are marked on the map (latitude, longitude shown).
                 </div>
               </>
             ) : (
-              <div style={{ fontSize: 11, color: "#666", marginTop: 3 }}>Once the alignment is read, you choose which end the start chainage belongs to.</div>
+              <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 3 }}>Once the alignment is read, you choose which end the start chainage belongs to.</div>
             )}
           </div>
 
@@ -980,31 +1002,31 @@ export default function App() {
             <input type="checkbox" checked={matchInside} onChange={(e) => setMatchInside(e.target.checked)} disabled={busy} /> Fully inside
           </label>
           {lineOnly && (
-            <div style={{ fontSize: 11, color: "#666", marginTop: 3 }}>
+            <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 3 }}>
               Matched against the alignment line alone: every parcel the line crosses is listed, with the chainage where the line enters and leaves it.
             </div>
           )}
-          {!lineOnly && !matchIntersect && !matchInside && <div style={{ fontSize: 11, color: "#b00020", marginTop: 3 }}>Tick at least one.</div>}
+          {!lineOnly && !matchIntersect && !matchInside && <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>Tick at least one.</div>}
           {sources.length >= 2 && (
             <div style={{ marginTop: 8, fontSize: 12 }}>
               <span style={labelStyle}>Layer priority</span>
-              <div style={{ color: "#444", marginBottom: 4 }}>{priority.map((n, i) => `${i + 1}. ${n.replace(/\.parquet$/i, "")}`).join("  ›  ")}</div>
+              <div style={{ color: "var(--t1)", marginBottom: 4 }}>{priority.map((n, i) => `${i + 1}. ${n.replace(/\.parquet$/i, "")}`).join("  ›  ")}</div>
               <button type="button" className="mini" onClick={() => setPriorityOpen(true)} disabled={busy}>
                 Change priority
               </button>
             </div>
           )}
-          {sourcesError && <div style={{ fontSize: 11, color: "#b00020", marginTop: 3 }}>{sourcesError}</div>}
+          {sourcesError && <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>{sourcesError}</div>}
 
           <button
             onClick={handleSearch}
             disabled={!ready || busy || !!backendError}
-            className="primary big" style={{ marginTop: 12 }}
+            className="primary big find" style={{ marginTop: 12 }}
           >
             Find parcels
           </button>
           {!ready && !busy && missing.length > 0 && (
-            <div style={{ fontSize: 11, color: "#7a4a00", marginTop: 6 }}>Still needed to search: {missing.join(", ")}.</div>
+            <div style={{ fontSize: 11, color: "var(--warn)", marginTop: 6 }}>Still needed to search: {missing.join(", ")}.</div>
           )}
           {result && (
             <button onClick={handleClear} disabled={busy} style={{ marginTop: 12, marginLeft: 8 }}>
@@ -1015,7 +1037,7 @@ export default function App() {
           {phase === "working" && <JobProgress job={job} />}
           {phase === "fetching" && <ProgressBar fraction={1} label={`Loading ${fmt(result?.count ?? 0)} parcels onto the map...`} indeterminate />}
           {error && (
-            <div style={{ marginTop: 8, padding: 8, background: "#fdecea", color: "#b00020", fontSize: 12, borderRadius: 4 }}>{error}</div>
+            <div style={{ marginTop: 8, padding: 8, background: "var(--bad-bg)", color: "var(--bad)", fontSize: 12, borderRadius: 4 }}>{error}</div>
           )}
         </section>
 
@@ -1047,27 +1069,27 @@ export default function App() {
             <div style={{ fontSize: 22, fontWeight: "bold" }}>
               {fmt(result.count)} <span style={{ fontSize: 13, fontWeight: "normal" }}>parcels</span>
             </div>
-            <div style={{ fontSize: 11, color: "#888", marginBottom: 6 }}>
+            <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 6 }}>
               {result.mode === "both" ? `${fmt(result.fully_inside)} fully inside · ` : ""}found in {result.seconds}s{multiSource ? ` · ${sourceNames.length} source layers` : ""}
             </div>
             <div style={{ fontSize: 12, margin: "2px 0 6px" }}>
-              <span style={{ color: "#666" }}>Area falls in: </span>
+              <span style={{ color: "var(--t2)" }}>Area falls in: </span>
               {result.detected_states.map((s, i) => (
                 <span key={s.name}>
                   {i > 0 && ", "}
                   <strong>{s.name}</strong>
                   {s.status === "no_data" && (
-                    <span style={{ color: "#b26a00" }} title={s.note}>
+                    <span style={{ color: "var(--warn)" }} title={s.note}>
                       {" "}(no parcel data)
                     </span>
                   )}
-                  {s.loaded_now && <span style={{ color: "#2e7d32" }}> (loaded for this search)</span>}
+                  {s.loaded_now && <span style={{ color: "var(--good)" }}> (loaded for this search)</span>}
                 </span>
               ))}
             </div>
             {result.chainage && !result.chainage.error && result.chainage.kind === "linear" && (
               <div style={{ fontSize: 12, margin: "2px 0 6px" }}>
-                <span style={{ color: "#666" }}>Chainage: </span>
+                <span style={{ color: "var(--t2)" }}>Chainage: </span>
                 <span style={{ color: chainageColor, fontWeight: "bold" }}>
                   {result.chainage.first} to {result.chainage.last}
                 </span>{" "}
@@ -1077,7 +1099,7 @@ export default function App() {
             )}
             {result.chainage && !result.chainage.error && result.chainage.kind !== "linear" && (
               <div style={{ fontSize: 12, margin: "2px 0 6px" }}>
-                <span style={{ color: "#666" }}>Chainage: </span>
+                <span style={{ color: "var(--t2)" }}>Chainage: </span>
                 <span style={{ color: chainageColor, fontWeight: "bold" }}>
                   {result.chainage.first} to {result.chainage.last}
                 </span>{" "}
@@ -1085,14 +1107,14 @@ export default function App() {
               </div>
             )}
             {result.chainage?.error && (
-              <div style={{ fontSize: 12, margin: "2px 0 6px", color: "#b00020" }}>Chainage could not be applied: {result.chainage.error}</div>
+              <div style={{ fontSize: 12, margin: "2px 0 6px", color: "var(--bad)" }}>Chainage could not be applied: {result.chainage.error}</div>
             )}
             {result.priority && (
               <div style={{ fontSize: 12, margin: "2px 0 6px" }}>
-                <span style={{ color: "#666" }}>Layer priority: </span>
+                <span style={{ color: "var(--t2)" }}>Layer priority: </span>
                 {result.priority.order.map((n, i) => `${i + 1}. ${n.replace(/\.parquet$/i, "")}`).join("  ›  ")}
                 {Object.keys(result.priority.dropped).length > 0 && (
-                  <span style={{ color: "#666" }}>
+                  <span style={{ color: "var(--t2)" }}>
                     {" "}
                     ({Object.entries(result.priority.dropped)
                       .map(([n, k]) => `${fmt(k)} from ${n.replace(/\.parquet$/i, "")}`)
@@ -1103,7 +1125,7 @@ export default function App() {
               </div>
             )}
             {result.count === 0 && (
-              <div style={{ fontSize: 12, color: "#666" }}>
+              <div style={{ fontSize: 12, color: "var(--t2)" }}>
                 {result.detected_states.every((s) => s.status === "no_data")
                   ? `${result.detected_states[0]?.note ? result.detected_states[0].note[0].toUpperCase() + result.detected_states[0].note.slice(1) : "There is no parcel data for the state(s) this area falls in"}; village boundaries are shown where they exist.`
                   : "No parcels match this area."}
@@ -1116,15 +1138,15 @@ export default function App() {
             ))}
 
             {result.villages && (
-              <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid #eee" }}>
+              <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--rule)" }}>
                 {result.villages.error ? (
-                  <div style={{ fontSize: 12, color: "#b00020" }}>Village boundaries: {result.villages.error}</div>
+                  <div style={{ fontSize: 12, color: "var(--bad)" }}>Village boundaries: {result.villages.error}</div>
                 ) : (
                   <>
                     <div style={{ fontSize: 16, fontWeight: "bold", color: villageColor }}>
-                      {fmt(villageCount)} <span style={{ fontSize: 12, fontWeight: "normal", color: "#222" }}>village boundaries</span>
+                      {fmt(villageCount)} <span style={{ fontSize: 12, fontWeight: "normal", color: "var(--t1)" }}>village boundaries</span>
                     </div>
-                    {villageCount === 0 && <div style={{ fontSize: 12, color: "#666" }}>No village boundary lies in this area.</div>}
+                    {villageCount === 0 && <div style={{ fontSize: 12, color: "var(--t2)" }}>No village boundary lies in this area.</div>}
                     {(result.villages.no_parcels?.count ?? 0) > 0 && (
                       <div style={{ fontSize: 12, fontWeight: "bold", color: noParcelsColor, marginTop: 2 }}>
                         {fmt(result.villages.no_parcels!.count)} of them {result.villages.no_parcels!.count === 1 ? "has" : "have"} no parcels in the
@@ -1132,12 +1154,12 @@ export default function App() {
                       </div>
                     )}
                     {result.villages.no_parcels?.error && (
-                      <div style={{ fontSize: 12, color: "#b00020", marginTop: 2 }}>Villages without parcels: {result.villages.no_parcels.error}</div>
+                      <div style={{ fontSize: 12, color: "var(--bad)", marginTop: 2 }}>Villages without parcels: {result.villages.no_parcels.error}</div>
                     )}
                     {villageCount > 0 && result.aoi_area_m2 && result.villages.stats && (
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, marginTop: 4 }}>
                         <thead>
-                          <tr style={{ color: "#666", textAlign: "right", borderBottom: "1px solid #ddd" }}>
+                          <tr style={{ color: "var(--t2)", textAlign: "right", borderBottom: "1px solid var(--rule)" }}>
                             <th style={{ textAlign: "left", fontWeight: "normal" }}>State</th>
                             <th style={{ fontWeight: "normal" }}>Villages</th>
                             <th style={{ fontWeight: "normal" }} title="Whole area of these villages">Village ha</th>
@@ -1154,7 +1176,7 @@ export default function App() {
                             </tr>
                           ))}
                           {Object.keys(result.villages.stats.per_state).length > 1 && (
-                            <tr style={{ textAlign: "right", fontWeight: "bold", borderTop: "1px solid #ddd" }}>
+                            <tr style={{ textAlign: "right", fontWeight: "bold", borderTop: "1px solid var(--rule)" }}>
                               <td style={{ textAlign: "left" }}>All</td>
                               <td>{fmt(result.villages.stats.total.count)}</td>
                               <td title={fmtM2(result.villages.stats.total.area_m2)}>{fmtHa(result.villages.stats.total.area_m2)}</td>
@@ -1197,7 +1219,7 @@ export default function App() {
                 />
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
                   <thead>
-                    <tr style={{ color: "#666", textAlign: "right", borderBottom: "1px solid #ddd" }}>
+                    <tr style={{ color: "var(--t2)", textAlign: "right", borderBottom: "1px solid var(--rule)" }}>
                       <th style={{ textAlign: "left", fontWeight: "normal" }}>Source</th>
                       <th style={{ fontWeight: "normal" }} title="Number of parcels">Parcels</th>
                       <th style={{ fontWeight: "normal" }} title="Total area of these parcels, whole">Parcel ha</th>
@@ -1221,7 +1243,7 @@ export default function App() {
                       );
                     })}
                     {multiSource && (
-                      <tr style={{ textAlign: "right", fontWeight: "bold", borderTop: "1px solid #ddd" }}>
+                      <tr style={{ textAlign: "right", fontWeight: "bold", borderTop: "1px solid var(--rule)" }}>
                         <td style={{ textAlign: "left" }}>All*</td>
                         <td>{fmt(result.stats.total.count)}</td>
                         <td title={fmtM2(result.stats.total.area_m2)}>{fmtHa(result.stats.total.area_m2)}</td>
@@ -1358,7 +1380,7 @@ export default function App() {
           )}
 
           <div style={{ ...labelStyle, marginTop: 10 }}>Parcel layers, one per source file (top of list = top of map)</div>
-          {layerOrder.length === 0 && <div style={{ fontSize: 12, color: "#999" }}>None yet.</div>}
+          {layerOrder.length === 0 && <div style={{ fontSize: 12, color: "var(--t3)" }}>None yet.</div>}
           {[...layerOrder].reverse().map((name) => {
             const index = layerOrder.indexOf(name);
             const group = groups[name];
@@ -1468,21 +1490,30 @@ export default function App() {
                       {tableLap && tableSource ? "Download LAP + Source Parcel CSV" : tableSource ? "Download Source Parcel CSV" : "Download LAP Parcel CSV"}
                     </button>
                     {multiSource && (
-                      <div style={{ fontSize: 11, color: "#666", marginTop: 3 }}>
+                      <div style={{ fontSize: 11, color: "var(--t2)", marginTop: 3 }}>
                         All layers in one file: one parcel per place, from the highest-priority layer.
                       </div>
                     )}
                   </div>
                 )}
                 <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>Parcel polygons</div>
-                {result.aoi_area_m2 && (
+                {(result.aoi_area_m2 || villageCount > 0) && (
                   <div style={{ fontSize: 12, marginBottom: 6 }}>
-                    <label style={{ marginRight: 12 }} title="Each parcel as it is, with its area columns">
-                      <input type="checkbox" checked={polyWhole} onChange={(e) => setPolyWhole(e.target.checked)} /> Whole parcels
-                    </label>
-                    <label title="Each parcel cut to the part inside the area (a parcel cut into several pieces has one polygon per piece)">
-                      <input type="checkbox" checked={polyPart} onChange={(e) => setPolyPart(e.target.checked)} /> Only the part inside
-                    </label>
+                    {result.aoi_area_m2 && (
+                      <>
+                        <label style={{ marginRight: 12 }} title="Each parcel as it is, with its area columns">
+                          <input type="checkbox" checked={polyWhole} onChange={(e) => setPolyWhole(e.target.checked)} /> Whole parcels
+                        </label>
+                        <label style={{ marginRight: 12 }} title="Each parcel cut to the part inside the area (a parcel cut into several pieces has one polygon per piece)">
+                          <input type="checkbox" checked={polyPart} onChange={(e) => setPolyPart(e.target.checked)} /> Only the part inside
+                        </label>
+                      </>
+                    )}
+                    {villageCount > 0 && (
+                      <label title="Every parcel that lies in the villages this search passes through, not only those that meet the area. One parcel per place by the layer priority. Can be large and take a while.">
+                        <input type="checkbox" checked={polyVillage} onChange={(e) => setPolyVillage(e.target.checked)} /> Whole village parcels
+                      </label>
+                    )}
                   </div>
                 )}
                 {(multiSource || villageCount > 0) && (
@@ -1507,7 +1538,7 @@ export default function App() {
                     {villageCount > 0 && <option value={VILLAGES_SOURCE}>Village boundaries ({fmt(villageCount)})</option>}
                   </select>
                 )}
-                <div style={{ fontSize: 12, marginBottom: 4, color: "#666" }}>File format</div>
+                <div style={{ fontSize: 12, marginBottom: 4, color: "var(--t2)" }}>File format</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 14px", fontSize: 12 }}>
                   {FORMATS.map((f) => (
                     <label key={f.value}>
@@ -1522,7 +1553,7 @@ export default function App() {
                 </div>
                 {polyFormats.includes("csv") && (
                   <div style={{ fontSize: 12, marginTop: 4 }}>
-                    <span style={{ color: "#666", marginRight: 8 }}>CSV (WKT) columns:</span>
+                    <span style={{ color: "var(--t2)", marginRight: 8 }}>CSV (WKT) columns:</span>
                     <label style={{ marginRight: 12 }} title="Parcel ID, Total Area, Affected Area, Chainage From / To, Village, Taluka, District and State Name">
                       <input type="checkbox" checked={polyCsvLap} onChange={(e) => setPolyCsvLap(e.target.checked)} /> LAP
                     </label>
@@ -1532,14 +1563,19 @@ export default function App() {
                   </div>
                 )}
                 {(() => {
-                  const geometries: boolean[] = result.aoi_area_m2 ? [...(polyWhole ? [false] : []), ...(polyPart ? [true] : [])] : [false];
-                  const jobs: DownloadJob[] = geometries.flatMap((clipped) =>
+                  // what to export: whole parcels, the part inside, and/or every parcel of the villages passed
+                  const kinds: { clipped: boolean; villageParcels: boolean; tag: string }[] = [
+                    ...(!result.aoi_area_m2 || polyWhole ? [{ clipped: false, villageParcels: false, tag: "" }] : []),
+                    ...(result.aoi_area_m2 && polyPart ? [{ clipped: true, villageParcels: false, tag: "" }] : []),
+                    ...(villageCount > 0 && polyVillage ? [{ clipped: false, villageParcels: true, tag: "village parcels, " }] : []),
+                  ];
+                  const jobs: DownloadJob[] = kinds.flatMap(({ clipped, villageParcels, tag }) =>
                     polyFormats.flatMap((f): DownloadJob[] => {
                       const label = FORMATS.find((x) => x.value === f)!.label;
-                      if (f !== "csv") return [{ format: f, label, clipped }];
+                      if (f !== "csv") return [{ format: f, label: tag ? `${tag}${label}` : label, clipped, villageParcels }];
                       return [
-                        ...(polyCsvLap ? [{ format: f, label: `${label}, LAP columns`, clipped, data: "lap" as const }] : []),
-                        ...(polyCsvSource ? [{ format: f, label: `${label}, source columns`, clipped, data: "source" as const }] : []),
+                        ...(polyCsvLap ? [{ format: f, label: `${tag}${label}, LAP columns`, clipped, villageParcels, data: "lap" as const }] : []),
+                        ...(polyCsvSource ? [{ format: f, label: `${tag}${label}, source columns`, clipped, villageParcels, data: "source" as const }] : []),
                       ];
                     })
                   );
@@ -1554,7 +1590,7 @@ export default function App() {
                       >
                         {jobs.length > 1 ? `Download polygons (${jobs.length} files)` : "Download polygons"}
                       </button>
-                      {jobs.length === 0 && <span style={{ fontSize: 11, color: "#666", marginLeft: 8 }}>Tick at least one file format.</span>}
+                      {jobs.length === 0 && <span style={{ fontSize: 11, color: "var(--t2)", marginLeft: 8 }}>Tick at least one file format.</span>}
                     </div>
                   );
                 })()}
@@ -1595,7 +1631,9 @@ export default function App() {
       )}      {priorityOpen && sources.length >= 2 && (
         <PriorityDialog sources={sources} order={priority} onChange={setPriority} onClose={() => setPriorityOpen(false)} />
       )}
-      <Resizer onResize={resizeSidebar} />
+      <div className="sidebar-resizer" style={{ left: sidebarWidth }}>
+        <Resizer onResize={resizeSidebar} />
+      </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <MapView
@@ -1643,7 +1681,7 @@ function JobProgress({ job }: { job: SearchJob | null }) {
     <div>
       {job.phase !== "loading" && <ProgressBar fraction={1} label={`${job.message}...`} indeterminate />}
       {job.states.length > 0 && (
-        <div style={{ fontSize: 11, color: "#666", margin: "4px 0" }}>
+        <div style={{ fontSize: 11, color: "var(--t2)", margin: "4px 0" }}>
           Area falls in: {job.states.map((s) => s.name).join(", ")}
         </div>
       )}
@@ -1651,7 +1689,7 @@ function JobProgress({ job }: { job: SearchJob | null }) {
         <StateLoadProgress key={s.name} state={s} elapsed={job.elapsed} />
       ))}
       {noData.length > 0 && (
-        <div style={{ fontSize: 11, color: "#b26a00" }}>No parcel data for {noData.map((s) => s.name).join(", ")}.</div>
+        <div style={{ fontSize: 11, color: "var(--warn)" }}>No parcel data for {noData.map((s) => s.name).join(", ")}.</div>
       )}
     </div>
   );
@@ -1659,11 +1697,11 @@ function JobProgress({ job }: { job: SearchJob | null }) {
 
 function StateLoadProgress({ state, elapsed }: { state: JobState; elapsed: number }) {
   const folder = state.folder ?? state.name;
-  if (state.status === "queued") return <div style={{ fontSize: 11, color: "#888" }}>{folder}: waiting its turn...</div>;
+  if (state.status === "queued") return <div style={{ fontSize: 11, color: "var(--t3)" }}>{folder}: waiting its turn...</div>;
   if (state.status === "waiting") return <ProgressBar fraction={1} label={`${folder}: another search is loading it, waiting...`} indeterminate />;
   if (state.status === "indexing") return <ProgressBar fraction={1} label={`${folder}: building the spatial index...`} indeterminate />;
   if (state.status === "ready")
-    return <div style={{ fontSize: 11, color: "#2e7d32" }}>{folder}: {state.loaded_now ? "loaded" : "already in the database"}</div>;
+    return <div style={{ fontSize: 11, color: "var(--good)" }}>{folder}: {state.loaded_now ? "loaded" : "already in the database"}</div>;
   const done = state.rows_done ?? 0;
   const total = state.rows_total ?? 0;
   const fraction = total > 0 ? done / total : 0;
@@ -1696,10 +1734,10 @@ function StateTableRow({
         ? `Failed: ${table.error ?? "unknown error"}`
         : `${fmt(table.rows_done ?? 0)} parcels · drops automatically in ${secondsLeft === null ? "?" : fmtDuration(Math.max(0, secondsLeft))}`;
   return (
-    <div style={{ padding: "3px 0", borderBottom: "1px solid #f0f0f0" }}>
+    <div style={{ padding: "3px 0", borderBottom: "1px solid var(--rule)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
         <strong style={{ flex: 1 }}>{table.state}</strong>
-        <span style={{ fontSize: 11, color: "#888" }}>{fmtBytes(table.size_bytes)}</span>
+        <span style={{ fontSize: 11, color: "var(--t3)" }}>{fmtBytes(table.size_bytes)}</span>
         <button
           onClick={onDrop}
           disabled={disabled}
@@ -1709,7 +1747,7 @@ function StateTableRow({
           Drop
         </button>
       </div>
-      <div style={{ fontSize: 11, color: table.status === "failed" ? "#b00020" : "#777" }}>{detail}</div>
+      <div style={{ fontSize: 11, color: table.status === "failed" ? "var(--bad)" : "var(--t2)" }}>{detail}</div>
     </div>
   );
 }
@@ -1745,7 +1783,7 @@ function LayerRow({ label, title, detail, color, onColor, checked, onToggle, opa
             value={color}
             onChange={(e) => onColor(e.target.value)}
             title="Change this layer's colour"
-            style={{ width: 22, height: 18, padding: 0, border: "1px solid #bbb", borderRadius: 3, background: "none", cursor: "pointer", flexShrink: 0 }}
+            style={{ width: 22, height: 18, padding: 0, border: "1px solid var(--rule)", borderRadius: 3, background: "none", cursor: "pointer", flexShrink: 0 }}
           />
         ) : (
           <span style={{ width: 10, height: 10, background: color, display: "inline-block", borderRadius: 2, flexShrink: 0 }} />
@@ -1753,7 +1791,7 @@ function LayerRow({ label, title, detail, color, onColor, checked, onToggle, opa
         <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={title ?? label}>
           {label}
         </span>
-        {detail && <span style={{ fontSize: 10, color: "#888" }}>{detail}</span>}
+        {detail && <span style={{ fontSize: 10, color: "var(--t3)" }}>{detail}</span>}
         {onUp && onDown && (
           <span style={{ display: "flex", flexDirection: "column", lineHeight: 0.7 }}>
             <button onClick={onUp} disabled={upDisabled} title="Move up (render on top)" className="plain" style={arrowStyle}>
@@ -1779,7 +1817,7 @@ function LayerRow({ label, title, detail, color, onColor, checked, onToggle, opa
             style={{ flex: 1, height: 14 }}
             title="Layer opacity"
           />
-          <span style={{ fontSize: 10, color: "#888", width: 30, textAlign: "right" }}>{Math.round(opacity * 100)}%</span>
+          <span style={{ fontSize: 10, color: "var(--t3)", width: 30, textAlign: "right" }}>{Math.round(opacity * 100)}%</span>
         </div>
       )}
     </div>

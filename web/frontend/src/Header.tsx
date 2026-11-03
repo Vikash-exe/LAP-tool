@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 // Small grey bold text used for the names of the controls.
-export const labelStyle = { fontSize: 12, fontWeight: "bold", color: "#666", margin: "4px 0" } as const;
+export const labelStyle = { fontSize: 12, fontWeight: "bold", color: "var(--t2)", margin: "4px 0" } as const;
 
 // A section title with a small circular "i" button at its right. Clicking the button opens a card
 // with the explanation over the panel, so the panel itself holds only controls and results, not
@@ -56,9 +56,9 @@ export default function Header({ title, info, level = "section", className }: { 
             flexShrink: 0,
             padding: 0,
             borderRadius: "50%",
-            border: `1px solid ${open ? "#1976d2" : "#90a4ae"}`,
-            background: open ? "#1976d2" : "#fff",
-            color: open ? "#fff" : "#546e7a",
+            border: `1px solid ${open ? "#33658A" : "var(--t3)"}`,
+            background: open ? "#33658A" : "var(--surface)",
+            color: open ? "#fff" : "var(--t2)",
             fontFamily: "Georgia, 'Times New Roman', serif",
             fontStyle: "italic",
             fontWeight: "bold",
@@ -81,14 +81,14 @@ export default function Header({ title, info, level = "section", className }: { 
             right: 0,
             marginTop: 4,
             zIndex: 30,
-            background: "#fff",
-            border: "1px solid #cfd8dc",
+            background: "var(--surface)",
+            border: "1px solid var(--rule)",
             borderRadius: 6,
             boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
             padding: "10px 12px",
             fontSize: 12,
             lineHeight: 1.45,
-            color: "#333",
+            color: "var(--t1)",
             fontWeight: "normal",
             maxHeight: "60vh",
             overflowY: "auto",

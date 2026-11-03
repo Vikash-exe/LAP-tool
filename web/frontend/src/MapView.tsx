@@ -21,7 +21,7 @@ const STRIP_COLOR = "#ffb300";
 const CLIP_COLOR = "#d500f9";
 const VILLAGE_COLOR = "#2e7d32";
 const NOPARCEL_COLOR = "#ff6d00";
-const CHAINAGE_COLOR = "#1565c0";
+const CHAINAGE_COLOR = "#33658A";
 // Stacking, bottom to top: basemap, strip, village boundaries, [parcel layers], clipped overlap,
 // area-of-interest outline. Parcel layers are always inserted just below the clipped overlap.
 const PARCEL_ANCHOR = "clip-fill";
@@ -125,7 +125,7 @@ function fieldTable(rows: [string, string][]): HTMLTableElement {
   table.style.marginTop = "4px";
   rows.forEach(([k, v]) => {
     const row = document.createElement("tr");
-    row.append(cell(k, { color: "#666", paddingRight: "10px", verticalAlign: "top", whiteSpace: "nowrap" }), cell(v, { wordBreak: "break-word" }));
+    row.append(cell(k, { color: "var(--t2)", paddingRight: "10px", verticalAlign: "top", whiteSpace: "nowrap" }), cell(v, { wordBreak: "break-word" }));
     table.appendChild(row);
   });
   return table;
@@ -146,7 +146,7 @@ function buildPopupContent(features: MapGeoJSONFeature[]): HTMLElement {
     const props = feature.properties ?? {};
     const block = document.createElement("div");
     if (index > 0) {
-      block.style.borderTop = "1px solid #ddd";
+      block.style.borderTop = "1px solid var(--rule)";
       block.style.marginTop = "8px";
       block.style.paddingTop = "8px";
     }
@@ -191,7 +191,7 @@ function buildPopupContent(features: MapGeoJSONFeature[]): HTMLElement {
     extra.style.display = "none";
     extra.style.marginTop = "6px";
     const head = document.createElement("div");
-    head.style.cssText = "font-size:11px;color:#666";
+    head.style.cssText = "font-size:11px;color:var(--t2)";
     head.textContent = `Source file: ${props.source ?? ""}`;
     extra.append(head, source.length > 0 ? fieldTable(source) : Object.assign(document.createElement("div"), { textContent: "No other attributes." }));
     more.addEventListener("click", () => {
@@ -206,7 +206,7 @@ function buildPopupContent(features: MapGeoJSONFeature[]): HTMLElement {
   if (features.length > MAX_POPUP_FEATURES) {
     const more = document.createElement("div");
     more.style.marginTop = "6px";
-    more.style.color = "#666";
+    more.style.color = "var(--t2)";
     more.textContent = `…and ${features.length - MAX_POPUP_FEATURES} more overlapping parcels`;
     root.appendChild(more);
   }
@@ -365,7 +365,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
         type: "circle",
         source: "chainage",
         filter: ["has", "end"],
-        paint: { "circle-color": "#ff6d00", "circle-radius": 9, "circle-stroke-color": "#0b1f4d", "circle-stroke-width": 3 },
+        paint: { "circle-color": "#ff6d00", "circle-radius": 9, "circle-stroke-color": "#2F4858", "circle-stroke-width": 3 },
       });
       map.addLayer({
         id: "chainage-end-label",
@@ -381,7 +381,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
           "text-allow-overlap": true,
           "text-ignore-placement": true,
         },
-        paint: { "text-color": "#ffffff", "text-halo-color": "#0b1f4d", "text-halo-width": 3 },
+        paint: { "text-color": "#ffffff", "text-halo-color": "#2F4858", "text-halo-width": 3 },
       });
 
       map.addSource("aoi", { type: "geojson", data: EMPTY });
@@ -694,7 +694,8 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(
           position: "absolute",
           left: 8,
           bottom: 8,
-          background: "rgba(255,255,255,0.85)",
+          background: "var(--coords-bg)",
+          color: "var(--t1)",
           padding: "2px 6px",
           fontSize: 11,
           fontFamily: "monospace",

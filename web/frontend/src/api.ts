@@ -497,6 +497,8 @@ export interface DownloadOptions {
   villages?: boolean;
   /** Export the CSV of villages that have no parcels in the database (format csv). */
   villagesNoParcels?: boolean;
+  /** Export every parcel of the villages the search found (whole parcels), not only those that meet the area. */
+  villageParcels?: boolean;
   /** CSV and parcel tables: the processed LAP columns, or the columns of the source file. */
   data?: "lap" | "source";
   /** Parcel table: one CSV with the parcels of every layer (one parcel per place, by layer priority) instead of one per source. */
@@ -515,6 +517,7 @@ export async function downloadResult(
   if (options.clipped) params.set("clipped", "true");
   if (options.villages) params.set("layer", "villages");
   if (options.villagesNoParcels) params.set("layer", "villages_no_parcels");
+  if (options.villageParcels) params.set("layer", "village_parcels");
   if (options.data && (format === "csv" || format === "table")) params.set("data", options.data);
   if (options.combined) params.set("combined", "true");
   const { blob, filename } = await fetchBlob(`${BASE}/api/results/${resultId}/download?${params}`, onProgress);

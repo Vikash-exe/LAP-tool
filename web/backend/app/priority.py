@@ -52,6 +52,41 @@ def _ranks(order: list[str], found: set[str]) -> dict[str, int]:
     return ranks
 
 
+def _exclude(conn: psycopg.Connection, t: sql.Identifier, by_source: dict[str, list[int]], order: list[str]) -> tuple[set[int], dict[str, int]]:
+    """Of these candidate parcels (ids by source short name) the ones to leave out because the higher layers cover them."""
+    ranks = _ranks(order, set(by_source))
+    by_rank = sorted(by_source.items(), key=lambda kv: ranks[kv[0]])
+    excluded: set[int] = set()
+    dropped: dict[str, int] = {}
+    for src, ids in by_rank:
+        higher = [s for s, r in ranks.items() if r < ranks[src]]
+        if not higher:
+            continue  # the top layer keeps everything
+        gone = 0
+        for start in range(0, len(ids), BATCH):
+            chunk = ids[start : start + BATCH]
+            for pid, fraction in conn.execute(_COVERED.format(t=t), {"ids": chunk, "higher": higher, "dropped": list(excluded)}):
+                if fraction is not None and fraction > DROP_FRACTION:
+                    excluded.add(pid)
+                    gone += 1
+        if gone:
+            dropped[src] = gone
+    return excluded, dropped
+
+
+def excluded_among(table: str, by_source: dict[str, list[int]], order: list[str]) -> tuple[set[int], dict[str, int]]:
+    """Like excluded_ids, for candidates the caller already picked (for example every parcel of some villages)."""
+    if len(order) < 2:
+        return set(), {}
+    try:
+        with query.connect() as conn:
+            return _exclude(conn, sql.Identifier(config.SCHEMA, table), by_source, order)
+    except psycopg.errors.QueryCanceled:
+        raise HTTPException(504, "Applying the layer priority took too long. Use fewer villages.")
+    except psycopg.Error as e:
+        raise HTTPException(500, f"Database error while applying the layer priority: {str(e).splitlines()[0]}")
+
+
 def excluded_ids(table: str, aoi_geometry: str, order: list[str]) -> tuple[set[int], dict[str, int]]:
     """The parcels of one state table (inside or touching the area) to leave out, and how many that is per source."""
     if len(order) < 2:
@@ -62,26 +97,7 @@ def excluded_ids(table: str, aoi_geometry: str, order: list[str]) -> tuple[set[i
             by_source: dict[str, list[int]] = defaultdict(list)
             for pid, src in conn.execute(_CANDIDATES.format(t=t), {"aoi": aoi_geometry}):
                 by_source[src].append(pid)
-            ranks = _ranks(order, set(by_source))
-            by_rank = sorted(by_source.items(), key=lambda kv: ranks[kv[0]])
-            excluded: set[int] = set()
-            dropped: dict[str, int] = {}
-            for src, ids in by_rank:
-                higher = [s for s, r in ranks.items() if r < ranks[src]]
-                if not higher:
-                    continue  # the top layer keeps everything
-                gone = 0
-                for start in range(0, len(ids), BATCH):
-                    chunk = ids[start : start + BATCH]
-                    for pid, fraction in conn.execute(
-                        _COVERED.format(t=t), {"ids": chunk, "higher": higher, "dropped": list(excluded)}
-                    ):
-                        if fraction is not None and fraction > DROP_FRACTION:
-                            excluded.add(pid)
-                            gone += 1
-                if gone:
-                    dropped[src] = gone
-            return excluded, dropped
+            return _exclude(conn, t, by_source, order)
     except psycopg.errors.QueryCanceled:
         raise HTTPException(504, "Applying the layer priority took too long. Use a smaller area.")
     except psycopg.Error as e:

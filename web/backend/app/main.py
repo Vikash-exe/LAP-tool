@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 from pydantic import BaseModel
 
-from . import alignment, aoi, auth, chainage, config, dxf, exports, linear, priority, query, search, statedata
+from . import alignment, aoi, auth, chainage, config, dxf, exports, linear, priority, query, search, statedata, villageparcels
 
 
 @asynccontextmanager
@@ -430,9 +430,17 @@ def download_result(
 ):
     result_dir = _result_dir(result_id)
     meta = json.loads((result_dir / "meta.json").read_text(encoding="utf-8"))
-    if layer not in ("parcels", "villages", "villages_no_parcels"):
-        raise HTTPException(400, "layer must be 'parcels', 'villages' or 'villages_no_parcels'")
-    if layer == "villages_no_parcels":
+    if layer not in ("parcels", "villages", "villages_no_parcels", "village_parcels"):
+        raise HTTPException(400, "layer must be 'parcels', 'villages', 'villages_no_parcels' or 'village_parcels'")
+    if layer == "village_parcels":
+        # every parcel of the villages the search found (whole parcels), one per place by the layer priority
+        if format == "table":
+            raise HTTPException(400, "Whole village parcels are polygons: choose a polygon format.")
+        sub = villageparcels.build(result_dir, meta)
+        sub_meta = json.loads((sub / "meta.json").read_text(encoding="utf-8"))
+        path, media_type, stem = exports.export(sub, format, list(sub_meta["per_source"]), source or None, split, False, data=data or None)
+        stem = f"village_{stem}"
+    elif layer == "villages_no_parcels":
         if format != "csv":
             raise HTTPException(400, "Villages without parcels are available as CSV.")
         if not ((meta.get("villages") or {}).get("no_parcels") or {}).get("count"):

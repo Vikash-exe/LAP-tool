@@ -10,7 +10,7 @@
     body {
       margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #1f2d3a;
-      background: linear-gradient(160deg, #eaf2fb 0%, #f7f9fb 55%, #e3edf7 100%);
+      background: linear-gradient(160deg, #e2f3f4 0%, #f7fbfb 55%, #d9eff0 100%);
     }
     .card {
       width: 100%; max-width: 360px; margin: 16px; padding: 28px 26px 20px; background: #fff;
@@ -18,39 +18,60 @@
     }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand img { width: 36px; height: 36px; }
-    h1 { margin: 0; font-size: 20px; font-weight: 800; color: #0d47a1; }
+    h1 { margin: 0; font-size: 20px; font-weight: 800; color: #2F4858; }
     .sub { margin: 4px 0 18px; font-size: 13px; color: #607080; }
     label { display: block; margin: 12px 0 4px; font-size: 12px; font-weight: 600; color: #546e7a; }
     input {
       width: 100%; padding: 9px 10px; font: inherit; font-size: 15px;
       border: 1px solid #b8c4d0; border-radius: 6px; background: #fff;
     }
-    input:focus { outline: 2px solid #90caf9; border-color: #1976d2; }
+    input:focus { outline: 2px solid #55DDE0; border-color: #33658A; }
     .pw { position: relative; }
     .pw input { padding-right: 60px; }
     .toggle {
       position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-      padding: 4px 6px; border: 0; background: none; color: #1976d2; font-size: 12px; cursor: pointer;
+      padding: 4px 6px; border: 0; background: none; color: #33658A; font-size: 12px; cursor: pointer;
     }
     .card { overflow: hidden; }
     .card::before {
       content: ""; display: block; height: 7px; margin: -28px -26px 22px;
-      background: linear-gradient(90deg, #0b3d91, #1976d2 55%, #42a5f5);
+      background: linear-gradient(90deg, #2F4858, #33658A 60%, #55DDE0);
     }
     .go {
       width: 100%; margin-top: 16px; padding: 11px; font: inherit; font-size: 15px; font-weight: 700;
-      color: #fff; background: linear-gradient(180deg, #4da3f5, #1976d2); border: 1px solid #0d5cb6; border-radius: 10px;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, .25); box-shadow: 0 3px 0 #0b4f9e, 0 6px 14px rgba(13, 71, 161, .35);
+      color: #fff; background: linear-gradient(180deg, #4a8bb3, #33658A); border: 1px solid #2F4858; border-radius: 10px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, .25); box-shadow: 0 3px 0 #2F4858, 0 6px 14px rgba(47, 72, 88, .35);
       cursor: pointer; transition: transform .08s, box-shadow .08s;
     }
-    .go:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 0 #0b4f9e, 0 10px 20px rgba(13, 71, 161, .42); }
-    .go:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 #0b4f9e, 0 2px 4px rgba(13, 71, 161, .3); }
+    .go:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 0 #2F4858, 0 10px 20px rgba(47, 72, 88, .42); }
+    .go:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 #2F4858, 0 2px 4px rgba(47, 72, 88, .3); }
     .go:disabled { opacity: .6; cursor: default; }
     .err { min-height: 20px; margin-top: 12px; font-size: 13px; color: #b00020; }
     .foot { margin-top: 12px; font-size: 11px; color: #8a98a6; text-align: center; }
+    .theme {
+      position: fixed; top: 14px; right: 14px; padding: 6px 12px; font: inherit; font-size: 12px; font-weight: 600;
+      color: #2F4858; background: rgba(255, 255, 255, .6); border: 1px solid #b9e0e2; border-radius: 999px; cursor: pointer;
+      backdrop-filter: blur(20px);
+    }
+    /* dark theme: black in place of white, glass card */
+    :root[data-theme="dark"] { color-scheme: dark; }
+    [data-theme="dark"] body { color: #e6eef2; background: linear-gradient(160deg, #000 0%, #0a1a24 55%, #050708 100%); }
+    [data-theme="dark"] .card { background: rgba(0, 0, 0, .55); border-color: rgba(255, 255, 255, .14); box-shadow: 0 8px 28px rgba(0, 0, 0, .6); backdrop-filter: blur(40px); }
+    [data-theme="dark"] h1 { color: #e6eef2; }
+    [data-theme="dark"] .sub, [data-theme="dark"] label { color: #a9bac4; }
+    [data-theme="dark"] input { color: #e6eef2; background: rgba(0, 0, 0, .55); border-color: rgba(255, 255, 255, .25); }
+    [data-theme="dark"] .toggle { color: #7fe3e6; }
+    [data-theme="dark"] .err { color: #ff8a98; }
+    [data-theme="dark"] .foot { color: #7f909b; }
+    [data-theme="dark"] .theme { color: #e6eef2; background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .25); }
   </style>
+  <script>
+    // Same saved choice as the main page, applied before the first paint.
+    try { if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}
+  </script>
 </head>
 <body>
+  <button type="button" class="theme" id="theme" title="Switch between the light and dark theme"></button>
   <form class="card" id="form">
     <div class="brand"><img src="/favicon.svg" alt=""><h1>Cadastral Parcel Finder</h1></div>
     <div class="sub">Sign in to continue</div>
@@ -81,6 +102,18 @@
       const n = new URLSearchParams(location.search).get("next") || "/";
       return n.startsWith("/") && !n.startsWith("//") && !n.startsWith("/\\") && !n.startsWith("/login") ? n : "/";
     }
+
+    const themeBtn = document.getElementById("theme");
+    function showTheme() {
+      themeBtn.textContent = document.documentElement.dataset.theme === "dark" ? "☀ Light" : "☾ Dark";
+    }
+    themeBtn.addEventListener("click", () => {
+      const dark = document.documentElement.dataset.theme !== "dark";
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch (e) {}
+      showTheme();
+    });
+    showTheme();
 
     document.getElementById("toggle").addEventListener("click", (e) => {
       const show = pass.type === "password";

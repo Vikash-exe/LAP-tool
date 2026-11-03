@@ -9,8 +9,13 @@ Same stack as `land_map_merge/web`: FastAPI backend + Vite/React/TypeScript/MapL
 
 ```
 web/
-  backend/app/   config.py  aoi.py  query.py  exports.py  main.py
-  frontend/src/  App.tsx  MapView.tsx  api.ts  basemaps.ts  ProgressBar.tsx  Resizer.tsx
+  backend/app/   main.py (API)  search.py (the search job)  query.py  exports.py  config.py  aoi.py  linear.py  alignment.py
+                 dxf.py  chainage.py  loader.py  statedata.py (on-demand state tables)  priority.py  villageparcels.py
+                 enrich.py  pieces.py  typecast.py  auth.py (sign-in)
+  frontend/src/  App.tsx  MapView.tsx  api.ts  basemaps.ts  Header.tsx  InputFile.tsx  PriorityDialog.tsx  ProgressBar.tsx
+                 Resizer.tsx  index.css (all styling, light and dark)
+  backend/login.html   the static sign-in page
+  data/results/  per-search result files (auto-deleted after 24 h)
   data/results/  per-search result files (auto-deleted after 24 h)
 ```
 
@@ -45,10 +50,17 @@ LAP/web/status.sh             # is it running? (tells this project's backend apa
 
 The backend listens on the server itself only. To open it from your own PC, tunnel the port, e.g.
 `ssh -N -L 18010:127.0.0.1:8010 cigma@172.16.60.60` and browse to `http://localhost:18010` (or forward the port in
-VS Code). To make it reachable from other machines start it with `HOST=0.0.0.0`; note the dashboard has no login.
+VS Code). To make it reachable from other machines start it with `HOST=0.0.0.0` (it still asks for a sign-in, see
+*Running in Docker*; `LAP_AUTH=off` removes that, for local development only).
 
 Only while changing the frontend: `LAP/web/run_frontend.sh` starts the dev server on 5174 (proxying /api to the
 backend), and `LAP/web/build_frontend.sh` rebuilds the version the backend serves.
+
+**Remember when developing:** the backend serves the *built* frontend (`frontend/dist`), so every change under
+`frontend/src` needs `build_frontend.sh` and then a hard refresh (Ctrl+F5); a change to Python code needs the backend
+restarted. A second copy for development can run next to the Docker one on another port, e.g.
+`HOST=0.0.0.0 PORT=8011 ./run_backend.sh`. The Docker container (`https://172.16.60.60:8443`) only changes after
+`docker compose up -d --build`.
 
 First time only: `LAP/setup.sh`, see *Setting up on a new machine*.
 
@@ -179,8 +191,8 @@ tmux capture-pane -p -t lapview -S -100      # print the last 100 lines of a pan
 
 **Open to the whole network:** the service runs with `HOST=0.0.0.0` (drop-in
 `~/.config/systemd/user/lap-backend.service.d/network.conf`), so anyone on the network can open
-`http://172.16.60.60:8010` directly, with no tunnel. The dashboard has **no login**: everyone who can reach the
-port can search, download and drop state tables. To go back to local-only, delete that `network.conf`, then
+`http://172.16.60.60:8010` directly, with no tunnel, over plain http (the sign-in page applies, but the password
+travels unencrypted). To go back to local-only, delete that `network.conf`, then
 `systemctl --user daemon-reload && systemctl --user restart lap-backend`.
 
 Otherwise, to look at the dashboard from your own PC, forward the port (the backend listens on the server only):
@@ -281,6 +293,35 @@ if a parcel folder is renamed, update the label and `UPDATE cadastral.villages S
 A zip that gets updated can be reloaded by deleting its rows and its line in
 `cadastral.village_load_log`, then rerunning the loader.
 
+## Layer priority
+
+A state's parcels can come from several source files (layers) that map the same land. In the *Match* step the layers can be
+ranked (`PriorityDialog.tsx`; the order is sent as `inputs.priority`). The top layer keeps all its parcels; from each lower
+layer only the parcels the higher ones do not already cover are kept: a parcel is dropped when **more than 50%** of its area
+lies inside the kept parcels of higher layers (`priority.DROP_FRACTION`). It is computed in PostGIS against the state table
+(`backend/app/priority.py`), runs only when two or more layers are ranked, and the result's `meta.json` records the order and
+how many parcels each layer lost (`priority.dropped`). The map and downloads then show one parcel per place; the `priority`
+rank of a parcel's layer is a column.
+
+## Whole village parcels (export)
+
+*Export, Parcel polygons* has three kinds: **Whole parcels** (every parcel the search found, complete), **Only the part inside**
+(clipped to the searched area, only for area/strip searches) and **Whole village parcels**: every parcel in the villages the
+alignment, area or right of way passes through, not only the ones that meet it (shown when the search found villages).
+
+* A parcel belongs to a village when its **centroid** lies inside the village boundary (the same rule as *Villages without
+  parcels*), and the layer priority of the search is applied.
+* The LAP columns (village, taluka, district, state, parcel number) are filled; `area_m2` is the whole parcel, `inside_m2` /
+  `inside_pct` the part inside the searched area (0 for parcels outside it). There are no chainage columns for parcels outside
+  the strip.
+* It uses the file formats and source-layer selector of the other polygon exports. Files are named
+  `cadastral_village_parcels_...`. API: `GET /api/results/<id>/download?layer=village_parcels&format=...` (not `table`).
+* Code: `backend/app/villageparcels.py`. It builds `data/results/<id>/village_parcels/` (`result.geojson`, `meta.json`) once,
+  reloading a state's parcel table if it was dropped meanwhile, and the normal export code converts that. **The first request
+  is slow** (about 2 minutes for 75 villages / 33,000 parcels) and later ones are instant; it goes away with the result after 24 h.
+* The size cap is `MAX_FEATURES` (100,000 parcels): a long alignment through many villages can exceed it and gets the standard
+  "too many parcels" answer (413); a shapefile/KML of that many parcels is also very large (86 MB KML for 33,000).
+
 ## Villages without parcels
 
 Of the villages a search finds, those that have **no cadastral parcel in our database** are listed separately.
@@ -309,9 +350,23 @@ The dashboard has a blue theme, all in `frontend/src/index.css` (colours are var
 **card with a title bar in its own shade of blue**: *Parcel data* sky blue (`.c-data`), *1. Area of interest* blue (`.c-area`),
 *2. Match* indigo (`.c-match`), *Result* cyan (`.c-result`), *Layers* navy (`.c-layers`). Change a section's colours by editing its
 `--accent`, `--accent2` (title bar gradient) and `--tint` (card background). Buttons are raised and lift when hovered; the
-classes are `primary` (the main actions: Find parcels, the CSV tables), `big`, `mini` (small actions in lists), `plain` (an icon
-or arrow without a frame) and `on-dark` (on the header); a plain `<button>` gets the soft style. The sign-in page
-(`backend/login.html`) carries the same colours in its own small stylesheet. After a change: `docker compose up -d --build`.
+classes are `primary` (the main actions: the CSV tables), `big`, `mini` (small actions in lists), `plain` (an icon
+or arrow without a frame) and `on-dark` (on the header); a plain `<button>` gets the soft style. **Find parcels** is orange
+(`primary big find`). The sign-in page (`backend/login.html`) carries the same colours in its own small stylesheet. After a
+change: `docker compose up -d --build`.
+
+**Glass side panel.** The side panel (`.sidebar`) floats over the full-width map: it is absolutely positioned and has
+`background: rgba(0,0,0,0.10); backdrop-filter: blur(80px)`, so the map shows through, frosted. Only the panel is glass; the
+cards on it are **opaque** (`--tint`), because text on a see-through card was unreadable over light map areas. To see more of
+the map lower the blur (e.g. `blur(16px)`) or the alpha in `.sidebar`. The resizer sits in `.sidebar-resizer`; the map is not
+shifted aside, so "zoom to result" can place things under the panel.
+
+**Dark theme.** The **Dark / Light** button in the header (and top right of the sign-in page) switches the whole page. The
+choice is saved in the browser (`localStorage` key `theme`) and applied before the first paint by a small script in
+`frontend/index.html` and `login.html`, so there is no flash. It sets `data-theme="dark"` on `<html>`; the dark colours are the
+`:root[data-theme="dark"]` block at the end of `index.css`, which overrides the colour variables (`--surface`, `--ink`, `--t1`..`--t3`,
+`--rule`...) and the glass, cards, inputs, pop-ups and map controls. Use those variables, not fixed greys, in new styles. The
+basemap itself is not darkened.
 
 ## Lines in an area file (the alignment)
 
