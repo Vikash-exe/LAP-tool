@@ -22,7 +22,8 @@ BATCH = 1000
 _SHORT = "regexp_replace(p.source, '^[^/]*/', '')"
 
 _CANDIDATES = sql.SQL(
-    "SELECT p.id, " + _SHORT + " FROM {t} p WHERE ST_Intersects(p.geometry, ST_SetSRID(ST_GeomFromGeoJSON(%(aoi)s), 4326))"
+    "SELECT p.id, " + _SHORT + " FROM {t} p WHERE ST_Intersects(p.geometry, ST_SetSRID(ST_GeomFromGeoJSON(%(aoi)s), 4326)) AND "
+    + _SHORT + " = ANY(%(order)s)"
 )
 
 _COVERED = sql.SQL(
@@ -95,7 +96,7 @@ def excluded_ids(table: str, aoi_geometry: str, order: list[str]) -> tuple[set[i
     try:
         with query.connect() as conn:
             by_source: dict[str, list[int]] = defaultdict(list)
-            for pid, src in conn.execute(_CANDIDATES.format(t=t), {"aoi": aoi_geometry}):
+            for pid, src in conn.execute(_CANDIDATES.format(t=t), {"aoi": aoi_geometry, "order": order}):
                 by_source[src].append(pid)
             return _exclude(conn, t, by_source, order)
     except psycopg.errors.QueryCanceled:
@@ -128,7 +129,14 @@ def available_sources(aoi_geometry: str) -> dict:
                     ).fetchall()
             except psycopg.Error as e:
                 raise HTTPException(500, f"Database error while listing the layers: {str(e).splitlines()[0]}")
-            found = {s: int(n) for s, n in rows}
+            counts = {s: int(n) for s, n in rows}
+            with statedata.connect_rw() as c2:
+                entry = statedata.get_entry(c2, folder)
+            loaded = (entry or {}).get("loaded_files")  # None: the table holds every layer
+            # every layer of the state; those not in the table yet have no count (they are loaded when chosen)
+            found = {s: (counts.get(s, 0) if loaded is None or s in loaded else None) for s in statedata.source_files(folder)}
+            for s, n in counts.items():
+                found.setdefault(s, n)
         else:
             found = {s: None for s in statedata.source_files(folder)}
         for s, n in found.items():

@@ -20,10 +20,15 @@ import {
   getStateTables,
   logout,
   runSearch,
+  cancelJob,
+  SearchStopped,
   type AreaStats,
   type InputInfo,
   fetchMarks,
   fetchSources,
+  fetchFootprints,
+  MIN_NEAR,
+  type Footprints,
   type SourceLayer,
   type BBox,
   type ExportFormat,
@@ -128,7 +133,7 @@ function areaSummaryCsv(result: QueryResult): string {
 
 // The form fields that tell the server what to search: an area, or an alignment with its right of way and start chainage.
 function areaFields(a: InputSelection, priority: string[]): Record<string, string> {
-  return { kind: "area", area_token: a.token, area_crs: a.crs, ...(priority.length >= 2 ? { priority: JSON.stringify(priority) } : {}) };
+  return { kind: "area", area_token: a.token, area_crs: a.crs, ...(priority.length >= 1 ? { priority: JSON.stringify(priority) } : {}) };
 }
 
 function linearFields(
@@ -145,7 +150,7 @@ function linearFields(
     ...(a ? { align_token: a.token, align_crs: a.crs, start_chainage: startChainage.trim(), start_end: startEnd, chainage_step: step.trim() } : {}),
     ...(r ? { row_token: r.token, row_crs: r.crs } : {}),
     match_with: matchWith.join(","),
-    ...(priority.length >= 2 ? { priority: JSON.stringify(priority) } : {}),
+    ...(priority.length >= 1 ? { priority: JSON.stringify(priority) } : {}),
   };
 }
 
@@ -220,6 +225,22 @@ export default function App() {
   const [me, setMe] = useState<{ user: string | null; auth: boolean } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [job, setJob] = useState<SearchJob | null>(null);
+  // the Stop button: pressed (maybe before the server has a job to stop) and whether the server was told
+  const [stopping, setStopping] = useState(false);
+  const [stoppedNote, setStoppedNote] = useState<string | null>(null);
+  const stopRef = useRef({ pressed: false, sent: false });
+
+  function sendStop(jobId: string) {
+    if (stopRef.current.sent) return;
+    stopRef.current.sent = true;
+    cancelJob(jobId).catch((e) => setError(e instanceof Error ? e.message : String(e)));
+  }
+
+  function handleStop() {
+    stopRef.current.pressed = true;
+    setStopping(true);
+    if (job) sendStop(job.id); // otherwise it is sent as soon as the server reports the job
+  }
 
   // The three inputs. Each file is uploaded and read by the server as soon as it is chosen; what the search would use is
   // drawn on the map (and zoomed to) before anything is searched.
@@ -242,6 +263,10 @@ export default function App() {
   const [sources, setSources] = useState<SourceLayer[]>([]);
   const [priority, setPriority] = useState<string[]>([]);
   const [priorityOpen, setPriorityOpen] = useState(false);
+  // which layers are checked (loaded and searched), and where each has parcels (read in the background by the server)
+  const [enabled, setEnabled] = useState<string[]>([]);
+  const [footprints, setFootprints] = useState<Footprints | null>(null);
+  const enabledTouched = useRef(false);
   const [sourcesError, setSourcesError] = useState<string | null>(null);
   // Match: either or both can be ticked.
   const [matchIntersect, setMatchIntersect] = useState(true);
@@ -457,6 +482,9 @@ export default function App() {
     setVillagesNoParcels(null);
     setChainageLayer(null);
     setJob(null);
+    stopRef.current = { pressed: false, sent: false };
+    setStopping(false);
+    setStoppedNote(null);
     setPhase("uploading");
     setUploadFraction(0);
     try {
@@ -466,10 +494,11 @@ export default function App() {
         onUploadProgress: setUploadFraction,
         onUploadComplete: () => setPhase("working"),
         onJob: (j) => {
+          if (stopRef.current.pressed) sendStop(j.id);
           setJob(j);
           setPhase("working");
         },
-      }, inputKind === "area" ? areaFields(areaSel!, priority) : linearFields(alignSel, rowSel, startChainage, startEnd, chainageStep, priority, matchWith));
+      }, inputKind === "area" ? areaFields(areaSel!, activePriority) : linearFields(alignSel, rowSel, startChainage, startEnd, chainageStep, activePriority, matchWith));
       setResult(res);
       refreshStateTables();
       const villageCount = res.villages?.count ?? 0;
@@ -492,11 +521,13 @@ export default function App() {
       const b = target ?? boundsOf(res.aoi.features);
       if (b) mapViewRef.current?.fitBounds(b);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      if (e instanceof SearchStopped) setStoppedNote("Stopped. Nothing was kept from that search.");
+      else setError(e instanceof Error ? e.message : String(e));
       refreshStateTables();
     } finally {
       setPhase("idle");
       setJob(null);
+      setStopping(false);
     }
   }
 
@@ -558,9 +589,13 @@ export default function App() {
   }
 
   const busy = phase !== "idle";
+  // what is sent: the checked layers, in order of priority
+  const activePriority = priority.filter((n) => enabled.includes(n));
+  const noLayerChosen = sources.length > 0 && activePriority.length === 0;
   const startChainageOk = CHAINAGE_INPUT.test(startChainage.trim());
   const stepOk = STEP_INPUT.test(chainageStep.trim()) && Number(chainageStep) > 0;
   const ready =
+    !noLayerChosen &&
     (lineOnly || matchIntersect || matchInside) &&
     (inputKind === "area"
       ? !!areaSel
@@ -575,6 +610,7 @@ export default function App() {
         ? [!startChainageOk && "the start chainage", chainageStep.trim() !== "" && !stepOk && "a valid chainage step"]
         : [!rowSel && "the alignment file or the right of way file"]),
     !lineOnly && !matchIntersect && !matchInside && "a match option",
+    noLayerChosen && "at least one parcel layer (Layers)",
   ].filter(Boolean) as string[];
   const preview = useMemo<FeatureCollection | null>(() => {
     const parts = inputKind === "area" ? [areaPrev] : [rowPrev, alignPrev];
@@ -615,20 +651,44 @@ export default function App() {
     if (!sel) {
       setSources([]);
       setPriority([]);
+      setEnabled([]);
+      setFootprints(null);
       return;
     }
     let cancelled = false;
-    fetchSources(
+    const fields: Record<string, string> =
       inputKind === "area"
         ? { kind: "area", area_token: sel.token, area_crs: sel.crs }
         : rowSel
         ? { kind: "linear", row_token: rowSel.token, row_crs: rowSel.crs }
-        : { kind: "linear", align_token: sel.token, align_crs: sel.crs }
-    )
+        : { kind: "linear", align_token: sel.token, align_crs: sel.crs };
+    // Where each layer has parcels: the server reads that once per file in the background, so ask again until it is all there.
+    // The layers that have parcels near the area are then checked (unless the user already chose).
+    setFootprints(null);
+    enabledTouched.current = false;
+    (async () => {
+      while (!cancelled) {
+        try {
+          const fp = await fetchFootprints(fields);
+          if (cancelled) return;
+          setFootprints(fp);
+          if (!fp.states.some((s) => s.computing)) {
+            const covering = fp.states.flatMap((s) => s.files).filter((f) => (f.near ?? 0) >= MIN_NEAR).map((f) => f.name);
+            if (!enabledTouched.current && covering.length > 0) setEnabled(covering);
+            return;
+          }
+        } catch {
+          return; // the layer list below reports a real problem; the map is only a help
+        }
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+    })();
+    fetchSources(fields)
       .then((r) => {
         if (cancelled) return;
         const names = r.sources.map((s) => s.source);
         setSources(r.sources);
+        setEnabled((prev) => (enabledTouched.current ? prev.filter((n) => names.includes(n)) : names));
         // keep the order already given for layers that are still there; new ones go last
         setPriority((prev) => {
           const kept = prev.filter((n) => names.includes(n));
@@ -1009,10 +1069,13 @@ export default function App() {
           {!lineOnly && !matchIntersect && !matchInside && <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>Tick at least one.</div>}
           {sources.length >= 2 && (
             <div style={{ marginTop: 8, fontSize: 12 }}>
-              <span style={labelStyle}>Layer priority</span>
-              <div style={{ color: "var(--t1)", marginBottom: 4 }}>{priority.map((n, i) => `${i + 1}. ${n.replace(/\.parquet$/i, "")}`).join("  ›  ")}</div>
+              <span style={labelStyle}>Layers to load, by priority</span>
+              <div style={{ color: "var(--t1)", marginBottom: 4 }}>
+                {activePriority.length > 0 ? activePriority.map((n, i) => `${i + 1}. ${n.replace(/\.parquet$/i, "")}`).join("  ›  ") : <span style={{ color: "var(--bad)" }}>none chosen</span>}
+              </div>
+              <div style={{ color: "var(--t2)", marginBottom: 4 }}>{activePriority.length} of {sources.length} layers will be loaded.</div>
               <button type="button" className="mini" onClick={() => setPriorityOpen(true)} disabled={busy}>
-                Change priority
+                Choose layers and priority
               </button>
             </div>
           )}
@@ -1033,9 +1096,17 @@ export default function App() {
               Clear
             </button>
           )}
+          {(phase === "uploading" || phase === "working") && (
+            <button type="button" className="stop" onClick={handleStop} disabled={stopping} style={{ marginTop: 12 }}>
+              {stopping ? "Stopping..." : "Stop"}
+            </button>
+          )}
           {phase === "uploading" && <ProgressBar fraction={uploadFraction} label="Uploading" />}
           {phase === "working" && <JobProgress job={job} />}
           {phase === "fetching" && <ProgressBar fraction={1} label={`Loading ${fmt(result?.count ?? 0)} parcels onto the map...`} indeterminate />}
+          {stoppedNote && (
+            <div style={{ marginTop: 8, padding: 8, background: "var(--note-bg)", color: "var(--t1)", fontSize: 12, borderRadius: 4 }}>{stoppedNote}</div>
+          )}
           {error && (
             <div style={{ marginTop: 8, padding: 8, background: "var(--bad-bg)", color: "var(--bad)", fontSize: 12, borderRadius: 4 }}>{error}</div>
           )}
@@ -1629,7 +1700,18 @@ export default function App() {
           </div>
         </div>
       )}      {priorityOpen && sources.length >= 2 && (
-        <PriorityDialog sources={sources} order={priority} onChange={setPriority} onClose={() => setPriorityOpen(false)} />
+        <PriorityDialog
+          sources={sources}
+          order={priority}
+          enabled={enabled}
+          footprints={footprints}
+          onChange={setPriority}
+          onEnabledChange={(e) => {
+            enabledTouched.current = true;
+            setEnabled(e);
+          }}
+          onClose={() => setPriorityOpen(false)}
+        />
       )}
       <div className="sidebar-resizer" style={{ left: sidebarWidth }}>
         <Resizer onResize={resizeSidebar} />

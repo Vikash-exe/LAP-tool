@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 from pydantic import BaseModel
 
-from . import alignment, aoi, auth, chainage, config, dxf, exports, linear, priority, query, search, statedata, villageparcels
+from . import alignment, aoi, auth, cancel, chainage, config, dxf, exports, footprint, linear, priority, query, search, statedata, villageparcels
 
 
 @asynccontextmanager
@@ -291,6 +291,22 @@ def input_preview(token: str = Form(...), role: str = Form(...), crs: str = Form
     return {"features": fc, "info": info}
 
 
+def _area_geometry(kind: str, area_token: str, area_crs: str, row_token: str, row_crs: str, align_token: str, align_crs: str) -> str:
+    """The searched area (GeoJSON geometry text) of the chosen inputs: the area, the right of way, or the alignment line."""
+    if kind == "area":
+        area, _info = linear.read(area_token, "area", area_crs)
+        lines = None
+    elif kind == "linear" and row_token:
+        area, info = linear.read(row_token, "row", row_crs)
+        area, lines = linear.to_search_area(area, info)
+    elif kind == "linear" and align_token:
+        area, _info = linear.read(align_token, "alignment", align_crs)  # no right of way: the alignment line itself
+        lines = None
+    else:
+        raise HTTPException(400, "Choose the alignment or the right of way file first." if kind == "linear" else "kind must be area or linear")
+    return query.prepare_aoi(area, lines)["geometry"]
+
+
 @app.post("/api/input/sources")
 def input_sources(
     kind: str = Form(...),
@@ -303,18 +319,29 @@ def input_sources(
 ):
     """The layers (parcel source files) available where the uploaded area, or the right of way of an alignment, lies, so
     the user can put them in order of priority before searching."""
-    if kind == "area":
-        area, _info = linear.read(area_token, "area", area_crs)
-        lines = None
-    elif kind == "linear" and row_token:
-        area, info = linear.read(row_token, "row", row_crs)
-        area, lines = linear.to_search_area(area, info)
-    elif kind == "linear" and align_token:
-        area, _info = linear.read(align_token, "alignment", align_crs)  # no right of way: the alignment line itself
-        lines = None
-    else:
-        raise HTTPException(400, "Choose the alignment or the right of way file first." if kind == "linear" else "kind must be area or linear")
-    return priority.available_sources(query.prepare_aoi(area, lines)["geometry"])
+    return priority.available_sources(_area_geometry(kind, area_token, area_crs, row_token, row_crs, align_token, align_crs))
+
+
+@app.post("/api/input/footprints")
+def input_footprints(
+    kind: str = Form(...),
+    area_token: str = Form(""),
+    area_crs: str = Form(""),
+    row_token: str = Form(""),
+    row_crs: str = Form(""),
+    align_token: str = Form(""),
+    align_crs: str = Form(""),
+):
+    """Where every layer (parquet file) of the states the area falls in has parcels, and how many lie near the area, to
+    show them on a map and pick the layers that are needed. The footprints are read once per file, in the background:
+    `computing` is true until they are all there."""
+    area_geom = _area_geometry(kind, area_token, area_crs, row_token, row_crs, align_token, align_crs)
+    detected = statedata.detect_states(area_geom)
+    folders = list(dict.fromkeys(d["folder"] for d in detected if d["folder"]))
+    return {
+        "states": [footprint.describe(f, area_geom) for f in folders],
+        "area": json.loads(area_geom),
+    }
 
 
 @app.post("/api/input/marks")
@@ -393,6 +420,17 @@ def get_job(job_id: str):
     job = search.get_job(job_id)
     if job is None:
         raise HTTPException(404, "No such search (the server may have been restarted).")
+    return search.public(job)
+
+
+@app.post("/api/jobs/{job_id}/cancel")
+def cancel_job(job_id: str):
+    """The Stop button: ask a running search (reading, loading a state's parcel data, searching) to stop."""
+    job = search.get_job(job_id)
+    if job is None:
+        raise HTTPException(404, "No such search (the server may have been restarted).")
+    if job["status"] == "running" and cancel.request(job_id):
+        job["message"] = "Stopping"
     return search.public(job)
 
 

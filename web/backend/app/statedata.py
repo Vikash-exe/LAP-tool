@@ -18,7 +18,7 @@ import psycopg
 from fastapi import HTTPException
 from psycopg import sql
 
-from . import config
+from . import cancel, config
 
 LOADING, READY, FAILED = "loading", "ready", "failed"
 
@@ -35,7 +35,7 @@ _ALIASES = {
 
 def connect_rw() -> psycopg.Connection:
     """A connection that may create and drop tables (the search connection is read-only)."""
-    return psycopg.connect(**config.DB, connect_timeout=10)
+    return cancel.track(psycopg.connect(**config.DB, connect_timeout=10))
 
 
 def _norm(text: str) -> str:
@@ -137,8 +137,20 @@ ORDER BY s.name
 
 _REGISTRY_COLUMNS = (
     "state, table_name, status, files_total, files_done, rows_total, rows_done, est_bytes, "
-    "loaded_at, last_used, expires_at, error"
+    "loaded_at, last_used, expires_at, error, loaded_files"
 )
+_N_COLUMNS = 13
+_schema_ready = False
+
+
+def ensure_schema() -> None:
+    """The registry gained a column: loaded_files (the layers whose parcels the table holds; NULL = all of the state's)."""
+    global _schema_ready
+    if _schema_ready:
+        return
+    with connect_rw() as conn:
+        conn.execute(sql.SQL("ALTER TABLE {} ADD COLUMN IF NOT EXISTS loaded_files jsonb").format(sql.Identifier(config.SCHEMA, config.STATE_REGISTRY)))
+    _schema_ready = True
 
 
 def _entry(row: tuple) -> dict:
@@ -148,6 +160,7 @@ def _entry(row: tuple) -> dict:
 
 def registry() -> list[dict]:
     """Every state with a table (loaded or loading), with its live size and seconds until it expires."""
+    ensure_schema()
     query = sql.SQL(
         "SELECT {cols}, COALESCE(pg_total_relation_size(to_regclass(quote_ident(%(schema)s::text) || '.' || quote_ident(table_name))), 0), "
         "EXTRACT(EPOCH FROM (expires_at - now())) FROM {reg} ORDER BY state"
@@ -156,9 +169,9 @@ def registry() -> list[dict]:
         rows = conn.execute(query, {"schema": config.SCHEMA}).fetchall()
     out = []
     for row in rows:
-        e = _entry(row[:12])
-        e["size_bytes"] = int(row[12])
-        e["expires_in_seconds"] = None if row[13] is None else int(row[13])
+        e = _entry(row[:_N_COLUMNS])
+        e["size_bytes"] = int(row[_N_COLUMNS])
+        e["expires_in_seconds"] = None if row[_N_COLUMNS + 1] is None else int(row[_N_COLUMNS + 1])
         for k in ("loaded_at", "last_used", "expires_at"):
             e[k] = e[k].isoformat() if e[k] else None
         out.append(e)
@@ -166,6 +179,7 @@ def registry() -> list[dict]:
 
 
 def get_entry(conn: psycopg.Connection, folder: str) -> dict | None:
+    ensure_schema()
     row = conn.execute(
         sql.SQL("SELECT {cols} FROM {reg} WHERE state = %s").format(
             cols=sql.SQL(_REGISTRY_COLUMNS), reg=sql.Identifier(config.SCHEMA, config.STATE_REGISTRY)

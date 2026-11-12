@@ -16,7 +16,6 @@ web/
                  Resizer.tsx  index.css (all styling, light and dark)
   backend/login.html   the static sign-in page
   data/results/  per-search result files (auto-deleted after 24 h)
-  data/results/  per-search result files (auto-deleted after 24 h)
 ```
 
 ## Setting up on a new machine

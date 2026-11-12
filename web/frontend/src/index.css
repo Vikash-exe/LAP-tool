@@ -608,3 +608,15 @@ a {
 [data-theme="dark"] .maplibregl-ctrl-attrib a {
   color: #9fe9ec;
 }
+
+/* Stop: ends a running search (reading, loading parcel data, searching) */
+button.stop {
+  background: var(--bad);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+}
+button.stop:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.modal-xl { width: min(620px, 96vw); }

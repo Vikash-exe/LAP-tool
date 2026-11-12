@@ -21,7 +21,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 
-from . import alignment, aoi, chainage, config, dxf, enrich, linear, loader, pieces, priority, query, statedata
+from . import alignment, aoi, cancel, chainage, config, dxf, enrich, linear, loader, pieces, priority, query, statedata
 
 JOBS: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
@@ -69,7 +69,14 @@ def public(job: dict) -> dict:
 
 
 def _set(job: dict, **fields) -> None:
+    if "status" not in fields:
+        cancel.check()  # every progress update is a place where the Stop button takes effect
     job.update(fields, updated=time.time())
+
+
+def _stopped(job: dict, result_dir: Path) -> None:
+    shutil.rmtree(result_dir, ignore_errors=True)
+    _set(job, status="cancelled", phase="error", message="Stopped", error="Stopped by you.", error_status=499)
 
 
 def _empty_result(result_dir: Path) -> dict:
@@ -166,6 +173,7 @@ def _villages_without_parcels(result_dir: Path, tables_by_folder: dict[str, str]
 
 def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restrict: list[str], strip: bool) -> None:
     """The body of the background thread."""
+    cancel.begin(job["id"])
     try:
         _set(job, phase="reading", message="Reading the uploaded file")
         dxf_options = None
@@ -244,10 +252,16 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
             "no parcel data for this state" if statedata.mount_available()
             else "the parcel data folder is not available on this server (not mounted or copied here yet)"
         )
+        # the layers (files) wanted from each state: the ones the user chose; none chosen there means nothing to load
+        wanted: dict[str, list[str]] = {}
+        for d in detected:
+            if d["folder"]:
+                names = statedata.source_files(d["folder"])
+                wanted[d["folder"]] = [n for n in order if n in names] if order else names
         entries = [
-            {"name": d["name"], "folder": d["folder"], "inside": d["inside"],
-             "status": "queued" if d["folder"] else "no_data",
-             **({} if d["folder"] else {"note": no_data_note})}
+            {"name": d["name"], "folder": d["folder"] if wanted.get(d["folder"]) else None, "inside": d["inside"],
+             "status": "queued" if wanted.get(d["folder"]) else "no_data",
+             **({} if wanted.get(d["folder"]) else {"note": no_data_note if not d["folder"] else "no layer chosen for this state"})}
             for d in detected
         ]
         _set(job, states=entries)
@@ -265,7 +279,7 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
         with statedata.using(folders):
             for folder in folders:
                 _set(job, phase="loading", message=f"Loading parcel data for {folder}")
-                tables.append(loader.ensure_loaded(folder, on_progress))
+                tables.append(loader.ensure_loaded(folder, on_progress, files=wanted[folder] if order else None))
 
             excluded: dict[str, set[int]] = {}
             dropped: dict[str, int] = {}
@@ -281,7 +295,7 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
                 stats = query.run_query(
                     prepared["geometry"], mode, result_dir / "result.geojson", result_dir / "clipped.geojson",
                     tables=tables, with_point=True,
-                    order=order if len(order) >= 2 else None, excluded=excluded or None,
+                    order=order or None, excluded=excluded or None,
                 )
             else:
                 stats = _empty_result(result_dir)
@@ -333,7 +347,7 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
             "detected_states": entries,
             "strip_used": prepared["strip"],
             "input_kind": inputs["kind"] if inputs else "legacy",
-            "priority": {"order": order, "dropped": dropped, "drop_fraction": priority.DROP_FRACTION} if len(order) >= 2 else None,
+            "priority": {"order": order, "dropped": dropped, "drop_fraction": priority.DROP_FRACTION} if order else None,
             "aoi_area_m2": round(prepared["area_m2"], 2) if prepared["area_m2"] else None,
             "villages": villages,
             "alignment": alignment_info,
@@ -345,14 +359,23 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
         if centreline and has_row:  # the right of way and its centreline are drawn together
             shown = {"type": "FeatureCollection", "features": area["features"] + [{"type": "Feature", "geometry": centreline, "properties": {"role": "alignment"}}]}
         _set(job, status="done", phase="done", message="Done", response={**meta, "aoi": shown, "strip": strip_fc})
+    except cancel.Cancelled:
+        _stopped(job, result_dir)
     except HTTPException as e:
+        if cancel.requested():
+            _stopped(job, result_dir)
+            return
         shutil.rmtree(result_dir, ignore_errors=True)
         _set(job, status="error", phase="error", message="Failed", error=str(e.detail), error_status=e.status_code)
     except Exception as e:  # never let a job thread die silently
+        if cancel.requested():  # e.g. the database statement that was cancelled by the Stop button
+            _stopped(job, result_dir)
+            return
         traceback.print_exc()
         shutil.rmtree(result_dir, ignore_errors=True)
         _set(job, status="error", phase="error", message="Failed", error=f"Unexpected error: {e}", error_status=500)
     finally:
+        cancel.end(job["id"])
         shutil.rmtree(upload_dir, ignore_errors=True)
 
 

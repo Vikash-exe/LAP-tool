@@ -19,7 +19,7 @@ import psycopg
 from fastapi import HTTPException
 from psycopg import sql
 
-from . import config, typecast
+from . import cancel, config, typecast
 
 # Property names added to every parcel; an original attribute with the same
 # name is kept under an "attr_" prefix instead of being overwritten.
@@ -36,7 +36,7 @@ TOO_MANY = (
 
 def connect() -> psycopg.Connection:
     """Read-only connection with a statement timeout: what searches use."""
-    return psycopg.connect(**config.DB, options=config.DB_SESSION_OPTIONS, connect_timeout=10)
+    return cancel.track(psycopg.connect(**config.DB, options=config.DB_SESSION_OPTIONS, connect_timeout=10))
 
 
 def extract_two_lines(aoi: dict) -> list[dict] | None:
@@ -122,13 +122,15 @@ def add_line(geometry: str, line: dict) -> str:
         raise HTTPException(500, f"Database error: {str(e).splitlines()[0]}")
 
 
-def _where(mode: str, has_states: bool) -> sql.Composable:
+def _where(mode: str, has_states: bool, layered: bool = False) -> sql.Composable:
     # The validity repair (v.g) is applied only to rows that already passed the
     # bbox/index filter: a few percent of source parcels have self-intersections,
     # which GEOS predicates other than Intersects can reject.
     parts = []
     if has_states:
         parts.append(sql.SQL("p.state = ANY(%(states)s)"))
+    if layered:  # only the layers the user chose (a table may hold more of the state's layers)
+        parts.append(sql.SQL("regexp_replace(p.source, '^[^/]*/', '') = ANY(%(order)s)"))
     if mode == "within":
         parts.append(sql.SQL("p.geometry && a.g AND ST_Within(v.g, a.g)"))
     elif mode == "crossing":
@@ -272,7 +274,8 @@ def villages_without_parcels(parcel_table: str, village_ids: list[int]) -> list[
 
 
 def _check_not_too_many(
-    conn: psycopg.Connection, aoi_geometry: str, states: list[str] | None, tables: list[str], limit: int, noun: str
+    conn: psycopg.Connection, aoi_geometry: str, states: list[str] | None, tables: list[str], limit: int, noun: str,
+    layers: list[str] | None = None,
 ) -> None:
     """Fails fast on a search that would match more than `limit` rows over all the tables.
 
@@ -287,11 +290,16 @@ def _check_not_too_many(
         ).format(
             sql.Identifier(config.SCHEMA),
             sql.Identifier(table),
-            sql.SQL("p.state = ANY(%(states)s) AND ") if states else sql.SQL(""),
+            sql.SQL(
+                ("p.state = ANY(%(states)s) AND " if states else "")
+                + ("regexp_replace(p.source, '^[^/]*/', '') = ANY(%(order)s) AND " if layers else "")
+            ),
         )
         params = {"aoi": aoi_geometry, "limit": limit + 1 - total}
         if states:
             params["states"] = states
+        if layers:
+            params["order"] = layers
         total += conn.execute(count_sql, params).fetchone()[0]
         if total > limit:
             raise HTTPException(413, TOO_MANY.format(limit=limit, noun=noun))
@@ -340,7 +348,7 @@ WHERE """
             point_cols=sql.SQL(point_cols),
             point_join=sql.SQL(point_join),
         )
-        + _where(mode, has_states)
+        + _where(mode, has_states, ordered)
         # layers in order of priority (a layer the order does not mention goes last)
         + (sql.SQL(" ORDER BY array_position(%(order)s::text[], regexp_replace(p.source, '^[^/]*/', '')), p.id") if ordered else sql.SQL(""))
     )
@@ -385,7 +393,7 @@ def run_query(
     try:
         with connect() as conn, open(out_path, "w", encoding="utf-8") as out, open(clipped_path, "w", encoding="utf-8") as clip_out:
             if mode in ("intersects", "both") and tables:
-                _check_not_too_many(conn, aoi_geometry, states, tables, limit, noun)
+                _check_not_too_many(conn, aoi_geometry, states, tables, limit, noun, order)
             head = '{"type":"FeatureCollection","features":['
             out.write(head)
             clip_out.write(head)
@@ -395,6 +403,8 @@ def run_query(
                     cur.itersize = 2000
                     cur.execute(_statement(table, mode, bool(states), decimals, with_point, bool(order)), params)
                     for row in cur:
+                        if count % 2000 == 0:
+                            cancel.check()  # the Stop button
                         if count >= limit:
                             raise HTTPException(413, TOO_MANY.format(limit=limit, noun=noun))
                         pid, state, source, attrs, geom_json, area, inside, clip_json, covered, x0, y0, x1, y1, px, py = row

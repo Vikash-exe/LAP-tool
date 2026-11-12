@@ -65,7 +65,7 @@ export interface JobState {
 
 export interface SearchJob {
   id: string;
-  status: "running" | "done" | "error";
+  status: "running" | "done" | "error" | "cancelled";
   phase: "queued" | "reading" | "locating" | "loading" | "searching" | "finishing" | "done" | "error";
   message: string;
   states: JobState[];
@@ -414,6 +414,20 @@ export async function getJob(jobId: string): Promise<SearchJob> {
   return res.json();
 }
 
+/** Thrown by runSearch when the search was stopped with the Stop button. */
+export class SearchStopped extends Error {
+  constructor() {
+    super("Stopped.");
+  }
+}
+
+/** The Stop button: asks the server to stop a running search (loading data, searching...). */
+export async function cancelJob(jobId: string): Promise<SearchJob> {
+  const res = await fetch(`${BASE}/api/jobs/${jobId}/cancel`, { method: "POST" });
+  if (!res.ok) throw new Error(await errorMessage(res, "Could not stop the search"));
+  return res.json();
+}
+
 export interface SearchCallbacks {
   onUploadProgress?: ProgressCallback;
   onUploadComplete?: () => void;
@@ -436,6 +450,7 @@ export async function runSearch(
     const job = await getJob(job_id);
     callbacks.onJob?.(job);
     if (job.status === "done" && job.response) return job.response;
+    if (job.status === "cancelled") throw new SearchStopped();
     if (job.status === "error") throw new Error(job.error ?? "The search failed");
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
@@ -623,5 +638,45 @@ export async function fetchSources(fields: Record<string, string>): Promise<{ so
   Object.entries(fields).forEach(([k, v]) => form.append(k, v));
   const res = await fetch(`${BASE}/api/input/sources`, { method: "POST", body: form });
   if (!res.ok) throw new Error(await errorMessage(res, "Could not list the layers"));
+  return res.json();
+}
+/** Where one layer (parquet file) has parcels, from its footprint; the extent is read once per file, in the background. */
+export interface FootprintFile {
+  name: string;
+  state: "ready" | "queued" | "computing" | "error";
+  /** Rows read so far / in the file while its extent is being read. */
+  done?: number | null;
+  total?: number | null;
+  error?: string | null;
+  rows?: number;
+  bbox?: [number, number, number, number] | null;
+  /** Parcels of this layer lying near the searched area (from the coarse footprint). */
+  near?: number;
+  /** [x cell, y cell, parcels] on a grid of `cell` degrees (x cell * cell = longitude). */
+  cells?: [number, number, number][];
+}
+
+/** A layer counts as covering the area when at least this many of its parcels lie near it (one stray parcel at an edge does not). */
+export const MIN_NEAR = 10;
+
+export interface StateFootprint {
+  folder: string;
+  cell: number;
+  files: FootprintFile[];
+  area_bbox: [number, number, number, number];
+  computing: boolean;
+}
+
+export interface Footprints {
+  states: StateFootprint[];
+  /** The searched area as a GeoJSON geometry. */
+  area: { type: string; coordinates?: unknown; geometries?: unknown[] };
+}
+
+export async function fetchFootprints(fields: Record<string, string>): Promise<Footprints> {
+  const form = new FormData();
+  Object.entries(fields).forEach(([k, v]) => form.append(k, v));
+  const res = await fetch(`${BASE}/api/input/footprints`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(await errorMessage(res, "Could not read where the layers have parcels"));
   return res.json();
 }

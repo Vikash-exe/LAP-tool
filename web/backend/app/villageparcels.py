@@ -29,6 +29,7 @@ SELECT DISTINCT ON (p.id) p.id, regexp_replace(p.source, '^[^/]*/', '')
 FROM {schema}.{parcels} p
 JOIN {schema}.{villages} vv
   ON vv.id = ANY(%(villages)s) AND p.geometry && vv.geometry AND ST_Intersects(ST_Centroid(p.geometry), vv.geometry)
+WHERE (cardinality(%(order)s::text[]) = 0 OR regexp_replace(p.source, '^[^/]*/', '') = ANY(%(order)s::text[]))
 ORDER BY p.id
 """
 )
@@ -108,12 +109,12 @@ def build(result_dir: Path, meta: dict, order: list[str] | None = None) -> Path:
                     if not statedata.source_files(folder):
                         missing.append(folder)
                         continue
-                    table = loader.ensure_loaded(folder)  # reloads the state if its table was dropped meanwhile
+                    table = loader.ensure_loaded(folder, files=[n for n in order if n in statedata.source_files(folder)] or None)  # reloads the state if its table was dropped meanwhile
                     schema = sql.Identifier(config.SCHEMA)
                     by_source: dict[str, list[int]] = defaultdict(list)
                     for pid, src in conn.execute(
                         _IDS_SQL.format(schema=schema, parcels=sql.Identifier(table), villages=sql.Identifier(config.VILLAGES_TABLE)),
-                        {"villages": village_ids},
+                        {"villages": village_ids, "order": order},
                     ):
                         by_source[src].append(pid)
                     skip: set[int] = set()
