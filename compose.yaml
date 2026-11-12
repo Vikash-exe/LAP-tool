@@ -12,28 +12,25 @@ name: lap
 
 services:
   lap:
-    build: .
+    build:
+      context: .
+      args:
+        LAP_UID: ${LAP_UID:-1000}
+        LAP_GID: ${LAP_GID:-1000}
     image: lap-app:latest
     container_name: lap
     restart: unless-stopped
     environment:
-      # database (the defaults are what the app uses without them); the password comes from ~/.pgpass below
-      PGHOST: ${PGHOST:-172.16.60.60}
+      # database: set these in the .env file next to this file (see .env.example); the password comes from ~/.pgpass below
+      PGHOST: ${PGHOST:?set PGHOST in .env (the database server, as reachable from the container)}
       PGPORT: ${PGPORT:-5432}
-      PGDATABASE: ${PGDATABASE:-Vikash}
-      PGUSER: ${PGUSER:-geouser}
+      PGDATABASE: ${PGDATABASE:?set PGDATABASE in .env}
+      PGUSER: ${PGUSER:?set PGUSER in .env}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-200}
       # who may sign in (name:hash per line; manage with deploy/users.sh) and how long a sign-in lasts
       LAP_AUTH_FILE: /app/auth/users
       SESSION_HOURS: ${SESSION_HOURS:-12}
     volumes:
-      # the parcel data (the file server share, mounted on this server by mount_share.sh), read-only
-      - type: bind
-        source: ./data/mount
-        target: /app/data/mount
-        read_only: true
-        bind:
-          propagation: rslave
       # search results (kept 24 h) and uploaded DXF files (kept 6 h)
       - ./web/data:/app/web/data
       # the users allowed to sign in

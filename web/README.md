@@ -2,15 +2,16 @@
 
 Upload an area of interest (KML, KMZ, Shapefile, GeoJSON, GeoPackage) and get every
 cadastral parcel that intersects it, shown on a basemap and downloadable as GeoJSON, GeoPackage,
-Shapefile, KML or CSV. The parcel data of a state is loaded into PostGIS only when an area falls in
-that state, and dropped again afterwards (see *Parcel data is loaded on demand*).
+Shapefile, KML or CSV. All the parcel data lives permanently in PostgreSQL/PostGIS and is searched there directly;
+one script, `src/sync_parcels.py`, copies the parquet files into it and brings it up to date (see *Parcel data is
+in the database*).
 
 Same stack as `land_map_merge/web`: FastAPI backend + Vite/React/TypeScript/MapLibre frontend.
 
 ```
 web/
   backend/app/   main.py (API)  search.py (the search job)  query.py  exports.py  config.py  aoi.py  linear.py  alignment.py
-                 dxf.py  chainage.py  loader.py  statedata.py (on-demand state tables)  priority.py  villageparcels.py
+                 dxf.py  chainage.py  loader.py (the sync engine)  statedata.py (what is in the database)  footprint.py  priority.py  villageparcels.py
                  enrich.py  pieces.py  typecast.py  auth.py (sign-in)
   frontend/src/  App.tsx  MapView.tsx  api.ts  basemaps.ts  Header.tsx  InputFile.tsx  PriorityDialog.tsx  ProgressBar.tsx
                  Resizer.tsx  index.css (all styling, light and dark)
@@ -18,61 +19,149 @@ web/
   data/results/  per-search result files (auto-deleted after 24 h)
 ```
 
+## Conventions used below
+
+Nothing in the project depends on where it is installed, and no address, port, user or database name is built in. In the commands
+below these placeholders stand for your own values (set them once in your shell, or substitute them):
+
+| Placeholder | Meaning |
+|---|---|
+| `$LAP` | the project folder (the one that holds `compose.yaml` and `src/`): `export LAP="$(pwd)"` when you are in it |
+| `$PGHOST` `$PGPORT` `$PGDATABASE` `$PGUSER` | the PostgreSQL server, port, database and user (the standard libpq variables) |
+| `$DB_PASSWORD` | the database user's password (only ever typed into the password file, never stored in the project) |
+| `$MOUNT_ROOT` | the data folder: one sub-folder of parquet files per state, plus `Village_boundaries/` and `India_State_Boundary.zip` (setting `MOUNT_ROOT`) |
+| `$SHARE` | the network share folder that holds that data, as `//FILE_SERVER/share/path` |
+| `$HOST`, `$PORT` | where the backend listens (settings `HOST`, `PORT`) |
+| `$SERVER` | this machine's name or address, as seen from your PC |
+| `$SSH_USER`, `$LOCAL_PORT` | your login on the server, and a free port on your own PC (for the tunnel) |
+
+The defaults of the settings that have one are listed in *Settings (environment variables)*.
+
 ## Setting up on a new machine
 
-`LAP` below stands for the folder the project lives in (for example `/home/cigma/tools/LAP`); nothing in the
-code depends on where it is.
+The steps are for Ubuntu/Debian. The order is: Python environment, PostgreSQL, the data, load it into the database, start the app.
 
-1. `LAP/setup.sh` creates the Python environment `LAP/lapenv` from `requirements-lock.txt` (the exact versions
-   the project was built with; needs Python 3.13 with venv, and GDAL's `ogr2ogr`/`ogrinfo` installed).
-2. Database access: the app reads the connection from `PGHOST` / `PGPORT` / `PGDATABASE` / `PGUSER`
-   (defaults `172.16.60.60` / `5432` / `Vikash` / `geouser`) and the password from `~/.pgpass`:
-   `echo '172.16.60.60:5432:Vikash:geouser:THE_PASSWORD' >> ~/.pgpass && chmod 600 ~/.pgpass`
-3. The parcel data (the state folders of parquet files, `Village_boundaries/`, `India_State_Boundary.zip`) is read
-   from `LAP/data/mount`, or from wherever `MOUNT_ROOT` points. On the server it is the network share
-   `\\145.145.53.17\Survey_data\Cadastral_Map_India\cadastral_data`, mounted read-only. Run
-   `sudo LAP/mount_share.sh` once (it needs `~/.smbcreds` with `username=` and `password=` lines, mode 600): it adds the
-   `/etc/fstab` entry, so the share is mounted again after every reboot (`nofail`: a missing file server never blocks
-   booting), mounts it, and checks that it is the right folder and not the whole company share.
-4. Start it: `LAP/web/run_backend.sh` serves the API and the built frontend on `http://127.0.0.1:8010`
-   (`HOST` / `PORT` change that). After changing frontend code run `LAP/web/build_frontend.sh`.
+### 1. The Python environment
 
-The permanent tables (village boundaries, state boundaries) are loaded once per database with
-`LAP/src/load_villages.py` and `LAP/src/load_state_boundaries.py`; they are already in the `Vikash` database.
+`$LAP/setup.sh` creates the environment `lapenv` in the project folder from `requirements-lock.txt` (the exact versions the project
+was built with; needs Python 3.13 with venv, and GDAL's `ogr2ogr`/`ogrinfo`: `sudo apt install gdal-bin`).
+
+### 2. PostgreSQL with PostGIS on this machine
+
+Skip the install if you use a database on another server; then only do the connection settings below (and ask its
+administrator for a database, a user that owns it, and the PostGIS extension).
+
+```bash
+export PGHOST=<database server; "localhost" if it runs on this machine> PGPORT=<port, normally the PostgreSQL default>
+export PGDATABASE=<database name> PGUSER=<user name>      # your choice; put them in your shell profile
+read -rs -p "Choose the database password: " DB_PASSWORD; echo                       # typed, not stored anywhere
+
+sudo apt install postgresql postgis                       # the server and PostGIS
+sudo -u postgres psql -c "CREATE ROLE $PGUSER LOGIN PASSWORD '$DB_PASSWORD';"
+sudo -u postgres psql -c "CREATE DATABASE $PGDATABASE OWNER $PGUSER;"
+sudo -u postgres psql -d "$PGDATABASE" -c "CREATE EXTENSION IF NOT EXISTS postgis;"   # needs the postgres superuser
+```
+
+The password comes from the libpq password file (`$PGPASSFILE`, by default `.pgpass` in your home folder), mode 600, never from the project:
+
+```bash
+PGPASS="${PGPASSFILE:-$HOME/.pgpass}"
+echo "$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$DB_PASSWORD" >> "$PGPASS" && chmod 600 "$PGPASS"
+psql -c "SELECT postgis_version();"                       # a version number means it works
+```
+
+The user must own the database (the scripts create the `cadastral` schema and the tables in it). The app reads only that schema.
+
+Disk: the database needs about 4 times the size of the parquet files (a state with 17 GB of parquet takes about 65 GB), plus room
+while a state is being indexed. If PostgreSQL's data directory is on a small disk, move it to the big disk first (`data_directory`
+in `postgresql.conf`; stop the server, `rsync -a` the old directory over, start it).
+
+For **Docker** the app container must reach the database, so "this machine" does not work there: set `PGHOST` in the `.env` file to the
+server's own address, make PostgreSQL listen on it (`listen_addresses = '*'` in `postgresql.conf`), allow the Docker network in
+`pg_hba.conf` (a line `host <database> <user> <docker subnet> scram-sha-256`; the subnet is in the output of
+`docker network inspect <project name>_default`), and restart PostgreSQL. Scripts run on the host (`sync_parcels.py`, the loaders)
+keep their own `PG*` variables and can address the server as this machine. Copy `.env.example` to `.env` next to `compose.yaml` and fill it in.
+
+Optional tuning for big loads (`postgresql.conf`): `shared_buffers` about a quarter of the RAM, `maintenance_work_mem` of 2GB or more
+(index builds), `max_wal_size` of 8GB or more.
+
+### 3. The data: a local folder, or the network location
+
+**Option A, the data is on this machine's disk:** copy it into the project's `data/mount` folder, or leave it where it is and
+`export MOUNT_ROOT=<the data folder>`.
+
+**Option B, the data is on a network share (Windows/Samba file server):** mount it read-only at `$MOUNT_ROOT`
+(by default the project's `data/mount`).
+
+```bash
+sudo apt install cifs-utils
+CREDS="$HOME/.smbcreds"                                   # any file name; mode 600
+printf 'username=<share user>\npassword=<share password>\n' > "$CREDS" && chmod 600 "$CREDS"   # add domain=... if needed
+
+# permanent (survives reboots; `nofail` so a missing file server never blocks booting).
+# $SHARE is the share folder in the form //FILE_SERVER/share/path (the Windows path \\FILE_SERVER\share\path):
+sudo "$LAP/mount_share.sh" "$SHARE" "$CREDS" "${MOUNT_ROOT:-$LAP/data/mount}"
+
+# or just once, until the next reboot:
+sudo mount -t cifs "$SHARE" "${MOUNT_ROOT:-$LAP/data/mount}" \
+     -o credentials="$CREDS",ro,vers=3.0,uid=$(id -u),gid=$(id -g)
+```
+
+`mount_share.sh` (the last two arguments are optional) adds the `/etc/fstab` entry (after backing the file up), mounts it, and
+checks that what is mounted is the right folder and holds `India_State_Boundary.zip` and `Village_boundaries/`. Check by hand with
+`ls "${MOUNT_ROOT:-$LAP/data/mount}"`: you should see the state folders. `sudo umount` of the same folder unmounts it. The share is
+only needed while the sync script runs: the app reads the database, never the share.
+
+### 4. Load the data into the database
+
+```bash
+cd "$LAP"
+lapenv/bin/python src/load_state_boundaries.py        # which state an area falls in (once)
+lapenv/bin/python src/load_villages.py                # village boundaries (once; resumable)
+lapenv/bin/python src/sync_parcels.py --dry-run       # what would be loaded
+lapenv/bin/python src/sync_parcels.py --jobs 4        # the parcels (see "Parcel data is in the database")
+```
+
+Run `sync_parcels.py` again whenever data is added to the folder or share; it only loads what is new or changed.
+
+### 5. Start the app
+
+`"$LAP/web/run_backend.sh"` serves the API and the built frontend on `http://$HOST:$PORT`; after changing frontend code run
+`"$LAP/web/build_frontend.sh"`. For the HTTPS version with sign-in see *Running in Docker*.
 
 ## Run it
 
 ```bash
-LAP/web/run_backend.sh        # API and the built frontend, one process, http://127.0.0.1:8010
-LAP/web/status.sh             # is it running? (tells this project's backend apart from other uvicorns)
+$LAP/web/run_backend.sh        # API and the built frontend, one process, http://$HOST:$PORT
+$LAP/web/status.sh             # is it running? (tells this project's backend apart from other uvicorns)
 ```
 
 The backend listens on the server itself only. To open it from your own PC, tunnel the port, e.g.
-`ssh -N -L 18010:127.0.0.1:8010 cigma@172.16.60.60` and browse to `http://localhost:18010` (or forward the port in
+`ssh -N -L $LOCAL_PORT:localhost:$PORT $SSH_USER@$SERVER` and browse to `http://localhost:$LOCAL_PORT` (or forward the port in
 VS Code). To make it reachable from other machines start it with `HOST=0.0.0.0` (it still asks for a sign-in, see
 *Running in Docker*; `LAP_AUTH=off` removes that, for local development only).
 
-Only while changing the frontend: `LAP/web/run_frontend.sh` starts the dev server on 5174 (proxying /api to the
-backend), and `LAP/web/build_frontend.sh` rebuilds the version the backend serves.
+Only while changing the frontend: `$LAP/web/run_frontend.sh` starts the dev server (on its own port, printed when it starts; proxying /api to the
+backend), and `$LAP/web/build_frontend.sh` rebuilds the version the backend serves.
 
 **Remember when developing:** the backend serves the *built* frontend (`frontend/dist`), so every change under
 `frontend/src` needs `build_frontend.sh` and then a hard refresh (Ctrl+F5); a change to Python code needs the backend
 restarted. A second copy for development can run next to the Docker one on another port, e.g.
-`HOST=0.0.0.0 PORT=8011 ./run_backend.sh`. The Docker container (`https://172.16.60.60:8443`) only changes after
+`HOST=0.0.0.0 PORT=<another port> ./run_backend.sh`. The Docker container (`https://$SERVER:<HTTPS port>`) only changes after
 `docker compose up -d --build`.
 
-First time only: `LAP/setup.sh`, see *Setting up on a new machine*.
+First time only: `$LAP/setup.sh`, see *Setting up on a new machine*.
 
 ## Running in Docker (how it runs now)
 
-The dashboard runs as two containers from `LAP/compose.yaml` (project `lap`), which replaced the systemd service below:
+The dashboard runs as two containers from `$LAP/compose.yaml` (project `lap`), which replaced the systemd service below:
 
 | Container | What it is |
 |---|---|
 | `lap-gateway` | nginx: **HTTPS** (self-signed certificate). The only part reachable from the network. |
 | `lap` | the app (API + built dashboard + its own **sign-in page**), one process. Not published: only the gateway can reach it. |
 
-**Address:** `https://172.16.60.60:8443`. The old `http://172.16.60.60:8010` redirects there. The browser warns once about the
+**Address:** `https://$SERVER:<HTTPS port>` (`LAP_HTTPS_PORT`). Plain `http://$SERVER:<HTTP port>` (`LAP_HTTP_PORT`) redirects there. The browser warns once about the
 self-signed certificate; to avoid it, import `deploy/certs/lap.crt` as a trusted certificate on the PC (or replace the two
 files in `deploy/certs/` with a certificate from your own CA, then `docker compose restart gateway`).
 
@@ -87,7 +176,7 @@ The users and their password hashes (scrypt) are in `deploy/auth/users`; manage 
 at once, no restart, and a user that is removed is signed out immediately):
 
 ```bash
-cd ~/tools/LAP
+cd "$LAP"
 deploy/users.sh list
 deploy/users.sh add <name>        # asks for the password twice; run it again to change a password
 deploy/users.sh remove <name>
@@ -96,7 +185,7 @@ deploy/users.sh remove <name>
 The first user, `admin`, was created with a random password stored in `deploy/initial_admin_password.txt`. Set your own with
 `deploy/users.sh add admin`, then delete that file.
 
-**Everyday commands** (run in `~/tools/LAP`):
+**Everyday commands** (run in `$LAP`):
 
 ```bash
 docker compose ps                         # both containers, with the health of the app
@@ -106,7 +195,7 @@ docker compose restart lap                # restart the app
 docker compose up -d --build              # after a code change: rebuild the image and replace the container
 docker compose down                       # stop everything (docker compose up -d starts it again)
 docker exec -it lap bash                  # a shell inside the app container
-docker exec lap python /app/src/load_cadastral.py --list      # the command-line tools work inside it too
+"$LAP/lapenv/bin/python" "$LAP/src/sync_parcels.py" --list           # what the database holds (run the sync script on the host)
 ```
 
 Both containers restart by themselves after a crash or a reboot (`restart: unless-stopped`; Docker starts at boot).
@@ -116,28 +205,27 @@ For a foreground run with the log in your terminal use `docker compose up` (with
 
 | Host | Container | Why |
 |---|---|---|
-| `LAP/data/mount` (the file-server share, read-only) | `/app/data/mount` | the parcel data. The share must be mounted on the server first (`mount_share.sh`). |
-| `LAP/web/data` | `/app/web/data` | search results (kept 24 h) and uploaded DXFs (kept 6 h) |
-| `LAP/deploy/auth` (read-only) | `/app/auth` | the users who may sign in |
-| `~/.pgpass` (read-only) | `/home/lap/.pgpass` | the database password |
+| `$LAP/web/data` | `/app/web/data` | search results (kept 24 h) and uploaded DXFs (kept 6 h) |
+| `$LAP/deploy/auth` (read-only) | `/app/auth` | the users who may sign in |
+| the libpq password file (read-only) | the same file for the container user | the database password |
 
-The container runs as the same numeric user as `cigma` (uid 1001, gid 1002) so these folders keep the right ownership. The database
-is reached at `172.16.60.60:5432` as before (`PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` and `MAX_UPLOAD_MB` can be set in a
-`.env` file next to `compose.yaml`; so can the ports `LAP_HTTPS_PORT` / `LAP_HTTP_PORT`). To cap the memory of a very large search,
+The container runs as the user and group ids `LAP_UID` / `LAP_GID` (set them in `.env` to the output of `id -u` / `id -g` of the user that
+owns the project) so these folders keep the right ownership. The database is given by `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` in
+the `.env` file next to `compose.yaml` (see `.env.example`; `MAX_UPLOAD_MB` and the ports `LAP_HTTPS_PORT` / `LAP_HTTP_PORT` can be set there too). To cap the memory of a very large search,
 uncomment `mem_limit` in `compose.yaml`.
 
 **Files:** `Dockerfile` (stage 1 builds the dashboard, stage 2 is Python 3.13 + GDAL 3.10 + the backend), `compose.yaml`,
 `.dockerignore`, `deploy/nginx.conf.template`, `deploy/make_cert.sh` (makes the certificate), `deploy/users.sh`. The certificate,
 the users file and `.env` are in `.gitignore`. If the users file is missing or empty nobody can sign in (the dashboard stays
 locked, it is never opened by mistake). Setting it up on another server: `deploy/make_cert.sh`, `deploy/users.sh add <name>`,
-make sure `~/.pgpass` and the mounted share exist, then `docker compose up -d --build`.
+make sure the libpq password file exists and the database holds the parcel data (`src/sync_parcels.py`), then `docker compose up -d --build`.
 
 **Going back to the systemd service** (below), if ever needed: `docker compose down`, then
-`systemctl --user enable --now lap-backend`. It also asks for a sign-in (same users file), but over plain http on 8010, so
+`systemctl --user enable --now lap-backend`. It also asks for a sign-in (same users file), but over plain http on `$PORT`, so
 use it only temporarily.
 
 **Developing without signing in.** Sign-in applies to every way of starting the backend. For local development (for
-example `run_backend.sh` or the Vite dev server on 5174, whose pages are not served by the backend) start the backend with
+example `run_backend.sh` or the Vite dev server, whose pages are not served by the backend) start the backend with
 `LAP_AUTH=off ./run_backend.sh`; never do that on a server other people can reach.
 
 ## Running it as a service (systemd) and watching it in the terminal
@@ -147,16 +235,16 @@ example `run_backend.sh` or the Vite dev server on 5174, whose pages are not ser
 
 The backend runs as a systemd **user** service, `lap-backend`, so it no longer lives in a tmux pane: it restarts by
 itself 5 seconds after any crash (`Restart=always`), starts again after a reboot, and survives SSH logouts
-(`loginctl enable-linger cigma` is on). The unit file is `~/.config/systemd/user/lap-backend.service`; it runs
+(`loginctl enable-linger $USER` is on). The unit file is `lap-backend.service` in your systemd user unit folder; it runs
 `web/run_backend.sh` (so `HOST` / `PORT` still apply, set them with `systemctl --user edit lap-backend`:
-`[Service]` then `Environment=PORT=8010`).
+`[Service]` then `Environment=PORT=$PORT`).
 
 ```bash
 # is it running? (no sudo needed for any of these)
 systemctl --user status lap-backend          # running or failed, pid, memory, last log lines
-LAP/web/status.sh                            # same question plus a /api/health check, and other uvicorns on the box
-curl -s http://127.0.0.1:8010/api/health     # {"ok":true,"loaded_states":N}
-ss -ltnp | grep 8010                         # which pid holds the port
+$LAP/web/status.sh                            # same question plus a /api/health check, and other uvicorns on the box
+curl -s http://$HOST:$PORT/api/health     # {"ok":true,"loaded_states":N}
+ss -ltnp | grep $PORT                         # which pid holds the port
 
 # watch the logs
 journalctl --user -u lap-backend -f          # live, Ctrl-C leaves the log, the service keeps running
@@ -172,13 +260,13 @@ systemctl --user start lap-backend
 systemctl --user disable --now lap-backend   # remove from autostart as well
 
 # development with --reload: stop the service first so the port is free, then run by hand
-systemctl --user stop lap-backend && LAP/web/run_backend.sh --reload
+systemctl --user stop lap-backend && $LAP/web/run_backend.sh --reload
 # ... and when finished: systemctl --user start lap-backend
 ```
 
 If something died "every day", `journalctl --user -u lap-backend --since yesterday` shows why, and `NRestarts` shows
 how many times systemd had to bring it back. Do not start a second copy by hand while the service is running: both
-want port 8010 and the second one fails with `Address already in use` (`status.sh` shows who holds it).
+want the same port and the second one fails with `Address already in use` (`status.sh` shows who holds it).
 
 Other terminal views:
 
@@ -189,13 +277,13 @@ tmux capture-pane -p -t lapview -S -100      # print the last 100 lines of a pan
 ```
 
 **Open to the whole network:** the service runs with `HOST=0.0.0.0` (drop-in
-`~/.config/systemd/user/lap-backend.service.d/network.conf`), so anyone on the network can open
-`http://172.16.60.60:8010` directly, with no tunnel, over plain http (the sign-in page applies, but the password
+`network.conf` in the `lap-backend.service.d` folder next to it), so anyone on the network can open
+`http://$SERVER:$PORT` directly, with no tunnel, over plain http (the sign-in page applies, but the password
 travels unencrypted). To go back to local-only, delete that `network.conf`, then
 `systemctl --user daemon-reload && systemctl --user restart lap-backend`.
 
 Otherwise, to look at the dashboard from your own PC, forward the port (the backend listens on the server only):
-`ssh -N -L 18010:127.0.0.1:8010 cigma@172.16.60.60`, then open `http://localhost:18010`.
+`ssh -N -L $LOCAL_PORT:localhost:$PORT $SSH_USER@$SERVER`, then open `http://localhost:$LOCAL_PORT`.
 
 ## How a search works
 
@@ -273,10 +361,10 @@ A search is capped at 20,000 villages (`MAX_VILLAGES`); beyond that the village 
 limit while the parcels are still returned.
 
 The data is in the table `cadastral.villages` (same columns as the parcels: `state`, `source`,
-`attrs` jsonb, `geometry` EPSG:4326). It is loaded from `data/mount/Village_boundaries/*.zip` by
+`attrs` jsonb, `geometry` EPSG:4326). It is loaded from `$MOUNT_ROOT/Village_boundaries/*.zip` by
 
 ```bash
-cd LAP
+cd "$LAP"
 lapenv/bin/python src/load_villages.py              # every zip not yet loaded; resumable
 lapenv/bin/python src/load_villages.py --only GOA   # one file
 ```
@@ -294,8 +382,11 @@ A zip that gets updated can be reloaded by deleting its rows and its line in
 
 ## Layer priority
 
-A state's parcels can come from several source files (layers) that map the same land. In the *Match* step the layers can be
-ranked (`PriorityDialog.tsx`; the order is sent as `inputs.priority`). The top layer keeps all its parcels; from each lower
+A state's parcels can come from several source files (layers) that map the same land. In the *Match* step the **Layers** window
+(`PriorityDialog.tsx`) lets you check which layers to search (unchecked layers are left out of the search completely; the
+window draws where each layer has parcels and checks the ones that cover your area) and rank them (the checked layers in
+order are sent as `inputs.priority`; a layer with no parcels near the area simply gives way to the next one, because
+nothing of it is there to cover the lower layers). The top layer keeps all its parcels; from each lower
 layer only the parcels the higher ones do not already cover are kept: a parcel is dropped when **more than 50%** of its area
 lies inside the kept parcels of higher layers (`priority.DROP_FRACTION`). It is computed in PostGIS against the state table
 (`backend/app/priority.py`), runs only when two or more layers are ranked, and the result's `meta.json` records the order and
@@ -337,16 +428,15 @@ The check runs at the end of every search, while the state's parcel table is sti
   district LGD codes, village category, village area (m2), area inside the searched area (m2 and %), and
   reason. API: `GET /api/results/<id>/download?layer=villages_no_parcels&format=csv`; the polygons are at
   `GET /api/results/<id>/features?layer=villages_no_parcels`.
-* **Reasons:** *no parcel data for this state* (the state has no parcel files, e.g. Uttarakhand: every village found
-  there is listed), *parcel data for this state is not loaded* (it has parcel files but this search did not load
-  it, only for a village just outside the detected states), or *no parcel lies inside this village*.
+* **Reasons:** *no parcel data for this state* (the database holds no parcels for the state, e.g. Uttarakhand: every
+  village found there is listed), or *no parcel lies inside this village*.
 * A failure of this check never fails the search; the result then carries `villages.no_parcels.error`.
 
 ## Look and feel
 
 The dashboard has a blue theme, all in `frontend/src/index.css` (colours are variables at the top): a header bar across the top
 (logo, title with its "i" card, who is signed in and **Sign out**; markup in `App.tsx`), and every section of the side panel is a
-**card with a title bar in its own shade of blue**: *Parcel data* sky blue (`.c-data`), *1. Area of interest* blue (`.c-area`),
+**card with a title bar in its own shade of blue**: *1. Area of interest* blue (`.c-area`),
 *2. Match* indigo (`.c-match`), *Result* cyan (`.c-result`), *Layers* navy (`.c-layers`). Change a section's colours by editing its
 `--accent`, `--accent2` (title bar gradient) and `--tint` (card background). Buttons are raised and lift when hovered; the
 classes are `primary` (the main actions: the CSV tables), `big`, `mini` (small actions in lists), `plain` (an icon
@@ -483,7 +573,7 @@ an example). The rules are deliberately cautious:
   strings stay text; columns that are 99.9% numeric stay text too (see below);
 * applying it twice does nothing extra.
 
-`src/load_cadastral.py` uses the same module, so states loaded from now on are stored with the
+`src/sync_parcels.py` uses the same module, so data loaded from now on is stored with the
 numbers already typed. To refresh the map after new files are added: `python src/audit_types.py`.
 
 Per-source downloads (single source, or GeoPackage layer per source) are built from that source's
@@ -499,52 +589,63 @@ those columns. Because of those rows the column is left as text rather than conv
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `PGHOST` / `PGPORT` / `PGDATABASE` / `PGUSER` | `172.16.60.60` / `5432` / `Vikash` / `geouser` | database connection |
-| `PGPASSWORD` | (unset) | optional; otherwise `~/.pgpass` is used |
+| `PGHOST` / `PGPORT` / `PGDATABASE` / `PGUSER` | this machine / PostgreSQL's default port / (libpq default) / (libpq default) | the database |
+| `MOUNT_ROOT` | the `data/mount` folder inside the project | the data folder (read only by the sync script and the loaders) |
+| `HOST` / `PORT` | `127.0.0.1` / `8010` | where `run_backend.sh` listens |
+| `LAP_HTTPS_PORT` / `LAP_HTTP_PORT` | `8443` / `8010` | the ports of the Docker gateway (`.env`) |
+| `PGPASSWORD` | (unset) | optional; otherwise the libpq password file (`PGPASSFILE`) is used |
 | `MAX_FEATURES` | `100000` | most parcels one search may return |
 | `MAX_UPLOAD_MB` | `200` | upload size limit |
 
 The database session is read-only with a 5-minute statement timeout.
 
-## Parcel data is loaded on demand (and dropped again)
+## Parcel data is in the database (`src/sync_parcels.py`)
 
-The parcel files add up to about 200 GB in the database, which does not fit, so they are **not**
-kept there. A search loads only the state(s) the uploaded area falls in:
+All parcel data is kept **permanently** in PostgreSQL, one table per state (`cadastral.parcels_<state>`: `id`, `state`,
+`source`, `attrs` jsonb, `geometry`, with a spatial index), and the app searches those tables directly. Nothing is loaded
+or dropped while people use the dashboard, and there is no "Parcel data in the database" panel any more.
 
-1. The upload is read and the state(s) it touches are found from `India_State_Boundary.zip`
-   (loaded once into `cadastral.state_boundaries`; a state whose boundary is within 1 km of the area
-   counts, for coasts and borders). An area outside every state, e.g. at sea, is reported as such.
-2. For each of those states whose parcels are not in the database yet, all of its parquet files are
-   loaded into their own table `cadastral.parcels_<state>` (type correction applied, spatial index
-   built). The search runs as a background job and the dashboard shows the progress, with an estimate.
-   A state with no parcel files (Uttarakhand, Sikkim, Himachal...) is skipped: you still get its villages.
-   Two searches that need the same state share one load.
-3. Parcels and villages are queried (several state tables at once if the area spans states).
-4. **3 hours after a state was last used** its whole table is dropped by a sweeper thread inside the
-   backend (checked every minute, and once at start-up; `STATE_TTL_SECONDS`). Using a state in a search
-   restarts its clock. A state a search is using is never dropped under it.
-5. The dashboard's *Parcel data in the database* panel lists what is loaded, with size and time until
-   it is dropped, a **Drop** button per state and **Clear all**. Both drop the whole state table (after a
-   confirmation); they refuse while a search is using or loading that state.
+One script fills and updates the database, on the machine that has the data and the database:
 
-Safeguards: before loading a state its size is estimated (3.8 x the parquet size, measured on Goa) and
-the load is refused if the loaded tables plus the new one would exceed `STORAGE_BUDGET_GB` (200 by default;
-SQL cannot see the server's free disk, so this budget is the guard). Estimated sizes in the database:
-Goa 2.4 GB, Delhi 0.2, Bihar 12, Rajasthan 15.5, Jharkhand 21, Odissa 27, Madhya Pradesh 65 GB; the panel
-lists every state with its estimate. Loading runs at roughly 15-20 thousand parcels a second, so a large
-state takes a long time (Goa, 2.6 million parcels, about 2.5 minutes; Odissa, 47 million, about 45).
+```bash
+cd "$LAP"
+lapenv/bin/python src/sync_parcels.py                 # load whatever is new or changed in the data folder
+lapenv/bin/python src/sync_parcels.py --dry-run       # only show what it would load
+lapenv/bin/python src/sync_parcels.py --jobs 8        # load 8 files at the same time (default 2)
+lapenv/bin/python src/sync_parcels.py --state "<state folder>"   # one state folder (repeat for more); --only TEXT = files containing TEXT
+lapenv/bin/python src/sync_parcels.py --prune         # also remove files that are no longer in the folder
+lapenv/bin/python src/sync_parcels.py --force         # reload files even if they look unchanged
+lapenv/bin/python src/sync_parcels.py --list          # what the database holds
+```
 
-Already-made results keep working after their tables are dropped: the result files and the interior
-points the village lookup needs are stored with the result (kept 24 hours).
+Run it for the first load and again **whenever parquet files are added or changed**; each run only does what is new:
 
-Village boundaries and the state boundaries are permanent (about 1.8 GB together).
+* every loaded file is recorded in the catalog `cadastral.parcel_files` (state, file, size, modification time, rows and
+  its footprint). A file with the same size and time is skipped; a new file is loaded; a changed file has its old rows
+  replaced;
+* a file is loaded in one transaction, so stopping the script (Ctrl-C, a crash, a reboot) never leaves half a file: run
+  it again and it carries on with what is missing;
+* a state's folder name gives its table; new state folders are picked up automatically, and the spatial index of a
+  table is built once, after its new files are in. Files are loaded in parallel (`--jobs`; loading is mostly CPU, so use
+  about as many as the server has cores to spare);
+* for every file it also stores where the file has parcels (the *footprint*, about 2 km grid). The dashboard's **Layers**
+  window draws it as a map and checks the layers that cover the area, so only those are searched;
+* the type correction (*Type correction*) is applied while loading, as before.
 
-Command line, same code: `lapenv/bin/python src/load_cadastral.py --list | --state Goa | --drop Goa | --sweep`.
-The sweeper only runs while the backend does. To also drop expired tables when the backend is stopped, run
-`python src/load_cadastral.py --sweep` from cron, e.g. `*/10 * * * * cd LAP &&
-lapenv/bin/python src/load_cadastral.py --sweep >> sweep.log 2>&1` (not installed; add it with `crontab -e`).
+Measured: Goa (4 files, 2.6 million parcels) loads in about 2 minutes with 4 workers. The database needs roughly 4 times
+the size of the parquet files (a state of 17 GB parquet is about 65 GB).
 
-`cadastral.load_log` (the single-table loader's log) is no longer used and can be dropped.
+Data folder layout: `MOUNT_ROOT/<State name>/**/*.parquet` (for example `Goa/`, `Madhya Pradesh/`, `J&K/`); `Village_boundaries/`
+and `India_State_Boundary.zip` are loaded by their own scripts (`src/load_villages.py`, `src/load_state_boundaries.py`).
+A file's layer name in the dashboard is its path inside the state folder.
+
+How a search finds its data: the upload is read and the state(s) it touches are found from `cadastral.state_boundaries`
+(a state whose boundary is within 1 km of the area counts, for coasts and borders). For each of those states that has
+parcels in the catalog the table is queried; a state with none is reported as "no parcel data" (its villages are still
+shown). The sync script has to have been run at least once, otherwise every search says the database has no parcel data.
+
+The leftovers of the old on-demand design, `cadastral.state_tables` and `cadastral.load_log`, are not used any more and can be
+dropped (`DROP TABLE cadastral.state_tables, cadastral.load_log;`).
 
 ## Alignment and Area inputs
 

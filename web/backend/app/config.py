@@ -10,28 +10,27 @@ from pathlib import Path
 WEB_ROOT = Path(__file__).resolve().parents[2]
 RESULTS_DIR = WEB_ROOT / "data" / "results"
 
-DB = dict(
-    host=os.environ.get("PGHOST", "172.16.60.60"),
-    port=int(os.environ.get("PGPORT", "5432")),
-    dbname=os.environ.get("PGDATABASE", "Vikash"),
-    user=os.environ.get("PGUSER", "geouser"),
-)
+# The database comes from the environment (PGHOST, PGPORT, PGDATABASE, PGUSER; the password from PGPASSWORD or ~/.pgpass).
+# A setting that is not given is left to libpq's own default (host here defaults to this machine).
+DB = {
+    k: v
+    for k, v in dict(
+        host=os.environ.get("PGHOST", "localhost"),
+        port=int(os.environ.get("PGPORT", "5432")),
+        dbname=os.environ.get("PGDATABASE"),
+        user=os.environ.get("PGUSER"),
+    ).items()
+    if v
+}
 SCHEMA = "cadastral"
 
-# Parcel data is NOT kept permanently in the database (it would not fit): a state's parcel
-# files are loaded into their own table, cadastral.parcels_<state>, when a search touches
-# that state, and the table is dropped again STATE_TTL_SECONDS after it was last used or when
-# the user clears it in the dashboard. cadastral.state_tables tracks what is loaded.
-STATE_REGISTRY = "state_tables"
-STATE_BOUNDARIES = "state_boundaries"  # permanent; tells which state(s) an area falls in
+# All parcel data lives permanently in PostgreSQL: one table per state, cadastral.parcels_<state>, filled and kept up
+# to date by src/sync_parcels.py from the data folder (MOUNT_ROOT). The web app only reads them.
+# cadastral.parcel_files is the catalog: one row per source file that was loaded (see statedata.py).
+CATALOG = "parcel_files"
+STATE_BOUNDARIES = "state_boundaries"  # tells which state(s) an area falls in
+# The folder of state folders with the parcel parquet files. Only the sync script reads it.
 MOUNT_ROOT = Path(os.environ.get("MOUNT_ROOT", WEB_ROOT.parent / "data" / "mount"))
-STATE_TTL_SECONDS = int(os.environ.get("STATE_TTL_SECONDS", str(3 * 3600)))
-SWEEP_INTERVAL_SECONDS = int(os.environ.get("SWEEP_INTERVAL_SECONDS", "60"))
-# Most the loaded parcel tables may take together (plus the permanent village and boundary
-# tables). SQL cannot see the server's free disk, so this budget is what protects it.
-STORAGE_BUDGET_GB = float(os.environ.get("STORAGE_BUDGET_GB", "200"))
-# Measured on Goa: bytes in the database per byte of parquet (2.4 GB for 0.63 GB).
-DB_SIZE_RATIO = 3.8
 # A state whose boundary lies within this distance of the uploaded area counts as touched
 # (coastal lines and borders are not exactly where the boundary file puts them).
 BOUNDARY_TOLERANCE_M = 1000

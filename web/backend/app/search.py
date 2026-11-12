@@ -1,13 +1,11 @@
 """A search as a background job.
 
-A search used to be one request. Now it may first have to load a state's parcel files into
-the database (minutes for a big state), so it runs as a job that the dashboard polls:
+The dashboard starts a search and polls the job while it runs:
 
-  reading the upload -> finding the state(s) the area falls in -> loading the parcel data of
-  those states that is not in the database yet -> querying parcels and villages -> done.
+  reading the upload -> finding the state(s) the area falls in -> querying the parcels and villages in the database
+  -> adding names and chainage -> done.
 
-Only the states the area touches are loaded; their tables are dropped again after
-config.STATE_TTL_SECONDS without use (statedata.py).
+The parcel data is permanent in PostgreSQL (src/sync_parcels.py fills it); nothing is loaded or dropped here.
 """
 
 import json
@@ -21,7 +19,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 
-from . import alignment, aoi, cancel, chainage, config, dxf, enrich, linear, loader, pieces, priority, query, statedata
+from . import alignment, aoi, cancel, chainage, config, dxf, enrich, linear, pieces, priority, query, statedata
 
 JOBS: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
@@ -141,12 +139,8 @@ def _villages_without_parcels(result_dir: Path, tables_by_folder: dict[str, str]
         for state, ids in ids_by_state.items():
             table = tables_by_folder.get(state)
             if table is None:
-                # No parcel table was searched for this state: it has no parcel data at all, or it was not loaded.
-                reason = (
-                    "parcel data for this state is not loaded"
-                    if statedata.source_files(state)
-                    else "no parcel data for this state"
-                )
+                # No parcel table was searched for this state: it has no parcel data in the database.
+                reason = "no parcel data for this state"
                 reasons.update({i: reason for i in ids})
             else:
                 reasons.update({i: "no parcel lies inside this village" for i in query.villages_without_parcels(table, ids)})
@@ -246,13 +240,13 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
             if not detected:
                 raise HTTPException(400, "The area does not fall in any of the states you restricted the search to.")
 
-        # A state without a parquet folder or a loaded table has no parcel data. If this server has no parcel
-        # data folder at all (not mounted yet), say so, rather than implying the state itself has none.
+        # The parcel data is permanent in the database (filled by src/sync_parcels.py); a state has data when the
+        # catalog lists layers for it. If the database holds none at all, say so rather than implying the state has none.
         no_data_note = (
-            "no parcel data for this state" if statedata.mount_available()
-            else "the parcel data folder is not available on this server (not mounted or copied here yet)"
+            "no parcel data for this state" if statedata.has_data()
+            else "the database has no parcel data yet (run src/sync_parcels.py)"
         )
-        # the layers (files) wanted from each state: the ones the user chose; none chosen there means nothing to load
+        # the layers (files) searched in each state: the ones the user chose (all of them when none were chosen)
         wanted: dict[str, list[str]] = {}
         for d in detected:
             if d["folder"]:
@@ -260,77 +254,64 @@ def run_search(job: dict, upload_dir: Path, result_dir: Path, mode: str, restric
                 wanted[d["folder"]] = [n for n in order if n in names] if order else names
         entries = [
             {"name": d["name"], "folder": d["folder"] if wanted.get(d["folder"]) else None, "inside": d["inside"],
-             "status": "queued" if wanted.get(d["folder"]) else "no_data",
+             "status": "ready" if wanted.get(d["folder"]) else "no_data",
              **({} if wanted.get(d["folder"]) else {"note": no_data_note if not d["folder"] else "no layer chosen for this state"})}
             for d in detected
         ]
         _set(job, states=entries)
         folders = list(dict.fromkeys(e["folder"] for e in entries if e["folder"]))
+        table_of = statedata.ready_tables(folders)
+        folders = [f for f in folders if f in table_of]
+        tables = [table_of[f] for f in folders]
 
-        def on_progress(**info) -> None:
-            for e in entries:
-                if e["folder"] == info.get("state"):
-                    e.update({k: v for k, v in info.items() if k != "state"})
-                    if info.get("status") == "loading":
-                        e["loaded_now"] = True
-            _set(job)
+        excluded: dict[str, set[int]] = {}
+        dropped: dict[str, int] = {}
+        if len(order) >= 2 and tables:
+            _set(job, phase="searching", message="Applying the layer priority")
+            for table in tables:
+                excluded[table], gone = priority.excluded_ids(table, prepared["geometry"], order)
+                for src, n in gone.items():
+                    dropped[src] = dropped.get(src, 0) + n
 
-        tables: list[str] = []
-        with statedata.using(folders):
-            for folder in folders:
-                _set(job, phase="loading", message=f"Loading parcel data for {folder}")
-                tables.append(loader.ensure_loaded(folder, on_progress, files=wanted[folder] if order else None))
-
-            excluded: dict[str, set[int]] = {}
-            dropped: dict[str, int] = {}
-            if len(order) >= 2 and tables:
-                _set(job, phase="searching", message="Applying the layer priority")
-                for table in tables:
-                    excluded[table], gone = priority.excluded_ids(table, prepared["geometry"], order)
-                    for src, n in gone.items():
-                        dropped[src] = dropped.get(src, 0) + n
-
-            _set(job, phase="searching", message="Searching the parcels and villages")
-            if tables:
-                stats = query.run_query(
-                    prepared["geometry"], mode, result_dir / "result.geojson", result_dir / "clipped.geojson",
-                    tables=tables, with_point=True,
-                    order=order or None, excluded=excluded or None,
+        _set(job, phase="searching", message="Searching the parcels and villages")
+        if tables:
+            stats = query.run_query(
+                prepared["geometry"], mode, result_dir / "result.geojson", result_dir / "clipped.geojson",
+                tables=tables, with_point=True,
+                order=order or None, excluded=excluded or None,
+            )
+        else:
+            stats = _empty_result(result_dir)
+        villages = _query_villages(prepared["geometry"], mode, restrict, result_dir)
+        # village / taluka / district / state of every parcel and village, stored in the result files
+        _set(job, message="Adding village, taluka, district and state names")
+        enrich.enrich_parcels(result_dir)
+        # a parcel the area cuts into separate pieces: one feature, and so one row, per piece
+        pieces_count = pieces.split(result_dir)
+        if pieces_count is not None:
+            stats["clipped_count"] = pieces_count
+        if villages and villages.get("count"):
+            enrich.enrich_villages(result_dir)
+        chainage_meta = None
+        if centreline:
+            _set(job, message="Working out the chainage of the parcels")
+            try:
+                chainage_meta = chainage.build_linear(
+                    result_dir, centreline, prepared["geometry"], float(inputs["start_chainage"]), inputs["start_end"],
+                    float(inputs.get("step") or chainage.DEFAULT_STEP_M),
                 )
-            else:
-                stats = _empty_result(result_dir)
-            villages = _query_villages(prepared["geometry"], mode, restrict, result_dir)
-            # village / taluka / district / state of every parcel and village, stored in the result files
-            _set(job, message="Adding village, taluka, district and state names")
-            enrich.enrich_parcels(result_dir)
-            # a parcel the area cuts into separate pieces: one feature, and so one row, per piece
-            pieces_count = pieces.split(result_dir)
-            if pieces_count is not None:
-                stats["clipped_count"] = pieces_count
-            if villages and villages.get("count"):
-                enrich.enrich_villages(result_dir)
-            chainage_meta = None
-            if centreline:
-                _set(job, message="Working out the chainage of the parcels")
-                try:
-                    chainage_meta = chainage.build_linear(
-                        result_dir, centreline, prepared["geometry"], float(inputs["start_chainage"]), inputs["start_end"],
-                        float(inputs.get("step") or chainage.DEFAULT_STEP_M),
-                    )
-                except HTTPException as e:
-                    chainage_meta = {"error": e.detail}
-            elif labels:
-                # Not allowed to lose the search: a chainage problem is reported in the result instead.
-                _set(job, message="Working out the chainage of the parcels")
-                try:
-                    chainage_meta = chainage.build(result_dir, labels, prepared["strip"])
-                except HTTPException as e:
-                    chainage_meta = {"error": e.detail}
-            if villages and villages.get("count"):
-                _set(job, message="Checking which villages have no parcels")
-                villages["no_parcels"] = _villages_without_parcels(result_dir, dict(zip(folders, tables)))
-            # The work is done: the clock for dropping these tables starts now.
-            statedata.touch(folders)
+            except HTTPException as e:
+                chainage_meta = {"error": e.detail}
+        elif labels:
+            # Not allowed to lose the search: a chainage problem is reported in the result instead.
+            _set(job, message="Working out the chainage of the parcels")
+            try:
+                chainage_meta = chainage.build(result_dir, labels, prepared["strip"])
+            except HTTPException as e:
+                chainage_meta = {"error": e.detail}
+        if villages and villages.get("count"):
+            _set(job, message="Checking which villages have no parcels")
+            villages["no_parcels"] = _villages_without_parcels(result_dir, dict(zip(folders, tables)))
 
         _set(job, phase="finishing", message="Preparing the result")
         strip_fc = (

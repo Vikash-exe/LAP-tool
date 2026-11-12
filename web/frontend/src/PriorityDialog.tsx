@@ -100,26 +100,20 @@ export default function PriorityDialog({ sources, order, enabled, footprints, on
   const toggle = (name: string) => onEnabledChange(on.has(name) ? enabled.filter((n) => n !== name) : [...enabled, name]);
   const known = footprints != null && footprints.states.every((s) => !s.computing);
   const covering = order.filter((n) => (fpByName.get(n)?.near ?? 0) >= MIN_NEAR);
-  const reading = (footprints?.states ?? []).flatMap((s) => s.files).filter((f) => f.state !== "ready" && f.state !== "error");
   const chosen = order.filter((n) => on.has(n)).length;
 
   return (
     <div className="modal-back" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal modal-xl" role="dialog" aria-label="Layers to load and their priority">
-        <div className="modal-head">Layers: what to load, and their priority</div>
+        <div className="modal-head">Layers: what to search, and their priority</div>
         <div className="modal-body">
           <p style={{ margin: "0 0 8px", fontSize: 13 }}>
-            {sources.length} layers (parquet files) exist for this area, but only the <strong>checked</strong> ones are loaded and searched. The map shows where each has
+            {sources.length} layers exist for this area, but only the <strong>checked</strong> ones are searched. The map shows where each has
             parcels; the red mark is your area. Put the layer you trust most at the top: <strong>all its parcels are kept</strong>. From each layer below, only the
             parcels the layers above do not already cover are added, so a layer with nothing here simply gives way to the next one.
           </p>
           {footprints && <FootprintMap fp={footprints} names={names} enabled={on} hover={hover} />}
-          {!footprints && <div style={{ fontSize: 12, color: "var(--t2)", margin: "6px 0" }}>Reading where the layers have parcels...</div>}
-          {reading.length > 0 && (
-            <div style={{ fontSize: 11, color: "var(--t2)", margin: "4px 0" }}>
-              Reading the extent of {reading.length} layer{reading.length === 1 ? "" : "s"} (done once, then remembered)...
-            </div>
-          )}
+          {!footprints && <div style={{ fontSize: 12, color: "var(--t2)", margin: "6px 0" }}>Looking up where the layers have parcels...</div>}
           <div style={{ display: "flex", gap: 6, margin: "8px 0" }}>
             <button type="button" className="mini" disabled={!known || covering.length === 0} onClick={() => onEnabledChange(covering)} title="Check only the layers that have parcels near your area">
               Only layers covering the area
@@ -135,17 +129,17 @@ export default function PriorityDialog({ sources, order, enabled, footprints, on
               let where: string;
               if (f?.state === "ready") where = (f.near ?? 0) >= MIN_NEAR ? `about ${fmt(f.near ?? 0)} parcels near the area` : "no parcels near the area";
               else if (f?.state === "error") where = "extent could not be read";
-              else where = "reading the extent...";
+              else where = "extent not read yet";
               return (
                 <li key={name} className="prio-row" style={on.has(name) ? undefined : { opacity: 0.6 }} onMouseEnter={() => setHover(name)} onMouseLeave={() => setHover(null)}>
-                  <input type="checkbox" checked={on.has(name)} onChange={() => toggle(name)} title="Load and search this layer" />
+                  <input type="checkbox" checked={on.has(name)} onChange={() => toggle(name)} title="Search this layer" />
                   <span style={{ width: 10, height: 10, borderRadius: 2, background: colour(idx), flex: "0 0 auto" }} />
                   <span className="prio-rank">{i + 1}</span>
                   <span className="prio-name">
                     <strong>{name.replace(/\.parquet$/i, "")}</strong>
                     <span className="prio-sub" style={f?.state === "ready" && (f.near ?? 0) < MIN_NEAR ? { color: "var(--warn, #b45f06)" } : undefined}>
                       {where}
-                      {s?.parcels != null ? ` · ${fmt(s.parcels)} loaded in the area` : s?.parcels === null && s ? " · not loaded yet" : ""}
+                      {s?.parcels != null ? ` · ${fmt(s.parcels)} in the area` : ""}
                     </span>
                   </span>
                   <button type="button" className="mini" onClick={() => move(i, -1)} disabled={i === 0} title="Higher priority">▲</button>
@@ -160,7 +154,7 @@ export default function PriorityDialog({ sources, order, enabled, footprints, on
             Reset order
           </button>
           <span style={{ flex: 1, fontSize: 12, color: chosen === 0 ? "var(--bad)" : "var(--t2)" }}>
-            {chosen === 0 ? "Check at least one layer" : `${chosen} of ${order.length} layers will be loaded`}
+            {chosen === 0 ? "Check at least one layer" : `${chosen} of ${order.length} layers will be searched`}
           </span>
           <button type="button" className="primary" onClick={onClose}>
             Use these layers

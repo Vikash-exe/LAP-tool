@@ -19,7 +19,7 @@ import psycopg
 from fastapi import HTTPException
 from psycopg import sql
 
-from . import config, enrich, loader, priority, query, statedata
+from . import config, enrich, priority, query, statedata
 
 SUBDIR = "village_parcels"
 
@@ -102,45 +102,44 @@ def build(result_dir: Path, meta: dict, order: list[str] | None = None) -> Path:
     dropped: dict[str, int] = defaultdict(int)
     missing: list[str] = []
     try:
-        with statedata.using(folders):
-            with open(tmp / "result.geojson", "w", encoding="utf-8") as out, query.connect() as conn:
-                out.write('{"type":"FeatureCollection","features":[')
-                for folder, village_ids in ids_by_folder.items():
-                    if not statedata.source_files(folder):
-                        missing.append(folder)
-                        continue
-                    table = loader.ensure_loaded(folder, files=[n for n in order if n in statedata.source_files(folder)] or None)  # reloads the state if its table was dropped meanwhile
-                    schema = sql.Identifier(config.SCHEMA)
-                    by_source: dict[str, list[int]] = defaultdict(list)
-                    for pid, src in conn.execute(
-                        _IDS_SQL.format(schema=schema, parcels=sql.Identifier(table), villages=sql.Identifier(config.VILLAGES_TABLE)),
-                        {"villages": village_ids, "order": order},
+        tables = statedata.ready_tables(folders)
+        with open(tmp / "result.geojson", "w", encoding="utf-8") as out, query.connect() as conn:
+            out.write('{"type":"FeatureCollection","features":[')
+            for folder, village_ids in ids_by_folder.items():
+                table = tables.get(folder)
+                if table is None:  # no parcel data for this state in the database
+                    missing.append(folder)
+                    continue
+                schema = sql.Identifier(config.SCHEMA)
+                by_source: dict[str, list[int]] = defaultdict(list)
+                for pid, src in conn.execute(
+                    _IDS_SQL.format(schema=schema, parcels=sql.Identifier(table), villages=sql.Identifier(config.VILLAGES_TABLE)),
+                    {"villages": village_ids, "order": order},
+                ):
+                    by_source[src].append(pid)
+                skip: set[int] = set()
+                if len(order) >= 2:
+                    skip, gone = priority.excluded_among(table, by_source, order)
+                    for s, n in gone.items():
+                        dropped[s] += n
+                keep = sorted(pid for ids in by_source.values() for pid in ids if pid not in skip)
+                if count + len(keep) > config.MAX_FEATURES:
+                    raise HTTPException(413, query.TOO_MANY.format(limit=config.MAX_FEATURES, noun="parcels in these villages"))
+                ranks = {s: i + 1 for i, s in enumerate(order)} if len(order) >= 2 else {}
+                statement = _ROWS_SQL.format(schema=schema, parcels=sql.Identifier(table))
+                for start in range(0, len(keep), 2000):
+                    for pid, state, source, attrs, geom_json, area, inside, px, py in conn.execute(
+                        statement, {"aoi": aoi, "ids": keep[start : start + 2000]}
                     ):
-                        by_source[src].append(pid)
-                    skip: set[int] = set()
-                    if len(order) >= 2:
-                        skip, gone = priority.excluded_among(table, by_source, order)
-                        for s, n in gone.items():
-                            dropped[s] += n
-                    keep = sorted(pid for ids in by_source.values() for pid in ids if pid not in skip)
-                    if count + len(keep) > config.MAX_FEATURES:
-                        raise HTTPException(413, query.TOO_MANY.format(limit=config.MAX_FEATURES, noun="parcels in these villages"))
-                    ranks = {s: i + 1 for i, s in enumerate(order)} if len(order) >= 2 else {}
-                    statement = _ROWS_SQL.format(schema=schema, parcels=sql.Identifier(table))
-                    for start in range(0, len(keep), 2000):
-                        for pid, state, source, attrs, geom_json, area, inside, px, py in conn.execute(
-                            statement, {"aoi": aoi, "ids": keep[start : start + 2000]}
-                        ):
-                            area = area or 0.0
-                            inside = min(inside or 0.0, area)
-                            props = query._properties(pid, "parcel_id", state, source, attrs, area, inside, area > 0 and inside >= area * 0.9999, ranks.get(source.split("/", 1)[-1]))
-                            point = ',"pt":[%.7f,%.7f]' % (px, py) if px is not None and py is not None else ""
-                            out.write(("," if count else "") + '{"type":"Feature","id":%d,"geometry":%s,"properties":%s%s}' % (pid, geom_json, json.dumps(props, ensure_ascii=False), point))
-                            count += 1
-                            per_source[source.split("/", 1)[-1]] += 1
-                            per_state[state] += 1
-                statedata.touch(folders)
-                out.write("]}")
+                        area = area or 0.0
+                        inside = min(inside or 0.0, area)
+                        props = query._properties(pid, "parcel_id", state, source, attrs, area, inside, area > 0 and inside >= area * 0.9999, ranks.get(source.split("/", 1)[-1]))
+                        point = ',"pt":[%.7f,%.7f]' % (px, py) if px is not None and py is not None else ""
+                        out.write(("," if count else "") + '{"type":"Feature","id":%d,"geometry":%s,"properties":%s%s}' % (pid, geom_json, json.dumps(props, ensure_ascii=False), point))
+                        count += 1
+                        per_source[source.split("/", 1)[-1]] += 1
+                        per_state[state] += 1
+            out.write("]}")
         enrich.enrich_parcels(tmp)
         (tmp / "meta.json").write_text(
             json.dumps({"count": count, "per_source": dict(per_source), "per_state": dict(per_state), "dropped": dict(dropped), "missing_states": missing}),

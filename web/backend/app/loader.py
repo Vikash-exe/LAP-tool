@@ -1,26 +1,33 @@
-"""Loads one state's parcel parquet files into its own table, cadastral.parcels_<state>.
+"""Copies parcel parquet files from the data folder into PostgreSQL (one table per state, cadastral.parcels_<state>).
 
-Used by the dashboard (a search that touches a state not yet in the database starts this)
-and by src/load_cadastral.py. Each file is streamed in batches through COPY, one
-transaction per file, with the type correction of typecast.py applied to the attributes.
-Progress is reported through a callback so the dashboard can show it.
+This is the engine of src/sync_parcels.py, the one script that fills and updates the database. The web app never loads
+anything: it only reads the tables. A sync is incremental and can be run again at any time:
+
+* a file already in the catalog (cadastral.parcel_files) with the same size and modification time is skipped;
+* a new file is loaded; a changed file has its old rows replaced; every file is one transaction, so an interrupted run
+  leaves no half-loaded file and simply carries on where it stopped when run again;
+* files are loaded in parallel (--jobs), the spatial index of a state is built once, after its files are in.
+
+Each file is streamed in batches through COPY, with the type correction of typecast.py applied to the attributes.
 """
 
 import io
 import json
 import math
+import multiprocessing
 import os
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
 import psycopg
-from fastapi import HTTPException
 from psycopg import sql
 from psycopg.types.json import Jsonb
 
-from . import cancel, config, statedata, typecast
+from . import config, footprint, statedata, typecast
 
 SRID = 4326
 GEOM = "geometry"
@@ -76,209 +83,7 @@ def _attrs_json(batch: pa.RecordBatch, names: list[str], source: str) -> list[st
     return out
 
 
-# ---- sizing -----------------------------------------------------------------------------
-
-
-def estimate(folder: str, names: list[str] | None = None) -> dict:
-    """Files, rows and expected size in the database of a state's parquet files (footers only); only the named ones if given."""
-    info = statedata.state_folders().get(folder)
-    if info is None:
-        raise HTTPException(404, f"No parcel files found for '{folder}'.")
-    files = [f for f in info["files"] if names is None or f.name in names]
-    rows = sum(pq.ParquetFile(f).metadata.num_rows for f in files)
-    size = sum(f.stat().st_size for f in files)
-    return {
-        "files": len(files),
-        "rows": rows,
-        "parquet_bytes": size,
-        "est_bytes": int(size * config.DB_SIZE_RATIO),
-    }
-
-
-def _gb(n: float) -> str:
-    return f"{n / 1e9:.1f} GB"
-
-
-# ---- registry updates (own autocommit connection, so they are visible during a long COPY) ----
-
-
-def _update(reg: psycopg.Connection, folder: str, **fields) -> None:
-    sets = [sql.SQL("{} = %s").format(sql.Identifier(k)) for k in fields] + [sql.SQL("updated_at = now()")]
-    reg.execute(
-        sql.SQL("UPDATE {} SET {} WHERE state = %s").format(
-            sql.Identifier(config.SCHEMA, config.STATE_REGISTRY), sql.SQL(", ").join(sets)
-        ),
-        [*fields.values(), folder],
-    )
-
-
-# ---- loading ----------------------------------------------------------------------------
-
-
-def ensure_loaded(folder: str, progress=None, files: list[str] | None = None) -> str:
-    """Make sure the parcels of this state are in the database; load them if not.
-
-    `files` are the layers (parquet file names) that are needed; only those are loaded, and a state that is already
-    loaded with some of them gets the missing ones added. Without `files`, all of the state's layers.
-    Returns the table name. Blocks while another search is loading the same state.
-    `progress(**info)` is called with state, status (waiting / loading / ready),
-    files_done, files_total, rows_done, rows_total and current_file."""
-    progress = progress or (lambda **_: None)
-    wanted = list(dict.fromkeys(files)) if files else None
-    lock = statedata.state_lock(folder)
-    if not lock.acquire(blocking=False):
-        progress(state=folder, status="waiting")
-        while not lock.acquire(timeout=1):  # another search is loading this state: wait for it (Stop still works)
-            cancel.check()
-    try:
-        with statedata.connect_rw() as conn:
-            entry = statedata.get_entry(conn, folder)
-            if entry and entry["status"] == statedata.READY:
-                on_disk = statedata.source_files(folder)
-                loaded = entry["loaded_files"]  # None: the table was loaded with every layer
-                need = wanted if wanted is not None else on_disk
-                missing = [] if loaded is None else [n for n in need if n not in loaded and n in on_disk]
-                if not missing:
-                    progress(state=folder, status="ready", files_done=entry["files_total"], files_total=entry["files_total"],
-                             rows_done=entry["rows_total"], rows_total=entry["rows_total"])
-                    return entry["table_name"]
-                return _load(folder, progress, missing, entry)  # add the layers that are not in the table yet
-            if entry:  # failed, or a half-loaded leftover: start clean
-                statedata._drop(conn, folder, entry["table_name"])
-        return _load(folder, progress, wanted)
-    finally:
-        lock.release()
-
-
-def _load(folder: str, progress, names: list[str] | None = None, entry: dict | None = None) -> str:
-    """Load the named files of a state (all of them without names) into its table. With `entry` (the registry row of a
-    table that is ready) the files are added to that table; otherwise a new table is made."""
-    info = statedata.state_folders().get(folder)
-    if info is None:
-        raise HTTPException(404, f"No parcel files found for '{folder}'.")
-    files = [f for f in info["files"] if names is None or f.name in names]
-    if not files:
-        raise HTTPException(404, f"None of the chosen layers exist in the '{folder}' folder.")
-    est = estimate(folder, [f.name for f in files])
-    append = entry is not None
-
-    # Refuse before touching the database if it would not fit in the storage budget.
-    used = statedata.storage_in_use()
-    budget = config.STORAGE_BUDGET_GB * 1e9
-    if used + est["est_bytes"] > budget:
-        loaded = ", ".join(e["state"] for e in statedata.registry()) or "none"
-        raise HTTPException(
-            409,
-            f"Not enough room to load {folder}: it needs about {_gb(est['est_bytes'])} and the database already holds "
-            f"{_gb(used)} of the {_gb(budget)} budget (loaded states: {loaded}). Clear a state first.",
-        )
-
-    table = entry["table_name"] if append else statedata.table_name(folder)
-    base_files = list(entry["loaded_files"] or []) if append else []
-    base_rows = int(entry["rows_done"] or 0) if append else 0
-    reg = statedata.connect_rw()
-    reg.autocommit = True
-    conn = statedata.connect_rw()
-    conn.autocommit = True
-    done_rows = 0
-    loaded_names = list(base_files)
-    try:
-        if append:
-            _update(reg, folder, status=statedata.LOADING, files_total=len(base_files) + len(files), error=None,
-                    rows_total=base_rows + est["rows"], est_bytes=(entry["est_bytes"] or 0) + est["est_bytes"])
-        else:
-            reg.execute(
-                sql.SQL(
-                    "INSERT INTO {} (state, table_name, status, files_total, files_done, rows_total, rows_done, est_bytes, error, loaded_files) "
-                    "VALUES (%s, %s, %s, %s, 0, %s, 0, %s, NULL, %s) ON CONFLICT (state) DO UPDATE SET "
-                    "table_name = EXCLUDED.table_name, status = EXCLUDED.status, files_total = EXCLUDED.files_total, "
-                    "files_done = 0, rows_total = EXCLUDED.rows_total, rows_done = 0, est_bytes = EXCLUDED.est_bytes, "
-                    "error = NULL, loaded_at = NULL, last_used = NULL, expires_at = NULL, loaded_files = EXCLUDED.loaded_files, "
-                    "updated_at = now()"
-                ).format(sql.Identifier(config.SCHEMA, config.STATE_REGISTRY)),
-                (folder, table, statedata.LOADING, len(files), est["rows"], est["est_bytes"], Jsonb([])),
-            )
-            conn.execute(sql.SQL("DROP TABLE IF EXISTS {}.{}").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)))
-            conn.execute(
-                sql.SQL(
-                    "CREATE TABLE {}.{} (id bigint GENERATED ALWAYS AS IDENTITY, state text, source text, attrs jsonb, "
-                    "geometry geometry(Geometry, 4326))"
-                ).format(sql.Identifier(config.SCHEMA), sql.Identifier(table))
-            )
-
-        total_files = len(base_files) + len(files)
-
-        def report(files_done: int, current: str) -> None:
-            progress(state=folder, status="loading", files_done=len(base_files) + files_done, files_total=total_files,
-                     rows_done=done_rows, rows_total=est["rows"], current_file=current)
-
-        report(0, files[0].name)
-        saved_rows = 0
-        for i, path in enumerate(files):
-            for delta in _load_file(conn, table, folder, path):
-                done_rows += delta
-                report(i, path.name)
-                # The registry (what the loaded-states panel shows) follows every ~500k rows, not only per file.
-                if done_rows - saved_rows >= 500_000:
-                    _update(reg, folder, rows_done=base_rows + done_rows)
-                    saved_rows = done_rows
-            loaded_names.append(path.name)
-            _update(reg, folder, files_done=len(loaded_names), rows_done=base_rows + done_rows, loaded_files=Jsonb(loaded_names))
-            report(i + 1, path.name)
-
-        if not append:  # an added file goes into the index that is already there
-            progress(state=folder, status="indexing", files_done=total_files, files_total=total_files,
-                     rows_done=done_rows, rows_total=est["rows"])
-            conn.execute("SET maintenance_work_mem = '2GB'")
-            conn.execute(
-                sql.SQL("CREATE INDEX {} ON {}.{} USING GIST (geometry)").format(
-                    sql.Identifier(table + "_geom_gix"), sql.Identifier(config.SCHEMA), sql.Identifier(table)
-                )
-            )
-        conn.execute(sql.SQL("ANALYZE {}.{}").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)))
-        reg.execute(
-            sql.SQL(
-                "UPDATE {} SET status = %s, files_done = %s, files_total = %s, rows_done = %s, rows_total = %s, loaded_at = now(), "
-                "last_used = now(), expires_at = now() + make_interval(secs => %s), updated_at = now() WHERE state = %s"
-            ).format(sql.Identifier(config.SCHEMA, config.STATE_REGISTRY)),
-            (statedata.READY, len(loaded_names), len(loaded_names), base_rows + done_rows, base_rows + done_rows, config.STATE_TTL_SECONDS, folder),
-        )
-        progress(state=folder, status="ready", files_done=total_files, files_total=total_files,
-                 rows_done=done_rows, rows_total=est["rows"])
-        return table
-    except BaseException as e:
-        stopped = cancel.requested() or isinstance(e, cancel.Cancelled)
-        message = e.detail if isinstance(e, HTTPException) else str(e).splitlines()[0] if str(e) else type(e).__name__
-        if append:
-            # The table is still good (a file is loaded in one transaction, so a half-loaded file left nothing behind):
-            # it just keeps the layers it had.
-            try:
-                _update(reg, folder, status=statedata.READY, files_done=len(loaded_names), files_total=len(loaded_names),
-                        rows_total=base_rows + done_rows, rows_done=base_rows + done_rows, error=None if stopped else str(message)[:500])
-            except Exception:
-                pass
-        elif stopped:
-            # Stopped by the user: remove the half-loaded table and its registry row completely.
-            try:
-                with statedata.connect_rw() as c2:
-                    statedata._drop(c2, folder, table)
-            except Exception:
-                pass
-        else:
-            # Leave nothing half-loaded behind: drop the table, keep the registry row as 'failed' for the dashboard.
-            try:
-                conn.execute(sql.SQL("DROP TABLE IF EXISTS {}.{}").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)))
-                _update(reg, folder, status=statedata.FAILED, error=str(message)[:500])
-            except Exception:
-                pass
-        if stopped:
-            raise cancel.Cancelled()
-        if isinstance(e, HTTPException):
-            raise
-        raise HTTPException(500, f"Loading {folder} failed: {message}")
-    finally:
-        reg.close()
-        conn.close()
+# ---- one file ---------------------------------------------------------------------------------
 
 
 def _load_file(conn: psycopg.Connection, table: str, folder: str, path):
@@ -312,3 +117,194 @@ def _load_file(conn: psycopg.Connection, table: str, folder: str, path):
                     yield n
             if cur.rowcount != total:
                 raise RuntimeError(f"{rel}: copied {cur.rowcount} rows, expected {total}")
+
+
+# ---- the data folder ----------------------------------------------------------------------
+
+
+def state_folders(root: Path | None = None) -> dict[str, list[Path]]:
+    """{state folder name: its parquet files} for every state folder in the data folder."""
+    root = root or config.MOUNT_ROOT
+    out: dict[str, list[Path]] = {}
+    if root.is_dir():
+        for d in sorted(root.iterdir()):
+            if not d.is_dir() or d.name.startswith(".") or d.name == "Village_boundaries":
+                continue
+            files = sorted(p for p in d.rglob("*.parquet") if not any(part.startswith(".") for part in p.relative_to(d).parts))
+            if files:
+                out[d.name] = files
+    return out
+
+
+def _layer_name(source: str) -> str:
+    """The layer the dashboard shows: the source path without its state folder (what the SQL filters use too)."""
+    return source.split("/", 1)[-1]
+
+
+def _prepare_table(conn: psycopg.Connection, table: str) -> None:
+    conn.execute(
+        sql.SQL(
+            "CREATE TABLE IF NOT EXISTS {}.{} (id bigint GENERATED ALWAYS AS IDENTITY, state text, source text, attrs jsonb, "
+            "geometry geometry(Geometry, 4326))"
+        ).format(sql.Identifier(config.SCHEMA), sql.Identifier(table))
+    )
+    # a changed file is replaced by its source name, so that has to be quick
+    conn.execute(
+        sql.SQL("CREATE INDEX IF NOT EXISTS {} ON {}.{} (source)").format(
+            sql.Identifier(table + "_source_idx"), sql.Identifier(config.SCHEMA), sql.Identifier(table)
+        )
+    )
+
+
+def _finish_table(conn: psycopg.Connection, table: str, say) -> None:
+    say(f"  building the spatial index of {table} (once per table, can take a while for a big state)")
+    conn.execute("SET maintenance_work_mem = '2GB'")
+    conn.execute(
+        sql.SQL("CREATE INDEX IF NOT EXISTS {} ON {}.{} USING GIST (geometry)").format(
+            sql.Identifier(table + "_geom_gix"), sql.Identifier(config.SCHEMA), sql.Identifier(table)
+        )
+    )
+    conn.execute(sql.SQL("ANALYZE {}.{}").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)))
+
+
+def _stamp(path: Path) -> tuple[int, int]:
+    st = path.stat()
+    return st.st_size, int(st.st_mtime)
+
+
+def load_one(state: str, table: str, path_text: str) -> dict:
+    """Worker (runs in its own process): replace this file's rows in the state table, then record it in the catalog."""
+    path = Path(path_text)
+    source = os.path.relpath(path, config.MOUNT_ROOT)
+    size, mtime = _stamp(path)
+    t0 = time.time()
+    with psycopg.connect(**config.DB, connect_timeout=10, autocommit=True) as conn:
+        rows = 0
+        with conn.transaction():
+            conn.execute(sql.SQL("DELETE FROM {}.{} WHERE source = %s").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)), (source,))
+            for n in _load_file(conn, table, state, path):
+                rows += n
+            conn.execute(
+                sql.SQL(
+                    "INSERT INTO {} (state, source, name, table_name, size_bytes, mtime, rows, loaded_at, footprint) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, now(), NULL) ON CONFLICT (state, source) DO UPDATE SET "
+                    "name = EXCLUDED.name, table_name = EXCLUDED.table_name, size_bytes = EXCLUDED.size_bytes, mtime = EXCLUDED.mtime, "
+                    "rows = EXCLUDED.rows, loaded_at = now(), footprint = NULL"
+                ).format(sql.Identifier(config.SCHEMA, config.CATALOG)),
+                (state, source, _layer_name(source), table, size, mtime, rows),
+            )
+    return {"state": state, "source": source, "rows": rows, "seconds": time.time() - t0}
+
+
+def footprint_one(state: str, path_text: str) -> dict:
+    """Worker: where the file has parcels (for the layer map and for finding the layers that cover an area)."""
+    path = Path(path_text)
+    source = os.path.relpath(path, config.MOUNT_ROOT)
+    t0 = time.time()
+    data = footprint.compute(path)
+    with psycopg.connect(**config.DB, connect_timeout=10, autocommit=True) as conn:
+        conn.execute(
+            sql.SQL("UPDATE {} SET footprint = %s WHERE state = %s AND source = %s").format(sql.Identifier(config.SCHEMA, config.CATALOG)),
+            (Jsonb(data), state, source),
+        )
+    return {"state": state, "source": source, "rows": data["rows"], "seconds": time.time() - t0}
+
+
+# ---- the sync -----------------------------------------------------------------------------
+
+
+def sync(states: list[str] | None = None, only: str | None = None, force: bool = False, prune: bool = False,
+         jobs: int = 2, dry_run: bool = False, say=print) -> int:
+    """Bring the database up to date with the data folder. Returns the number of files that failed."""
+    folders = state_folders()
+    if not folders:
+        say(f"No state folders with parquet files in {config.MOUNT_ROOT} (set MOUNT_ROOT if the data is elsewhere).")
+        return 1
+    wanted = {s.lower() for s in states or []}
+    unknown = [s for s in states or [] if s.lower() not in {f.lower() for f in folders}]
+    if unknown:
+        say(f"Unknown state folder(s): {', '.join(unknown)}. Folders: {', '.join(folders)}")
+        return 1
+
+    with psycopg.connect(**config.DB, connect_timeout=10, autocommit=True) as conn:
+        statedata.ensure_catalog(conn)
+        rows = conn.execute(
+            sql.SQL("SELECT state, source, size_bytes, mtime, footprint IS NOT NULL FROM {}").format(sql.Identifier(config.SCHEMA, config.CATALOG))
+        ).fetchall()
+    have = {(s, src): (size, mtime, fp) for s, src, size, mtime, fp in rows}
+
+    plan: dict[str, dict] = {}
+    for state, paths in folders.items():
+        if wanted and state.lower() not in wanted:
+            continue
+        load, fill, same = [], [], 0
+        current = set()
+        for p in paths:
+            if only and only.lower() not in p.name.lower():
+                continue
+            source = os.path.relpath(p, config.MOUNT_ROOT)
+            current.add(source)
+            known = have.get((state, source))
+            if force or known is None or known[:2] != _stamp(p):
+                load.append(p)
+            elif not known[2]:
+                fill.append(p)
+            else:
+                same += 1
+        gone = [src for (s, src) in have if s == state and src not in current and not only]
+        plan[state] = {"load": load, "fill": fill, "same": same, "gone": gone}
+
+    say("Plan:")
+    for state, p in plan.items():
+        say(f"  {state}: {len(p['load'])} to load, {len(p['fill'])} extents to read, {p['same']} up to date"
+            + (f", {len(p['gone'])} in the database but no longer in the folder" + (" (will be removed)" if prune else " (kept; use --prune to remove)") if p["gone"] else ""))
+    if dry_run:
+        for state, p in plan.items():
+            for path in p["load"]:
+                say(f"    would load {state}/{path.name}")
+        return 0
+
+    failed: list[str] = []
+    ctx = multiprocessing.get_context("spawn")
+    for state, p in plan.items():
+        table = statedata.table_name(state)
+        if p["load"]:
+            say(f"\n{state}: loading {len(p['load'])} file(s) into cadastral.{table} with {max(1, jobs)} worker(s)")
+            with psycopg.connect(**config.DB, connect_timeout=10, autocommit=True) as conn:
+                _prepare_table(conn, table)
+            with ProcessPoolExecutor(max_workers=max(1, jobs), mp_context=ctx) as pool:
+                futures = {pool.submit(load_one, state, table, str(path)): path for path in p["load"]}
+                for fut in as_completed(futures):
+                    path = futures[fut]
+                    try:
+                        r = fut.result()
+                        say(f"  loaded {path.name}: {r['rows']:,} parcels in {r['seconds']:.0f}s")
+                        p["fill"].append(path)  # its extent is read next
+                    except Exception as e:
+                        failed.append(f"{state}/{path.name}")
+                        say(f"  FAILED {path.name}: {str(e).splitlines()[0] if str(e) else type(e).__name__} (nothing of it was kept; run again to retry)")
+            with psycopg.connect(**config.DB, connect_timeout=10, autocommit=True) as conn:
+                _finish_table(conn, table, say)
+        loaded_ok = [x for x in p["fill"] if f"{state}/{x.name}" not in failed]
+        if loaded_ok:
+            say(f"{state}: reading where {len(loaded_ok)} file(s) have parcels (for the layer map)")
+            with ProcessPoolExecutor(max_workers=max(1, jobs), mp_context=ctx) as pool:
+                futures = {pool.submit(footprint_one, state, str(path)): path for path in loaded_ok}
+                for fut in as_completed(futures):
+                    path = futures[fut]
+                    try:
+                        fut.result()
+                        say(f"  extent of {path.name} done")
+                    except Exception as e:
+                        say(f"  extent of {path.name} failed: {str(e).splitlines()[0] if str(e) else type(e).__name__} (run again to retry)")
+        if prune and p["gone"]:
+            with psycopg.connect(**config.DB, connect_timeout=10, autocommit=True) as conn:
+                for source in p["gone"]:
+                    with conn.transaction():
+                        conn.execute(sql.SQL("DELETE FROM {}.{} WHERE source = %s").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)), (source,))
+                        conn.execute(sql.SQL("DELETE FROM {} WHERE state = %s AND source = %s").format(sql.Identifier(config.SCHEMA, config.CATALOG)), (state, source))
+                    say(f"  removed {source} (no longer in the folder)")
+                conn.execute(sql.SQL("ANALYZE {}.{}").format(sql.Identifier(config.SCHEMA), sql.Identifier(table)))
+
+    say("\nDone." if not failed else f"\nDone, but {len(failed)} file(s) failed: {', '.join(failed)}")
+    return len(failed)

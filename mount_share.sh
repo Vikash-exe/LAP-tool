@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 # Makes the parcel-data share mount automatically at every boot, and checks that it mounted the RIGHT folder.
-# Needs root, once:   sudo /path/to/LAP/mount_share.sh
+# Needs root, once:   sudo mount_share.sh SHARE [CREDENTIALS_FILE [MOUNT_POINT]]
+#   SHARE             the share folder that holds the state folders, India_State_Boundary.zip and Village_boundaries/,
+#                     as //FILE_SERVER/share/path
+#   CREDENTIALS_FILE  lines username=... and password=... (mode 600); default: .smbcreds in the home of the user who ran sudo
+#   MOUNT_POINT       where to mount it; default: data/mount inside this project
 #
 # What it does:
 #   1. installs cifs-utils if it is missing,
 #   2. puts one line in /etc/fstab (after backing the file up) that mounts
-#        \\145.145.53.17\Survey_data\Cadastral_Map_India\cadastral_data
-#      read-only at LAP/data/mount, with `nofail` so a missing file server can never stop the machine
+#        the share address you gave
+#      read-only at the mount point, with `nofail` so a missing file server can never stop the machine
 #      booting. The sub-folder is part of the share address itself (not the prefixpath option, which
 #      was dropped on this machine and mounted the whole company share instead),
 #   3. applies it (unmounts the current mount, mounts from fstab) and then checks the result: the mounted
@@ -15,13 +19,14 @@
 # password=...). Safe to run again: a previous entry for the same mount point is replaced.
 set -euo pipefail
 
-SHARE_PATH="//145.145.53.17/Survey_data/Cadastral_Map_India/cadastral_data"
+SHARE_PATH="${1:-}"
+[ -n "$SHARE_PATH" ] || { echo "Usage: sudo $0 //FILE_SERVER/share/path [credentials-file [mount-point]]"; exit 1; }
 
 [ "$(id -u)" -eq 0 ] || { echo "Run it with sudo:  sudo $0"; exit 1; }
 USER_NAME="${SUDO_USER:?run it with sudo from your own account, not as a root login}"
 HOME_DIR="$(getent passwd "$USER_NAME" | cut -d: -f6)"
-MOUNTPOINT="$(cd "$(dirname "$0")" && pwd)/data/mount"
-CREDS="$HOME_DIR/.smbcreds"
+MOUNTPOINT="${3:-$(cd "$(dirname "$0")" && pwd)/data/mount}"
+CREDS="${2:-$HOME_DIR/.smbcreds}"
 UID_N="$(id -u "$USER_NAME")"
 GID_N="$(id -g "$USER_NAME")"
 
@@ -64,10 +69,9 @@ echo "Mounted from /etc/fstab:"
 findmnt "$MOUNTPOINT" -o TARGET,SOURCE,FSTYPE | cut -c1-200
 
 # The check that matters: did it mount the right folder, not the whole share?
-case "$SRC" in
-  *Cadastral_Map_India/cadastral_data) ;;
-  *) echo; echo "PROBLEM: mounted source is '$SRC', not the cadastral_data folder. Unmounting it again."; umount "$MOUNTPOINT"; exit 2 ;;
-esac
+if [ "${SRC%/}" != "${SHARE_PATH%/}" ]; then
+  echo; echo "PROBLEM: mounted source is '$SRC', not '$SHARE_PATH'. Unmounting it again."; umount "$MOUNTPOINT"; exit 2
+fi
 if [ ! -e "$MOUNTPOINT/India_State_Boundary.zip" ] || [ ! -d "$MOUNTPOINT/Village_boundaries" ]; then
   echo; echo "PROBLEM: the mounted folder does not contain India_State_Boundary.zip and Village_boundaries/. Unmounting it again."
   umount "$MOUNTPOINT"; exit 3

@@ -1,49 +1,25 @@
-"""Where each parquet file (layer) has parcels: a coarse footprint, used to show the layers on a map and to find the ones that
-cover an area, so that only those need to be loaded.
+"""Where each layer (parquet file) has parcels: a coarse footprint, used to show the layers on a map and to find the ones
+that cover an area.
 
-For every file the first vertex of every parcel is counted in a grid of CELL degrees (about 2 km). Reading takes a few
-seconds per million parcels; the result is cached in data/footprints/<state>/<file>.json (keyed by file size and time),
-so it is done once per file, in a background thread.
+For every file the first vertex of every parcel is counted in a grid of CELL degrees (about 2 km). The sync script
+(src/sync_parcels.py) computes it when it loads a file and stores it in the catalog (cadastral.parcel_files.footprint);
+the web app only reads it from there.
 """
 from __future__ import annotations
 
 import json
 import struct
-import threading
-import time
 from collections import defaultdict
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+from psycopg import sql
 
 from . import config, statedata
 
 CELL = 0.02  # degrees (about 2 km)
 COARSE = 5  # the map preview merges 5 x 5 cells (0.1 degree)
-CACHE_DIR = config.WEB_ROOT / "data" / "footprints"
-
-_lock = threading.Lock()
-_progress: dict[str, dict] = {}  # "<folder>/<file>" -> {"state": queued|computing|error, "done": rows, "total": rows, "error": str}
-_worker_running = False
-
-
-def _cache_path(folder: str, name: str) -> Path:
-    return CACHE_DIR / folder / (name + ".json")
-
-
-def _stamp(path: Path) -> list[int]:
-    st = path.stat()
-    return [st.st_size, int(st.st_mtime)]
-
-
-def cached(folder: str, path: Path) -> dict | None:
-    f = _cache_path(folder, path.name)
-    try:
-        data = json.loads(f.read_text(encoding="utf-8"))
-        return data if data.get("stamp") == _stamp(path) and data.get("cell") == CELL else None
-    except (OSError, ValueError):
-        return None
 
 
 def _first_vertices(arr: pa.Array):
@@ -77,7 +53,8 @@ def _first_vertices(arr: pa.Array):
             continue
 
 
-def compute(folder: str, path: Path, on_rows=None) -> dict:
+def compute(path: Path) -> dict:
+    """The footprint of one parquet file: parcels per grid cell, the bounding box and the row count."""
     pf = pq.ParquetFile(path)
     cells: dict[tuple[int, int], int] = defaultdict(int)
     rows = 0
@@ -91,61 +68,12 @@ def compute(folder: str, path: Path, on_rows=None) -> dict:
             cells[(int(x // CELL), int(y // CELL))] += 1
             rows += 1
             minx, maxx, miny, maxy = min(minx, x), max(maxx, x), min(miny, y), max(maxy, y)
-        cancel_rows = pf.metadata.row_group(rg).num_rows
-        if on_rows:
-            on_rows(cancel_rows)
-    data = {
-        "stamp": _stamp(path),
+    return {
         "cell": CELL,
         "rows": rows,
         "bbox": [minx, miny, maxx, maxy] if rows else None,
         "cells": [[ix, iy, n] for (ix, iy), n in cells.items()],
     }
-    f = _cache_path(folder, path.name)
-    f.parent.mkdir(parents=True, exist_ok=True)
-    tmp = f.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
-    tmp.replace(f)
-    return data
-
-
-def _worker(todo: list[tuple[str, Path]]) -> None:
-    global _worker_running
-    try:
-        for folder, path in todo:
-            key = f"{folder}/{path.name}"
-            total = pq.ParquetFile(path).metadata.num_rows
-            _progress[key] = {"state": "computing", "done": 0, "total": total}
-
-            def bump(n: int, key=key) -> None:
-                _progress[key]["done"] += n
-
-            try:
-                compute(folder, path, bump)
-                _progress.pop(key, None)
-            except Exception as e:  # one unreadable file must not stop the others
-                _progress[key] = {"state": "error", "error": str(e).splitlines()[0] if str(e) else type(e).__name__}
-    finally:
-        with _lock:
-            _worker_running = False
-
-
-def ensure_computing(folder: str) -> None:
-    """Start (once) the background computation of the footprints this state's files still lack."""
-    global _worker_running
-    files = statedata.state_folders().get(folder, {}).get("files", [])
-    todo = [(folder, p) for p in files if cached(folder, p) is None and _progress.get(f"{folder}/{p.name}", {}).get("state") != "error"]
-    if not todo:
-        return
-    with _lock:
-        if _worker_running:
-            for fo, p in todo:
-                _progress.setdefault(f"{fo}/{p.name}", {"state": "queued"})
-            return
-        _worker_running = True
-        for fo, p in todo:
-            _progress[f"{fo}/{p.name}"] = {"state": "queued"}
-    threading.Thread(target=_worker, args=(todo,), name="footprints", daemon=True).start()
 
 
 # ---- the searched area ---------------------------------------------------------------
@@ -204,16 +132,16 @@ def _types(geom: dict) -> list[str]:
 
 
 def describe(folder: str, geometry_json: str) -> dict:
-    """The footprint of every file of a state, and how many parcels of each lie near the searched area."""
-    ensure_computing(folder)
+    """The footprint of every layer of a state (from the catalog), and how many parcels of each lie near the searched area."""
     area, bbox = area_cells(geometry_json)
+    rows = statedata._rows(
+        sql.SQL("SELECT name, footprint FROM {} WHERE state = %s ORDER BY name").format(sql.Identifier(config.SCHEMA, config.CATALOG)),
+        (folder,),
+    )
     out = []
-    for path in statedata.state_folders().get(folder, {}).get("files", []):
-        data = cached(folder, path)
-        key = f"{folder}/{path.name}"
-        if data is None:
-            prog = _progress.get(key) or {"state": "queued"}
-            out.append({"name": path.name, "state": prog["state"], "done": prog.get("done"), "total": prog.get("total"), "error": prog.get("error")})
+    for name, data in rows:
+        if not data:
+            out.append({"name": name, "state": "error", "error": "extent not read yet (run the sync script again)"})
             continue
         near = sum(n for ix, iy, n in data["cells"] if (ix, iy) in area)
         coarse: dict[tuple[int, int], int] = defaultdict(int)
@@ -221,7 +149,7 @@ def describe(folder: str, geometry_json: str) -> dict:
             coarse[(ix // COARSE, iy // COARSE)] += n
         out.append(
             {
-                "name": path.name,
+                "name": name,
                 "state": "ready",
                 "rows": data["rows"],
                 "bbox": data["bbox"],
@@ -229,4 +157,4 @@ def describe(folder: str, geometry_json: str) -> dict:
                 "cells": [[ix, iy, n] for (ix, iy), n in coarse.items()],
             }
         )
-    return {"folder": folder, "cell": CELL * COARSE, "files": out, "area_bbox": bbox, "computing": any(f["state"] != "ready" and f["state"] != "error" for f in out)}
+    return {"folder": folder, "cell": CELL * COARSE, "files": out, "area_bbox": bbox, "computing": False}

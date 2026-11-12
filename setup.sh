@@ -10,4 +10,4 @@ for tool in ogr2ogr ogrinfo; do
   command -v "$tool" >/dev/null 2>&1 || echo "WARNING: $tool (GDAL command-line tools) not found: reading uploaded KML/shapefiles and exports need it."
 done
 [ -f "$HOME/.pgpass" ] || echo "NOTE: ~/.pgpass not found: create it with the database password (see web/README.md, 'Setting up on a new machine')."
-echo "Next: put (or mount) the parcel data under data/mount, then run  web/run_backend.sh"
+echo "Next: put (or mount) the parcel data under data/mount, load it with  lapenv/bin/python src/sync_parcels.py , then run  web/run_backend.sh"

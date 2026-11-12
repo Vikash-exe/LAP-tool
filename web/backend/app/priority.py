@@ -106,42 +106,33 @@ def excluded_ids(table: str, aoi_geometry: str, order: list[str]) -> tuple[set[i
 
 
 def available_sources(aoi_geometry: str) -> dict:
-    """The layers (source files) of the states the area falls in. For a state whose parcels are already in the database,
-    only the layers that have parcels in the area, with their counts; for one that is not loaded yet, all its files."""
+    """The layers (source files) of the states the area falls in, with how many parcels each has in the area."""
     detected = statedata.detect_states(aoi_geometry)
     folders = list(dict.fromkeys(d["folder"] for d in detected if d["folder"]))
-    ready = statedata.ready_tables(folders)
+    tables = statedata.ready_tables(folders)
     sources: dict[str, dict] = {}
     states = []
     for d in detected:
         folder = d["folder"]
-        if not folder:
+        if not folder or folder not in tables:
             continue
-        states.append({"name": d["name"], "folder": folder, "loaded": folder in ready})
-        if folder in ready:
-            try:
-                with query.connect() as conn:
-                    rows = conn.execute(
-                        sql.SQL(
-                            "SELECT " + _SHORT + ", count(*) FROM {t} p WHERE ST_Intersects(p.geometry, ST_SetSRID(ST_GeomFromGeoJSON(%(aoi)s), 4326)) GROUP BY 1"
-                        ).format(t=sql.Identifier(config.SCHEMA, ready[folder])),
-                        {"aoi": aoi_geometry},
-                    ).fetchall()
-            except psycopg.Error as e:
-                raise HTTPException(500, f"Database error while listing the layers: {str(e).splitlines()[0]}")
-            counts = {s: int(n) for s, n in rows}
-            with statedata.connect_rw() as c2:
-                entry = statedata.get_entry(c2, folder)
-            loaded = (entry or {}).get("loaded_files")  # None: the table holds every layer
-            # every layer of the state; those not in the table yet have no count (they are loaded when chosen)
-            found = {s: (counts.get(s, 0) if loaded is None or s in loaded else None) for s in statedata.source_files(folder)}
-            for s, n in counts.items():
-                found.setdefault(s, n)
-        else:
-            found = {s: None for s in statedata.source_files(folder)}
-        for s, n in found.items():
-            entry = sources.setdefault(s, {"source": s, "states": [], "parcels": None})
+        states.append({"name": d["name"], "folder": folder, "loaded": True})
+        try:
+            with query.connect() as conn:
+                rows = conn.execute(
+                    sql.SQL(
+                        "SELECT " + _SHORT + ", count(*) FROM {t} p WHERE ST_Intersects(p.geometry, ST_SetSRID(ST_GeomFromGeoJSON(%(aoi)s), 4326)) GROUP BY 1"
+                    ).format(t=sql.Identifier(config.SCHEMA, tables[folder])),
+                    {"aoi": aoi_geometry},
+                ).fetchall()
+        except psycopg.Error as e:
+            raise HTTPException(500, f"Database error while listing the layers: {str(e).splitlines()[0]}")
+        counts = {s: int(n) for s, n in rows}
+        # every layer of the state, also those with nothing in this area (they show as 0)
+        for s in statedata.source_files(folder):
+            counts.setdefault(s, 0)
+        for s, n in counts.items():
+            entry = sources.setdefault(s, {"source": s, "states": [], "parcels": 0})
             entry["states"].append(d["name"])
-            if n is not None:
-                entry["parcels"] = (entry["parcels"] or 0) + n
+            entry["parcels"] += n
     return {"sources": sorted(sources.values(), key=lambda e: e["source"].lower()), "states": states}

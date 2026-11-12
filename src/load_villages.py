@@ -28,7 +28,8 @@ from pathlib import Path
 LAP_HOME = Path(__file__).resolve().parents[1]  # the project root, wherever it is
 MOUNT = Path(os.environ.get("MOUNT_ROOT", LAP_HOME / "data" / "mount"))
 ROOT = str(MOUNT / "Village_boundaries")
-DB = dict(host=os.environ.get("PGHOST", "172.16.60.60"), port=int(os.environ.get("PGPORT", "5432")), dbname=os.environ.get("PGDATABASE", "Vikash"), user=os.environ.get("PGUSER", "geouser"))
+# the database comes from the environment (PGHOST, PGPORT, PGDATABASE, PGUSER; password from PGPASSWORD or ~/.pgpass)
+DB = {k: v for k, v in dict(host=os.environ.get("PGHOST", "localhost"), port=int(os.environ.get("PGPORT", "5432")), dbname=os.environ.get("PGDATABASE"), user=os.environ.get("PGUSER")).items() if v}
 SCHEMA, TABLE, LOG, STAGING = "cadastral", "villages", "village_load_log", "stg_villages"
 
 # Zip name (without .zip) -> the state label used for the parcel data, i.e. the

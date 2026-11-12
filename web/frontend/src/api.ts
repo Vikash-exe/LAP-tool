@@ -10,55 +10,20 @@ export type MatchMode = "intersects" | "within" | "crossing" | "both";
 /** "table" is the three-column CSV: total area, area affected, parcel number. */
 export type ExportFormat = "geojson" | "gpkg" | "shp" | "kml" | "csv" | "table";
 
-/** A state with parcel files on the mount; its parcels are loaded into the database only when a search needs them. */
+/** A state that has parcel data in the database (loaded there by src/sync_parcels.py). */
 export interface AvailableState {
   state: string;
   files: number;
-  parquet_bytes: number;
-  /** Expected size in the database once loaded. */
-  est_bytes: number;
-  status: "not_loaded" | "loading" | "ready" | "failed";
+  rows: number;
 }
 
-/** A state whose parcel table is in the database (or being loaded). */
-export interface StateTable {
-  state: string;
-  table_name: string;
-  status: "loading" | "ready" | "failed";
-  files_total: number | null;
-  files_done: number | null;
-  rows_total: number | null;
-  rows_done: number | null;
-  size_bytes: number;
-  loaded_at: string | null;
-  last_used: string | null;
-  /** Seconds until the table is dropped automatically (null while loading). */
-  expires_in_seconds: number | null;
-  error: string | null;
-}
-
-export interface StateTables {
-  tables: StateTable[];
-  /** How long a table lives after it was last used. */
-  ttl_seconds: number;
-  budget_bytes: number;
-  in_use_bytes: number;
-}
-
-/** A state the searched area touches, with the progress of loading its parcel data. */
+/** A state the searched area touches. */
 export interface JobState {
   name: string;
   /** Parcel folder name; null when there is no parcel data for this state. */
   folder: string | null;
   inside: boolean;
-  status: "queued" | "no_data" | "waiting" | "loading" | "indexing" | "ready";
-  files_done?: number | null;
-  files_total?: number | null;
-  rows_done?: number | null;
-  rows_total?: number | null;
-  current_file?: string;
-  /** True when this search loaded the state (it was not in the database before). */
-  loaded_now?: boolean;
+  status: "ready" | "no_data";
   /** Why there is no parcel data, when status is "no_data". */
   note?: string;
 }
@@ -231,42 +196,15 @@ async function errorMessage(res: Response, fallback: string): Promise<string> {
 export async function getStates(): Promise<{
   states: AvailableState[];
   max_features: number;
-  ttl_seconds: number;
-  budget_bytes: number;
 }> {
   const res = await fetch(`${BASE}/api/states`);
   if (!res.ok) throw new Error(await errorMessage(res, "Backend unavailable"));
   return res.json();
 }
 
-export async function getStateTables(): Promise<StateTables> {
-  const res = await fetch(`${BASE}/api/state-tables`);
-  if (!res.ok) throw new Error(await errorMessage(res, "Could not read the loaded states"));
-  return res.json();
-}
-
-/** Drops one state's whole parcel table from the database. */
-export async function dropStateTable(state: string): Promise<{ state: string; freed_bytes: number }> {
-  const res = await fetch(`${BASE}/api/state-tables/${encodeURIComponent(state)}`, { method: "DELETE" });
-  if (!res.ok) throw new Error(await errorMessage(res, `Could not drop ${state}`));
-  return res.json();
-}
-
-/** Drops every loaded state table that no running search is using. */
-export async function dropAllStateTables(): Promise<{
-  dropped: { state: string; freed_bytes: number }[];
-  skipped: { state: string; reason: string }[];
-  freed_bytes: number;
-}> {
-  const res = await fetch(`${BASE}/api/state-tables`, { method: "DELETE" });
-  if (!res.ok) throw new Error(await errorMessage(res, "Could not clear the loaded states"));
-  return res.json();
-}
-
 // fetch() has no upload-progress event; XMLHttpRequest still does.
 // `onUploadComplete` fires once every byte has left the browser. The server then starts
-// the search as a background job (it may first have to load a state's parcel data, which
-// takes minutes for a big state) and answers with its id.
+// the search as a background job and answers with its id.
 function startQuery(
   files: File[],
   mode: MatchMode,
@@ -628,7 +566,7 @@ export async function fetchMarks(params: { token: string; crs: string; startChai
 export interface SourceLayer {
   source: string;
   states: string[];
-  /** Parcels of this layer in the area; null when the state's parcels are not loaded yet. */
+  /** Parcels of this layer in the area. */
   parcels: number | null;
 }
 
@@ -640,7 +578,7 @@ export async function fetchSources(fields: Record<string, string>): Promise<{ so
   if (!res.ok) throw new Error(await errorMessage(res, "Could not list the layers"));
   return res.json();
 }
-/** Where one layer (parquet file) has parcels, from its footprint; the extent is read once per file, in the background. */
+/** Where one layer (parquet file) has parcels, from its footprint (read from the database; the sync script stores it). */
 export interface FootprintFile {
   name: string;
   state: "ready" | "queued" | "computing" | "error";

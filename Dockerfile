@@ -25,7 +25,10 @@ RUN apt-get update \
 
 # Same numeric user and group as the host user that owns the project, so the mounted folders
 # (results, the parcel data share, ~/.pgpass) can be read and written with the right ownership.
-RUN groupadd -g 1002 lap && useradd -u 1001 -g 1002 -m -s /bin/bash lap
+# (set LAP_UID / LAP_GID in .env to `id -u` / `id -g` of that user if they are not 1000)
+ARG LAP_UID=1000
+ARG LAP_GID=1000
+RUN groupadd -g "$LAP_GID" lap && useradd -u "$LAP_UID" -g "$LAP_GID" -m -s /bin/bash lap
 
 WORKDIR /app
 COPY requirements-lock.txt .

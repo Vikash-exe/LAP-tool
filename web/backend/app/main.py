@@ -5,7 +5,6 @@ import shutil
 import tempfile
 import time
 import uuid
-from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -19,14 +18,7 @@ from pydantic import BaseModel
 from . import alignment, aoi, auth, cancel, chainage, config, dxf, exports, footprint, linear, priority, query, search, statedata, villageparcels
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Drops expired state tables (and leftovers of an interrupted load) now and every minute after.
-    statedata.start_sweeper()
-    yield
-
-
-app = FastAPI(title="Cadastral Parcel Finder", lifespan=lifespan)
+app = FastAPI(title="Cadastral Parcel Finder")
 
 app.add_middleware(
     CORSMiddleware,
@@ -116,57 +108,17 @@ def me(request: Request):
 
 @app.get("/api/health")
 def health():
-    loaded = statedata.registry()  # raises when the database is unreachable
-    return {"ok": True, "loaded_states": len(loaded)}
+    states = statedata.states_in_database()  # raises when the database is unreachable
+    return {"ok": True, "states_with_data": len(states)}
 
 
 @app.get("/api/states")
 def get_states():
-    """Every state with parcel files on the mount, whether its parcels are in the database now, and the
-    limits that govern loading."""
-    registry = {e["state"]: e for e in statedata.registry()}
-    states = []
-    for folder, info in statedata.state_folders().items():
-        entry = registry.get(folder)
-        states.append(
-            {
-                "state": folder,
-                "files": len(info["files"]),
-                "parquet_bytes": info["bytes"],
-                "est_bytes": int(info["bytes"] * config.DB_SIZE_RATIO),
-                "status": entry["status"] if entry else "not_loaded",
-            }
-        )
+    """The states that have parcel data in the database (loaded there by src/sync_parcels.py), and the search limit."""
     return {
-        "states": states,
+        "states": [{"state": e["state"], "files": e["files"], "rows": e["rows"]} for e in statedata.states_in_database()],
         "max_features": config.MAX_FEATURES,
-        "ttl_seconds": config.STATE_TTL_SECONDS,
-        "budget_bytes": int(config.STORAGE_BUDGET_GB * 1e9),
     }
-
-
-@app.get("/api/state-tables")
-def get_state_tables():
-    """The states whose parcels are in the database (or being loaded) with size and time until they are dropped."""
-    tables = statedata.registry()
-    return {
-        "tables": tables,
-        "ttl_seconds": config.STATE_TTL_SECONDS,
-        "budget_bytes": int(config.STORAGE_BUDGET_GB * 1e9),
-        "in_use_bytes": statedata.storage_in_use(),
-    }
-
-
-@app.delete("/api/state-tables/{state}")
-def drop_state_table(state: str):
-    """Drop one state's whole parcel table (the dashboard's clear button)."""
-    return statedata.drop_state(state)
-
-
-@app.delete("/api/state-tables")
-def drop_all_state_tables():
-    """Drop every loaded state table that no running search is using."""
-    return statedata.drop_all()
 
 
 @app.post("/api/query")

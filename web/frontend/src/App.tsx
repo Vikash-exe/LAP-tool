@@ -13,11 +13,8 @@ import {
   fetchVillages,
   fetchChainage,
   fetchVillagesNoParcels,
-  dropAllStateTables,
-  dropStateTable,
   getStates,
   getMe,
-  getStateTables,
   logout,
   runSearch,
   cancelJob,
@@ -32,11 +29,7 @@ import {
   type SourceLayer,
   type BBox,
   type ExportFormat,
-  type AvailableState,
-  type JobState,
   type SearchJob,
-  type StateTable,
-  type StateTables,
   type MatchMode,
   type QueryResult,
 } from "./api";
@@ -67,8 +60,8 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: "csv", label: "CSV (WKT)" },
 ];
 
-// uploading: the file is going to the server; working: the search job is running (it may be loading a
-// state's parcel data first); fetching: the finished result is being loaded onto the map.
+// uploading: the file is going to the server; working: the search job is running; fetching: the finished
+// result is being loaded onto the map.
 type Phase = "idle" | "uploading" | "working" | "fetching";
 
 // Value of the download selector that stands for the village boundaries layer
@@ -93,20 +86,6 @@ function fmtHa(m2: number) {
 
 function fmtM2(m2: number) {
   return `${Math.round(m2).toLocaleString("en-US")} m²`;
-}
-
-function fmtBytes(n: number) {
-  if (n >= 1e9) return `${(n / 1e9).toFixed(1)} GB`;
-  return `${Math.max(0, Math.round(n / 1e6)).toLocaleString("en-US")} MB`;
-}
-
-// "2 h 41 min", "35 min", "under a minute"
-function fmtDuration(seconds: number) {
-  if (seconds < 60) return "under a minute";
-  const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes} min`;
-  const h = Math.floor(minutes / 60);
-  return `${h} h ${minutes % 60} min`;
 }
 
 function saveText(text: string, filename: string, type: string) {
@@ -212,18 +191,10 @@ export default function App() {
     }
   }, [theme]);
 
-  // Parcel data is loaded into the database per state, only when a search needs it, and dropped
-  // again after a while. `availableStates` is what exists on the mount; `stateTables` is what is in
-  // the database right now.
-  const [availableStates, setAvailableStates] = useState<AvailableState[]>([]);
-  const [stateTables, setStateTables] = useState<StateTables | null>(null);
-  const [tablesFetchedAt, setTablesFetchedAt] = useState(Date.now());
-  const [, setClockTick] = useState(0); // re-renders the "drops in ..." countdowns
+  // The parcel data is permanent in the database (filled by src/sync_parcels.py); this is the search limit.
   const [maxFeatures, setMaxFeatures] = useState<number | null>(null);
-  const [ttlSeconds, setTtlSeconds] = useState<number | null>(null);
   const [backendError, setBackendError] = useState<string | null>(null);
   const [me, setMe] = useState<{ user: string | null; auth: boolean } | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [job, setJob] = useState<SearchJob | null>(null);
   // the Stop button: pressed (maybe before the server has a job to stop) and whether the server was told
   const [stopping, setStopping] = useState(false);
@@ -263,7 +234,7 @@ export default function App() {
   const [sources, setSources] = useState<SourceLayer[]>([]);
   const [priority, setPriority] = useState<string[]>([]);
   const [priorityOpen, setPriorityOpen] = useState(false);
-  // which layers are checked (loaded and searched), and where each has parcels (read in the background by the server)
+  // which layers are checked (searched), and where each has parcels (read from the database)
   const [enabled, setEnabled] = useState<string[]>([]);
   const [footprints, setFootprints] = useState<Footprints | null>(null);
   const enabledTouched = useRef(false);
@@ -334,35 +305,11 @@ export default function App() {
   const [layerVisible, setLayerVisible] = useState<Record<string, boolean>>({});
   const [layerOpacity, setLayerOpacity] = useState<Record<string, number>>({});
 
-  async function refreshStateTables() {
-    try {
-      setStateTables(await getStateTables());
-      setTablesFetchedAt(Date.now());
-    } catch (e) {
-      setBackendError(e instanceof Error ? e.message : String(e));
-    }
-  }
-
   useEffect(() => {
     getMe().then(setMe).catch(() => {}); // who is signed in
     getStates()
-      .then(({ states, max_features, ttl_seconds }) => {
-        setAvailableStates(states);
-        setMaxFeatures(max_features);
-        setTtlSeconds(ttl_seconds);
-      })
+      .then(({ max_features }) => setMaxFeatures(max_features))
       .catch((e) => setBackendError(e instanceof Error ? e.message : String(e)));
-    refreshStateTables();
-  }, []);
-
-  // Keeps the loaded-states panel current (tables expire on their own), and its countdowns ticking.
-  useEffect(() => {
-    const poll = window.setInterval(refreshStateTables, 10000);
-    const tick = window.setInterval(() => setClockTick((n) => n + 1), 15000);
-    return () => {
-      window.clearInterval(poll);
-      window.clearInterval(tick);
-    };
   }, []);
 
   useEffect(() => setExportOpen(false), [result?.result_id]); // a new result closes the Export window
@@ -435,32 +382,6 @@ export default function App() {
     setSidebarWidth((w) => Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, w + deltaX)));
   }
 
-  // Drops one state's whole parcel table (after a confirmation).
-  async function handleDropState(state: string) {
-    if (!confirm(`Drop the parcel table for ${state} from the database?\n\nIt is loaded again automatically the next time a search needs it.`)) return;
-    setNotice(null);
-    try {
-      const { freed_bytes } = await dropStateTable(state);
-      setNotice(`${state} dropped (${fmtBytes(freed_bytes)} freed).`);
-    } catch (e) {
-      setNotice(e instanceof Error ? e.message : String(e));
-    }
-    await refreshStateTables();
-  }
-
-  async function handleDropAll() {
-    if (!confirm("Drop every loaded parcel table from the database?\n\nThey are loaded again automatically when a search needs them.")) return;
-    setNotice(null);
-    try {
-      const r = await dropAllStateTables();
-      const skipped = r.skipped.length ? ` Not dropped (in use): ${r.skipped.map((s) => s.state).join(", ")}.` : "";
-      setNotice(`${r.dropped.length} state table(s) dropped (${fmtBytes(r.freed_bytes)} freed).${skipped}`);
-    } catch (e) {
-      setNotice(e instanceof Error ? e.message : String(e));
-    }
-    await refreshStateTables();
-  }
-
   async function signOut() {
     await logout();
     window.location.href = "/login";
@@ -474,7 +395,6 @@ export default function App() {
   async function handleSearch() {
     if (!ready) return;
     setError(null);
-    setNotice(null);
     setResult(null);
     setParcels(null);
     setClip(null);
@@ -488,8 +408,7 @@ export default function App() {
     setPhase("uploading");
     setUploadFraction(0);
     try {
-      // The server finds the state(s) the area falls in, loads their parcel data if it is not in the
-      // database yet (the job reports progress), and then searches.
+      // The server finds the state(s) the area falls in and searches their parcels in the database (the job reports progress).
       const res = await runSearch([], mode, [], true, {
         onUploadProgress: setUploadFraction,
         onUploadComplete: () => setPhase("working"),
@@ -500,7 +419,6 @@ export default function App() {
         },
       }, inputKind === "area" ? areaFields(areaSel!, activePriority) : linearFields(alignSel, rowSel, startChainage, startEnd, chainageStep, activePriority, matchWith));
       setResult(res);
-      refreshStateTables();
       const villageCount = res.villages?.count ?? 0;
       if (res.count > 0 || villageCount > 0) {
         setPhase("fetching");
@@ -523,7 +441,6 @@ export default function App() {
     } catch (e) {
       if (e instanceof SearchStopped) setStoppedNote("Stopped. Nothing was kept from that search.");
       else setError(e instanceof Error ? e.message : String(e));
-      refreshStateTables();
     } finally {
       setPhase("idle");
       setJob(null);
@@ -768,65 +685,9 @@ export default function App() {
       <div className="app-body">
       <aside className="sidebar" style={{ width: sidebarWidth }}>
 
-        <section className="card c-data">
-          <Header
-            className="card-head"
-            title="Parcel data in the database"
-            info={
-              <>
-                <P>
-                  A state's parcels are loaded automatically when your area falls in it, and dropped again{" "}
-                  <strong>{ttlSeconds ? fmtDuration(ttlSeconds) : "a few hours"}</strong> after they were last used.
-                </P>
-                <P><strong>Drop</strong> removes one state's whole table at once; <strong>Clear all</strong> removes every table that is not being used. A dropped state is loaded again, automatically, the next time a search needs it.</P>
-                <P>The budget is the most the loaded tables may take together. A state that would not fit is refused, with a message, until you drop another one.</P>
-                <P>In the list of states, the size shown is what each takes in the database once loaded.</P>
-              </>
-            }
-          />
-          {backendError && <div style={{ color: "var(--bad)", fontSize: 12 }}>Backend error: {backendError}</div>}
-          {stateTables && stateTables.tables.length === 0 && !backendError && (
-            <div style={{ fontSize: 12, color: "var(--t3)" }}>Nothing loaded right now.</div>
-          )}
-          {stateTables?.tables.map((t) => (
-            <StateTableRow
-              key={t.state}
-              table={t}
-              secondsLeft={t.expires_in_seconds === null ? null : t.expires_in_seconds - (Date.now() - tablesFetchedAt) / 1000}
-              onDrop={() => handleDropState(t.state)}
-              disabled={t.status === "loading"}
-            />
-          ))}
-          {stateTables && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-              <span style={{ fontSize: 11, color: "var(--t3)", flex: 1 }}>
-                {fmtBytes(stateTables.in_use_bytes)} of {fmtBytes(stateTables.budget_bytes)} budget in use
-              </span>
-              {stateTables.tables.length > 0 && (
-                <button onClick={handleDropAll} className="mini" title="Drop every loaded state table">
-                  Clear all
-                </button>
-              )}
-            </div>
-          )}
-          {notice && <div style={{ marginTop: 6, fontSize: 12, color: "var(--t1)", background: "var(--note-bg)", padding: 6, borderRadius: 4 }}>{notice}</div>}
-          {availableStates.length > 0 && (
-            <details style={{ marginTop: 6 }}>
-              <summary style={{ fontSize: 12, cursor: "pointer", color: "var(--t2)" }}>
-                {availableStates.length} states have parcel data to load
-              </summary>
-              {availableStates.map((s) => (
-                <div key={s.state} style={{ display: "flex", fontSize: 11, color: "var(--t2)", padding: "1px 0 1px 8px" }}>
-                  <span style={{ flex: 1 }}>{s.state}</span>
-                  <span title={`${fmtBytes(s.parquet_bytes)} of parquet in ${s.files} file(s)`}>~{fmtBytes(s.est_bytes)}</span>
-                  <span style={{ width: 70, textAlign: "right", color: s.status === "ready" ? "var(--good)" : "var(--t3)" }}>
-                    {s.status === "ready" ? "loaded" : s.status === "loading" ? "loading" : ""}
-                  </span>
-                </div>
-              ))}
-            </details>
-          )}
-        </section>
+        {backendError && (
+          <div style={{ color: "var(--bad)", fontSize: 12, padding: "6px 8px", background: "var(--bad-bg)", borderRadius: 6 }}>Backend error: {backendError}</div>
+        )}
 
         <section className="card c-area">
           <Header
@@ -1069,11 +930,11 @@ export default function App() {
           {!lineOnly && !matchIntersect && !matchInside && <div style={{ fontSize: 11, color: "var(--bad)", marginTop: 3 }}>Tick at least one.</div>}
           {sources.length >= 2 && (
             <div style={{ marginTop: 8, fontSize: 12 }}>
-              <span style={labelStyle}>Layers to load, by priority</span>
+              <span style={labelStyle}>Layers to search, by priority</span>
               <div style={{ color: "var(--t1)", marginBottom: 4 }}>
                 {activePriority.length > 0 ? activePriority.map((n, i) => `${i + 1}. ${n.replace(/\.parquet$/i, "")}`).join("  ›  ") : <span style={{ color: "var(--bad)" }}>none chosen</span>}
               </div>
-              <div style={{ color: "var(--t2)", marginBottom: 4 }}>{activePriority.length} of {sources.length} layers will be loaded.</div>
+              <div style={{ color: "var(--t2)", marginBottom: 4 }}>{activePriority.length} of {sources.length} layers will be searched.</div>
               <button type="button" className="mini" onClick={() => setPriorityOpen(true)} disabled={busy}>
                 Choose layers and priority
               </button>
@@ -1120,9 +981,8 @@ export default function App() {
               info={
                 <>
                   <P>
-                    <strong>Area falls in</strong> lists the states the area touches, found from the state boundaries. "Loaded for this
-                    search" means that state's parcels were not in the database yet and were loaded for you; "no parcel data" means that
-                    state has no parcel files (its village boundaries are still shown).
+                    <strong>Area falls in</strong> lists the states the area touches, found from the state boundaries. "no parcel data" means
+                    that state has no parcels in the database yet (its village boundaries are still shown).
                   </P>
                   <P>
                     <strong>Village boundaries</strong> are a separate layer under the parcels. <em>Village ha</em> is the whole area of
@@ -1154,7 +1014,6 @@ export default function App() {
                       {" "}(no parcel data)
                     </span>
                   )}
-                  {s.loaded_now && <span style={{ color: "var(--good)" }}> (loaded for this search)</span>}
                 </span>
               ))}
             </div>
@@ -1753,83 +1612,21 @@ export default function App() {
   );
 }
 
-// What a running search is doing. While it loads a state's parcel data this shows that
-// state's progress, since a big state takes minutes.
+// What a running search is doing (the parcel data is already in the database, so there is nothing to load).
 function JobProgress({ job }: { job: SearchJob | null }) {
   if (!job) return <ProgressBar fraction={1} label="Starting the search..." indeterminate />;
-  const loadable = job.states.filter((s) => s.folder);
   const noData = job.states.filter((s) => !s.folder);
   return (
     <div>
-      {job.phase !== "loading" && <ProgressBar fraction={1} label={`${job.message}...`} indeterminate />}
+      <ProgressBar fraction={1} label={`${job.message}...`} indeterminate />
       {job.states.length > 0 && (
         <div style={{ fontSize: 11, color: "var(--t2)", margin: "4px 0" }}>
           Area falls in: {job.states.map((s) => s.name).join(", ")}
         </div>
       )}
-      {loadable.map((s) => (
-        <StateLoadProgress key={s.name} state={s} elapsed={job.elapsed} />
-      ))}
       {noData.length > 0 && (
         <div style={{ fontSize: 11, color: "var(--warn)" }}>No parcel data for {noData.map((s) => s.name).join(", ")}.</div>
       )}
-    </div>
-  );
-}
-
-function StateLoadProgress({ state, elapsed }: { state: JobState; elapsed: number }) {
-  const folder = state.folder ?? state.name;
-  if (state.status === "queued") return <div style={{ fontSize: 11, color: "var(--t3)" }}>{folder}: waiting its turn...</div>;
-  if (state.status === "waiting") return <ProgressBar fraction={1} label={`${folder}: another search is loading it, waiting...`} indeterminate />;
-  if (state.status === "indexing") return <ProgressBar fraction={1} label={`${folder}: building the spatial index...`} indeterminate />;
-  if (state.status === "ready")
-    return <div style={{ fontSize: 11, color: "var(--good)" }}>{folder}: {state.loaded_now ? "loaded" : "already in the database"}</div>;
-  const done = state.rows_done ?? 0;
-  const total = state.rows_total ?? 0;
-  const fraction = total > 0 ? done / total : 0;
-  // A rough estimate from the pace so far, once there is enough to go on.
-  const eta = done > 200_000 && elapsed > 5 ? ((total - done) / (done / elapsed)) : null;
-  return (
-    <ProgressBar
-      fraction={fraction}
-      label={`Loading ${folder}: file ${Math.min((state.files_done ?? 0) + 1, state.files_total ?? 1)}/${state.files_total ?? "?"}, ${fmt(done)} of ${fmt(total)} parcels${eta !== null ? ` (${eta < 60 ? "under a minute" : `about ${fmtDuration(eta)}`} left)` : ""}`}
-    />
-  );
-}
-
-// One state in the "parcel data in the database" list, with its Drop button.
-function StateTableRow({
-  table,
-  secondsLeft,
-  onDrop,
-  disabled,
-}: {
-  table: StateTable;
-  secondsLeft: number | null;
-  onDrop: () => void;
-  disabled: boolean;
-}) {
-  const detail =
-    table.status === "loading"
-      ? `Loading: file ${table.files_done ?? 0}/${table.files_total ?? "?"}, ${fmt(table.rows_done ?? 0)} of ${fmt(table.rows_total ?? 0)} parcels`
-      : table.status === "failed"
-        ? `Failed: ${table.error ?? "unknown error"}`
-        : `${fmt(table.rows_done ?? 0)} parcels · drops automatically in ${secondsLeft === null ? "?" : fmtDuration(Math.max(0, secondsLeft))}`;
-  return (
-    <div style={{ padding: "3px 0", borderBottom: "1px solid var(--rule)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-        <strong style={{ flex: 1 }}>{table.state}</strong>
-        <span style={{ fontSize: 11, color: "var(--t3)" }}>{fmtBytes(table.size_bytes)}</span>
-        <button
-          onClick={onDrop}
-          disabled={disabled}
-          className="mini"
-          title={disabled ? "Loading in progress" : "Drop this state's whole parcel table from the database"}
-        >
-          Drop
-        </button>
-      </div>
-      <div style={{ fontSize: 11, color: table.status === "failed" ? "var(--bad)" : "var(--t2)" }}>{detail}</div>
     </div>
   );
 }

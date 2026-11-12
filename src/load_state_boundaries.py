@@ -19,7 +19,8 @@ from pathlib import Path
 
 LAP_HOME = Path(__file__).resolve().parents[1]  # the project root, wherever it is
 ZIP = str(Path(os.environ.get("MOUNT_ROOT", LAP_HOME / "data" / "mount")) / "India_State_Boundary.zip")
-DB = dict(host=os.environ.get("PGHOST", "172.16.60.60"), port=int(os.environ.get("PGPORT", "5432")), dbname=os.environ.get("PGDATABASE", "Vikash"), user=os.environ.get("PGUSER", "geouser"))
+# the database comes from the environment (PGHOST, PGPORT, PGDATABASE, PGUSER; password from PGPASSWORD or ~/.pgpass)
+DB = {k: v for k, v in dict(host=os.environ.get("PGHOST", "localhost"), port=int(os.environ.get("PGPORT", "5432")), dbname=os.environ.get("PGDATABASE"), user=os.environ.get("PGUSER")).items() if v}
 SCHEMA = "cadastral"
 
 
@@ -34,6 +35,8 @@ def main() -> None:
     with zipfile.ZipFile(ZIP) as zf:
         shp = next(n for n in zf.namelist() if n.lower().endswith(".shp"))
     vsi = f"/vsizip/{ZIP}/{shp}"
+    with psycopg.connect(**DB, autocommit=True) as conn:
+        conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")  # a new database has no schema yet
     conn_str = "PG:" + " ".join(f"{k}={v}" for k, v in DB.items())
     # Shapefile -> staging table: reprojected from the file's Lambert system to lon/lat, 2D, multipolygon.
     run([
