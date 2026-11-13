@@ -93,24 +93,57 @@ Optional tuning for big loads (`postgresql.conf`): `shared_buffers` about a quar
 **Option B, the data is on a network share (Windows/Samba file server):** mount it read-only at `$MOUNT_ROOT`
 (by default the project's `data/mount`).
 
+*B1. Install the mount tool and find the share address.* `sudo apt install cifs-utils`. The share address `$SHARE` is the Windows
+path with forward slashes: `\\FILE_SERVER\share\folder` becomes `//FILE_SERVER/share/folder`. It must be the folder that holds
+the state folders (not a parent of it). `FILE_SERVER` can be a name or an IP address.
+
+*B2. Create the credentials file.* It holds the share login, so it lives in your home folder, **never in the project** (it is not
+committed, and nothing else reads it). Any file name works; the examples use `.smbcreds`. Typing the password at a prompt keeps it
+out of your shell history:
+
 ```bash
-sudo apt install cifs-utils
-CREDS="$HOME/.smbcreds"                                   # any file name; mode 600
-printf 'username=<share user>\npassword=<share password>\n' > "$CREDS" && chmod 600 "$CREDS"   # add domain=... if needed
-
-# permanent (survives reboots; `nofail` so a missing file server never blocks booting).
-# $SHARE is the share folder in the form //FILE_SERVER/share/path (the Windows path \\FILE_SERVER\share\path):
-sudo "$LAP/mount_share.sh" "$SHARE" "$CREDS" "${MOUNT_ROOT:-$LAP/data/mount}"
-
-# or just once, until the next reboot:
-sudo mount -t cifs "$SHARE" "${MOUNT_ROOT:-$LAP/data/mount}" \
-     -o credentials="$CREDS",ro,vers=3.0,uid=$(id -u),gid=$(id -g)
+CREDS="$HOME/.smbcreds"
+read -rp "Share user name: " SMB_USER
+read -rsp "Share password: " SMB_PASS; echo
+printf 'username=%s\npassword=%s\n' "$SMB_USER" "$SMB_PASS" > "$CREDS"
+# a domain account (DOMAIN\user) also needs the line:   echo 'domain=DOMAIN' >> "$CREDS"
+chmod 600 "$CREDS"                                        # only you can read it
+unset SMB_USER SMB_PASS
+ls -l "$CREDS"                                            # must show -rw-------
 ```
 
-`mount_share.sh` (the last two arguments are optional) adds the `/etc/fstab` entry (after backing the file up), mounts it, and
-checks that what is mounted is the right folder and holds `India_State_Boundary.zip` and `Village_boundaries/`. Check by hand with
-`ls "${MOUNT_ROOT:-$LAP/data/mount}"`: you should see the state folders. `sudo umount` of the same folder unmounts it. The share is
-only needed while the sync script runs: the app reads the database, never the share.
+The file is plain text with one `key=value` per line (`username=`, `password=`, optionally `domain=`); the password is taken literally
+to the end of the line, so special characters need no quoting. To change the password later, just create the file again.
+
+*B3. Mount it.*
+
+```bash
+MNT="${MOUNT_ROOT:-$LAP/data/mount}"
+
+# first try it once (until the next reboot):
+sudo mkdir -p "$MNT"
+sudo mount -t cifs "$SHARE" "$MNT" -o credentials="$CREDS",ro,vers=3.0,uid=$(id -u),gid=$(id -g)
+ls "$MNT"                                                 # you should see the state folders
+sudo umount "$MNT"                                        # unmount it again
+
+# when that works, make it permanent (survives reboots; `nofail` so a missing file server never blocks booting):
+sudo "$LAP/mount_share.sh" "$SHARE" "$CREDS" "$MNT"
+```
+
+`mount_share.sh` (the last two arguments are optional; without them it uses `.smbcreds` in your home folder and the project's
+`data/mount`) adds the `/etc/fstab` entry (after backing the file up), mounts it, and checks that what is mounted is the right folder and
+holds `India_State_Boundary.zip` and `Village_boundaries/`. The share is only needed while the sync script runs: the app reads the
+database, never the share.
+
+If the mount fails, `dmesg | tail` gives the real reason:
+
+| Message | Usual cause |
+|---|---|
+| `mount error(13): Permission denied` | wrong user name or password, a domain account without the `domain=` line, or the user has no access to that share |
+| `mount error(2): No such file or directory` | the share path is wrong (check upper/lower case and that it is the share folder, not a sub-path that does not exist) |
+| `mount error(112/113/115)` or timeouts | the file server is not reachable from this machine (network, VPN, firewall; try `ping FILE_SERVER`) |
+| `mount error(95)` or protocol errors | the server does not speak SMB 3.0: try `vers=2.1` (or `vers=2.0`) in the options |
+| `can't find in /etc/fstab` or `cifs` unknown | `cifs-utils` is not installed |
 
 ### 4. Load the data into the database
 
